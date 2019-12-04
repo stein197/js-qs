@@ -40,13 +40,15 @@ var URLParams = {
 	
 	/**
 	 * Parses given string into object structure.
+	 * Produces structures as php's arrays.
 	 * @param {string} string String to be parsed into object.
-	 * @return {Object} Object parsed from given string or null
-	 *                  if string is empty.
+	 * @return {Object} Object parsed from given string.
+	 *                  If string is empty then empty object is returned
 	 */
 	fromString: function(string) {
+		string = string.trim();
 		if(!string)
-			return null;
+			return {};
 		var result = {};
 		var queryParts = string.split("&");
 		for(var i in queryParts){
@@ -97,7 +99,7 @@ var URLParams = {
 	/**
 	 * Returns page's query string params as object.
 	 * @return {Object} Object, representing page's query string.
-	 *                  Returns null if page does not have query string.
+	 *                  Returns empty object if page does not have query string.
 	 */
 	getQuery: function() {
 		return URLParams.fromString(location.search ? location.search.split("?")[1] : "");
@@ -106,7 +108,8 @@ var URLParams = {
 	/**
 	 * Check if two query strings are equal.
 	 * Query strings are equal if they have same amount of parameters
-	 * and its values. The order does not mean.
+	 * and its values. The order does not mean. Trailing whitespaces
+	 * are trimmed.
 	 * @param {String} str1 First string.
 	 * @param {String} str2 Seconds string.
 	 * @return {boolean} True if two strings can be parsed into equal query object.
@@ -118,6 +121,8 @@ var URLParams = {
 			return false;
 		if (str1 === str2)
 			return true;
+		str1 = str1.trim();
+		str2 = str2.trim();
 		var parts1 = str1.split("&");
 		var parts2 = str2.split("&");
 		if (parts1.length !== parts2.length)
@@ -136,7 +141,9 @@ var URLParams = {
 				return false;
 		}
 		return true;
-	}
+	}, // TODO Overriding
+
+	getFormQuery: function(form) {}
 };
 
 module.exports.URLParams = URLParams;
