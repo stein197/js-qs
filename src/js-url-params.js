@@ -101,5 +101,42 @@ var URLParams = {
 	 */
 	getQuery: function() {
 		return URLParams.fromString(location.search ? location.search.split("?")[1] : "");
+	},
+
+	/**
+	 * Check if two query strings are equal.
+	 * Query strings are equal if they have same amount of parameters
+	 * and its values. The order does not mean.
+	 * @param {String} str1 First string.
+	 * @param {String} str2 Seconds string.
+	 * @return {boolean} True if two strings can be parsed into equal query object.
+	 */
+	queriesAreEqual: function(str1, str2) {
+		if (typeof str1 !== "string" || typeof str2 !== "string")
+			return false;
+		if (str1.length !== str2.length)
+			return false;
+		if (str1 === str2)
+			return true;
+		var parts1 = str1.split("&");
+		var parts2 = str2.split("&");
+		if (parts1.length !== parts2.length)
+			return false;
+		var obj1 = {};
+		var obj2 = {};
+		var amount = parts1.length;
+		for (var i = 0; i < amount; i++) {
+			var pair1 = parts1[i].split("=");
+			var pair2 = parts2[i].split("=");
+			obj1[pair1[0]] = pair1[1];
+			obj2[pair2[0]] = pair2[1];
+		}
+		for (var key in obj1) {
+			if (!(key in obj2) || obj2[key] !== obj1[key])
+				return false;
+		}
+		return true;
 	}
 };
+
+module.exports.URLParams = URLParams;
