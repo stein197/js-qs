@@ -145,4 +145,5 @@ var URLParams = {
 	getFormQuery: function(form) {}
 };
 
-module.exports.URLParams = URLParams;
+if ("object" === typeof module && "object" === typeof module.exports)
+	module.exports.URLParams = URLParams;
