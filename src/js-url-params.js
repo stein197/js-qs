@@ -9,27 +9,29 @@ var URLParams = {
 	 * Recursively converts object to query string.
 	 * @param {Object} data Object to be converted to query string.
 	 */
-	toString: function(data) {
-		var result = [];
-		var keyPath = arguments[1] || [];
-		var keyPrefix = "";
-		if (keyPath.length) {
-			keyPrefix = keyPath[0];
-			if (keyPath.length > 1) {
-				keyPrefix += "[" + keyPath.slice(1).join("][") + "]";
-			}
+	toString: function(data, path) {
+		path = path || [];
+		var dataType = typeof data;
+		if (!path.length) {
+			if (data === null || dataType !== "object" || Array.isArray(data))
+				throw new TypeError("Only object types are allowed");
 		}
+		var result = [];
+		var strPath = path[0];
+		if (path.length > 1)
+			strPath += "[" + path.slice(1).join("][") + "]";
 		for (var key in data) {
 			var value = data[key];
-			if(typeof value === "object"){
-				result.push(URLParams.toString(value, keyPath.concat(key)));
+			if (value === "" || value === null)
+				continue;
+			if (typeof value === "object") {
+				var clonedPath = path.slice(0);
+				clonedPath.push(Array.isArray(data) ? "" : key);
+				result.push(URLParams.toString(value, clonedPath));
 			} else {
-				if (keyPrefix) {
-					if(Array.isArray(data)){
-						result.push(keyPrefix + "[]=" + value);
-					} else {
-						result.push(keyPrefix + "[" + key + "]=" + value);
-					}
+				if (strPath) {
+					var actualKey = strPath + (Array.isArray(data) ? "[]" : "[" + key + "]");
+					result.push(actualKey + "=" + value);
 				} else {
 					result.push(key + "=" + value);
 				}
@@ -37,7 +39,7 @@ var URLParams = {
 		}
 		return result.join("&");
 	},
-	
+
 	/**
 	 * Parses given string into object structure.
 	 * Produces structures as php's arrays.
@@ -112,36 +114,33 @@ var URLParams = {
 	 * are trimmed.
 	 * @param {String} str1 First string.
 	 * @param {String} str2 Seconds string.
-	 * @return {boolean} True if two strings can be parsed into equal query object.
+	 * @return {boolean} True if two strings can be parsed into equal query objects.
 	 */
 	queriesAreEqual: function(str1, str2) {
 		if (typeof str1 !== "string" || typeof str2 !== "string")
 			return false;
-		if (str1.length !== str2.length)
-			return false;
 		if (str1 === str2)
 			return true;
-		str1 = str1.trim();
-		str2 = str2.trim();
+		str1 = str1.trim().replace(/^&+|&+$/g, "");
+		str2 = str2.trim().replace(/^&+|&+$/g, "");
 		var parts1 = str1.split("&");
 		var parts2 = str2.split("&");
-		if (parts1.length !== parts2.length)
-			return false;
-		var obj1 = {};
-		var obj2 = {};
-		var amount = parts1.length;
-		for (var i = 0; i < amount; i++) {
-			var pair1 = parts1[i].split("=");
-			var pair2 = parts2[i].split("=");
-			obj1[pair1[0]] = pair1[1];
-			obj2[pair2[0]] = pair2[1];
+		var fnReduce = function(o, v) {
+			var pair = v.split("=");
+			if (pair[1])
+				o[pair[0]] = pair[1];
+			return o;
 		}
+		var obj1 = parts1.reduce(fnReduce, {});
+		var obj2 = parts2.reduce(fnReduce, {});
+		if (Object.keys(obj1).length !== Object.keys(obj2).length)
+			return false;
 		for (var key in obj1) {
 			if (!(key in obj2) || obj2[key] !== obj1[key])
 				return false;
 		}
 		return true;
-	}, // TODO Overriding
+	},
 
 	getFormQuery: function(form) {}
 };

@@ -4,7 +4,7 @@
 	"description": "js url params",
 	"main": "index.js",
 	"scripts": {
-		"test": "./node_modules/.bin/mocha --reporter spec"
+		"test": "cls && .\\node_modules\\.bin\\mocha --reporter spec"
 	},
 	"repository": {
 		"type": "git",
