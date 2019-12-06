@@ -90,6 +90,12 @@ describe("Testing URLParams.queriesAreEqual(string, string)", () => {
 		chai.assert.isTrue(f("a=1&b=2&c[1]=1&c[2]=", "a=1&b=2&c[1]=1"));
 		chai.assert.isTrue(f("a=&b=&c[1]=&c[2]=", ""));
 	});
+
+	it("Queries with multiple amp signs are equal", () => {
+		chai.assert.isTrue(f("a=1&&&b=2", "a=1&b=2"));
+		chai.assert.isTrue(f("  a=1&&&b=2&&", "a=1&b=2"));
+		chai.assert.isTrue(f("  a=1&&&b=2&&", "b=2&a=1"));
+	});
 });
 
 describe("Testing URLParams.toString(object)", () => {
@@ -308,13 +314,296 @@ describe("Testing URLParams.toString(object)", () => {
 });
 
 describe("Testing URLParams.fromString(string)", () => {
-	it("Empty string produces empty object");
-	it("String of type \"key[]=value&key[innerKey]=value\" creates object instead of array");
-	it("Query without values produces object with empty key values");
-	it("Query with duplicate keys saves last one value");
-	it("String of type \"key[innerKey]=value&key[]=value\" creates object anyway. Keys without name creates ordered \numeric name");
-	it("String splits by amp sign inside square brackets");
-	it("String key value pairs splits by equal sign inside square brackets");
+	let f = params.URLParams.fromString;
+	it("Empty string produces empty object", () => {
+		let cases = [
+			{
+				test: "",
+				expect: {}
+			},
+			{
+				test: "    ",
+				expect: {}
+			},
+			{
+				test: "  & ",
+				expect: {}
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("Simple examples pass", () => {
+		let cases = [
+			{
+				test: "a=1",
+				expect: {
+					a: "1"
+				}
+			},
+			{
+				test: "a=1&b=2",
+				expect: {
+					a: "1",
+					b: "2"
+				}
+			},
+			{
+				test: "  a=1&b=2",
+				expect: {
+					a: "1",
+					b: "2"
+				}
+			},
+			{
+				test: "&a=1&b=2& ",
+				expect: {
+					a: "1",
+					b: "2"
+				}
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("Simple key nested examples pass", () => {
+		let cases = [
+			{
+				test: "a[b]=1",
+				expect: {
+					a: {
+						b: "1"
+					}
+				}
+			},
+			{
+				test: "a[b]=1&a[c]=2",
+				expect: {
+					a: {
+						b: "1",
+						c: "2"
+					}
+				}
+			},
+			{
+				test: "a=1&b[a]=2&b[c]=3",
+				expect: {
+					a: "1",
+					b: {
+						a: "2",
+						c: "3"
+					}
+				}
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("Query without values do not produce keys", () => {
+		let cases = [
+			{
+				test: "a=",
+				expect: {}
+			},
+			{
+				test: "a=1&b=",
+				expect: {
+					a: "1"
+				}
+			},
+			{
+				test: "a[b]=",
+				expect: {}
+			},
+			{
+				test: "a=1&b[c]=",
+				expect: {
+					a: "1"
+				}
+			},
+			{
+				test: "a[]=&b[][]=",
+				expect: {}
+			},
+			{
+				test: "a[][][key]=b&b=a",
+				expect: {
+					b: "a"
+				}
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("String of type \"key[]=value&key[innerKey]=value\" creates object instead of array", () => {
+		let cases = [
+			{
+				test: "key[]=value&key[innerKey]=value",
+				expect: {
+					key: {
+						0: "value",
+						innerKey: "value"
+					}
+				},
+			},
+			{
+				test: "key[][]=value&key[][key]=value",
+				expect: {
+					key: [
+						{
+							0: "value",
+							key: "value"
+						}
+					]
+				}
+			},
+			{
+				test: "key[][key][][]=value&key[][key][][deepKey]=value",
+				expect: {
+					key: [
+						{
+							key: [
+								{
+									0: "value",
+									deepKey: "value"
+								}
+							]
+						}
+					]
+				}
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("Query with duplicate keys saves last value", () => {
+		let cases = [
+			{
+				test: "a=1&a=2",
+				expect: {
+					a: "2"
+				}
+			},
+			{
+				test: "a=1&b=2&a=4",
+				expect: {
+					a: "4",
+					b: "2"
+				}
+			},
+			{
+				test: "a=1&a[]=2",
+				expect: {
+					a: [
+						"2"
+					]
+				}
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("String of type \"key[innerKey]=value&key[]=value\" creates object anyway. Keys without name creates ordered numeric name", () => {
+		let cases = [
+			{
+				test: "a[b]=value&a[]=value",
+				expect: {
+					a: {
+						b: "value",
+						0: "value"
+					}
+				}
+			},
+			{
+				test: "a[]=1&a[b]=2&a[]=3",
+				expect: {
+					a: {
+						0: "1",
+						b: "2",
+						2: "3"
+					}
+				}
+			},
+			{
+				test: "a[a][b]=1&a[][]=2",
+				expect: {
+					a: {
+						a: {
+							b: "1"
+						},
+						0: [
+							"2"
+						]
+					}
+				}
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("String splits by amp sign inside square brackets", () => {
+		let cases = [
+			{
+				test: "a[&]=1",
+				expect: {
+					"]": "1"
+				}
+			},
+			{
+				test: "a[in&ner]=1",
+				expect: {
+					"ner]": "1"
+				}
+			},
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("String key value pairs splits by equal sign inside square brackets", () => {
+		let cases = [
+			{
+				test: "a[=]=1",
+				expect: {
+					"a[": "]=1"
+				},
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+
+	it("Multiple amp signs do not create empty entries", () => {
+		let cases = [
+			{
+				test: "&& ",
+				expect: {}
+			},
+			{
+				test: "a=1&&b=2",
+				expect: {
+					a: "1",
+					b: "2"
+				}
+			},
+			{
+				test: " &a=2&&a=3",
+				expect: {
+					a: "3"
+				}
+			}
+		];
+		for (let i in cases)
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+	});
+	it("Function works correctly");
 });
 
-describe("Testing URLParams.getFormQuery()", () => {});
+describe("Testing URLParams.fromString(string) and URLParams.toString(object) equality", () => {});

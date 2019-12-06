@@ -49,35 +49,96 @@ var URLParams = {
 	 */
 	fromString: function(string) {
 		string = string.trim();
+		string = string.replace(/^&+|&+$/g, "");
 		if(!string)
 			return {};
 		var result = {};
-		var queryParts = string.split("&");
-		for(var i in queryParts){
-			var parts = queryParts[i].split("=");
-			var keyParts = parts[0].split(/[\[\]]{1,2}/);
-			var value = parts[1];
-			if(keyParts.length > 2)
-				keyParts.pop();
-			var parentObj = result;
-			for(var j = 0; j < keyParts.length; j++){
-				var key = keyParts[j];
-				var nextKey = keyParts[j + 1];
-				if(!parentObj[key]){
-					if(nextKey === undefined){
-						if(Array.isArray(parentObj))
-							parentObj.push(value);
-						else
-							parentObj[key] = value;
-					} else if(nextKey === "" || nextKey.search(/^\d+$/) >= 0) {
-						parentObj[key] = [];
+		var queryParts = string.split(/&+/g);
+		for (var key in queryParts) {
+			var parts = queryParts[key].split("=");
+			var keyPath = parts[0];
+			var value = parts.slice(1).join("=");
+			if (!value)
+				continue;
+			var keyName = keyPath.match(/^.+?(?=\[|$)/)[0];
+			// Single value
+			if (keyName === keyPath) {
+				result[keyName] = value;
+			// Nested value
+			} else {
+				var keyArray = keyPath.match(/\[.*?\]+/g).map(function(v) {
+					var raw = v.slice(1, -1);
+					return raw;
+					// return raw ? raw : numericValuesCount++;
+				});
+				keyArray.unshift(keyName);
+				var parent = result;
+				var lastKey = keyArray.pop();
+				for (var i = 0; i < keyArray.length; i++) {
+					var currentKey = keyArray[i];
+					if (currentKey) {
+						if (currentKey in parent) {
+							parent = parent[currentKey];
+							continue;
+						} else {
+							parent[currentKey] = {};
+							parent = parent[currentKey];
+						}
 					} else {
-						parentObj[key] = {};
+						var highestKey = 0;
+						Object.keys(parent).forEach(function(v) {
+							var numeric = +v;
+							if (isNaN(numeric)) {
+								return;
+							} else {
+								highestKey++;
+							}
+						});
+						parent[highestKey] = {};
+						parent = parent[highestKey];
 					}
 				}
-				var parentObj = parentObj[key];
+				if (lastKey) {
+					parent[lastKey] = value;
+				} else {
+					var highestKey = 0;
+					Object.keys(parent).forEach(function(v) {
+						var numeric = +v;
+						if (isNaN(numeric)) {
+							return;
+						} else {
+							highestKey++;
+						}
+					});
+					parent[highestKey] = value;
+				}
 			}
 		}
+		// for(var i in queryParts){
+		// 	var parts = queryParts[i].split("=");
+		// 	var keyParts = parts[0].split(/[\[\]]{1,2}/);
+		// 	var value = parts[1];
+		// 	if(keyParts.length > 2)
+		// 		keyParts.pop();
+		// 	var parentObj = result;
+		// 	for(var j = 0; j < keyParts.length; j++){
+		// 		var key = keyParts[j];
+		// 		var nextKey = keyParts[j + 1];
+		// 		if(!parentObj[key]){
+		// 			if(nextKey === undefined){
+		// 				if(Array.isArray(parentObj))
+		// 					parentObj.push(value);
+		// 				else
+		// 					parentObj[key] = value;
+		// 			} else if(nextKey === "" || nextKey.search(/^\d+$/) >= 0) {
+		// 				parentObj[key] = [];
+		// 			} else {
+		// 				parentObj[key] = {};
+		// 			}
+		// 		}
+		// 		var parentObj = parentObj[key];
+		// 	}
+		// }
 		return result;
 	},
 
@@ -142,7 +203,7 @@ var URLParams = {
 		return true;
 	},
 
-	getFormQuery: function(form) {}
+	getFormQueryObject: function(form) {} // TODO
 };
 
 if ("object" === typeof module && "object" === typeof module.exports)
