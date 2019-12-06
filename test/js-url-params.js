@@ -427,12 +427,6 @@ describe("Testing URLParams.fromString(string)", () => {
 			{
 				test: "a[]=&b[][]=",
 				expect: {}
-			},
-			{
-				test: "a[][][key]=b&b=a",
-				expect: {
-					b: "a"
-				}
 			}
 		];
 		for (let i in cases)

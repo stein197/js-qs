@@ -139,7 +139,34 @@ var URLParams = {
 		// 		var parentObj = parentObj[key];
 		// 	}
 		// }
+		for (var k in result) {
+			if (typeof result[k] === "object") {
+				result[k] = URLParams._objToArray(result[k]);
+			}
+		}
 		return result;
+	},
+
+	_objToArray: function(obj) {
+		var keys = Object.keys(obj);
+		var isArray = keys.every(function(v) {
+			return !isNaN(+v);
+		});
+		if (isArray) {
+			// var result = new Array(keys.length);
+			result = [];
+			for (var i in obj) {
+				var value = obj[i];
+				if (typeof value === "object") {
+					result.push(URLParams._objToArray(value));
+				} else {
+					result.push(value);
+				}
+			}
+			return result;
+		} else {
+			return obj;
+		}
 	},
 
 	/**
