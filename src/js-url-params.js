@@ -69,7 +69,6 @@ var URLParams = {
 				var keyArray = keyPath.match(/\[.*?\]+/g).map(function(v) {
 					var raw = v.slice(1, -1);
 					return raw;
-					// return raw ? raw : numericValuesCount++;
 				});
 				keyArray.unshift(keyName);
 				var parent = result;
