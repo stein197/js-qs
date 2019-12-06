@@ -448,8 +448,10 @@ describe("Testing URLParams.fromString(string)", () => {
 				test: "key[][]=value&key[][key]=value",
 				expect: {
 					key: [
+						[
+							"value"
+						],
 						{
-							0: "value",
 							key: "value"
 						}
 					]
@@ -461,8 +463,14 @@ describe("Testing URLParams.fromString(string)", () => {
 					key: [
 						{
 							key: [
+								[
+									"value",
+								]
+							]
+						},
+						{
+							key: [
 								{
-									0: "value",
 									deepKey: "value"
 								}
 							]
@@ -472,7 +480,7 @@ describe("Testing URLParams.fromString(string)", () => {
 			}
 		];
 		for (let i in cases)
-			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
+			chai.expect(f(cases[i].test)).to.eql(cases[i].expect, cases[i].test);
 	});
 
 	it("Query with duplicate keys saves last value", () => {
@@ -520,7 +528,7 @@ describe("Testing URLParams.fromString(string)", () => {
 					a: {
 						0: "1",
 						b: "2",
-						2: "3"
+						1: "3"
 					}
 				}
 			},

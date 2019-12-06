@@ -114,59 +114,40 @@ var URLParams = {
 				}
 			}
 		}
-		// for(var i in queryParts){
-		// 	var parts = queryParts[i].split("=");
-		// 	var keyParts = parts[0].split(/[\[\]]{1,2}/);
-		// 	var value = parts[1];
-		// 	if(keyParts.length > 2)
-		// 		keyParts.pop();
-		// 	var parentObj = result;
-		// 	for(var j = 0; j < keyParts.length; j++){
-		// 		var key = keyParts[j];
-		// 		var nextKey = keyParts[j + 1];
-		// 		if(!parentObj[key]){
-		// 			if(nextKey === undefined){
-		// 				if(Array.isArray(parentObj))
-		// 					parentObj.push(value);
-		// 				else
-		// 					parentObj[key] = value;
-		// 			} else if(nextKey === "" || nextKey.search(/^\d+$/) >= 0) {
-		// 				parentObj[key] = [];
-		// 			} else {
-		// 				parentObj[key] = {};
-		// 			}
-		// 		}
-		// 		var parentObj = parentObj[key];
-		// 	}
-		// }
 		for (var k in result) {
 			if (typeof result[k] === "object") {
-				result[k] = URLParams._objToArray(result[k]);
+				result[k] = URLParams.objectToArray(result[k]);
 			}
 		}
 		return result;
 	},
 
-	_objToArray: function(obj) {
+	/**
+	 * 
+	 * @param {*} obj 
+	 * @private
+	 */
+	objectToArray: function(obj) {
 		var keys = Object.keys(obj);
 		var isArray = keys.every(function(v) {
 			return !isNaN(+v);
 		});
-		if (isArray) {
-			// var result = new Array(keys.length);
-			result = [];
-			for (var i in obj) {
-				var value = obj[i];
-				if (typeof value === "object") {
-					result.push(URLParams._objToArray(value));
-				} else {
+		var result = isArray ? [] : {};
+		for (var key in obj) {
+			var value = obj[key];
+			if (typeof value === "object") {
+				if (isArray)
+					result.push(URLParams.objectToArray(value));
+				else
+					result[key] = URLParams.objectToArray(value);
+			} else {
+				if (isArray)
 					result.push(value);
-				}
+				else
+					result[key] = value;
 			}
-			return result;
-		} else {
-			return obj;
 		}
+		return result;
 	},
 
 	/**
