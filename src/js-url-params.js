@@ -8,6 +8,8 @@ var URLParams = {
 	/**
 	 * Recursively converts object to query string.
 	 * @param {Object} data Object to be converted to query string.
+	 * @return {string} Query string presented by data parameter. Empty
+	 *                  if object is empty.
 	 */
 	toString: function(data, path) {
 		path = path || [];
@@ -153,10 +155,12 @@ var URLParams = {
 	 * Sets page's query string params.
 	 * Replaces old value.
 	 * @param {Object} data Object to be parsed and set as query string.
+	 * @return {Object} Old query string params.
 	 */
 	setQuery: function(data) {
 		var queryString = URLParams.toString(data);
 		var url = location.protocol + "//" + location.host + location.pathname;
+		var old = location.search.split("?")[1];
 		if (queryString)
 			url += "?" + queryString;
 		if (location.hash)
@@ -164,6 +168,7 @@ var URLParams = {
 		history.pushState({
 			path: url
 		}, "", url);
+		return URLParams.fromString(old);
 	},
 
 	/**
