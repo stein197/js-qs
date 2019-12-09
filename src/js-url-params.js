@@ -76,7 +76,7 @@ var URLParams = {
 				for (var i = 0; i < keyArray.length; i++) {
 					var currentKey = keyArray[i];
 					if (currentKey) {
-						if (currentKey in parent) {
+						if (currentKey in parent && typeof parent[currentKey] === "object") {
 							parent = parent[currentKey];
 							continue;
 						} else {
