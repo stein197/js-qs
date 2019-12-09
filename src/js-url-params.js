@@ -215,7 +215,35 @@ var URLParams = {
 		return true;
 	},
 
-	getFormQueryObject: function(form) {} // TODO
+	getFormQueryObject: function(form) {
+		var elements = form.querySelectorAll("[name]");
+		var result = [];
+		for (var i = 0; i < elements.length; i++) {
+			var currentElement = elements[i];
+			var type = currentElement.getAttribute("type");
+			var name = currentElement.getAttribute("name");
+			var tagName = currentElement.tagName.toLowerCase();
+			if (tagName === "select") {
+				if (currentElement.getAttribute("multiple") === null)
+					result.push(name + "=" + currentElement.value);
+				else
+					for (var j = 0; j < currentElement.children.length; j++)
+						if (currentElement.children[i].checked)
+							result.push(name + "=" + currentElement.children[i].value);
+			} else if (tagName === "input") {
+				switch (type) {
+					case "checkbox":
+					case "radio":
+						if (currentElement.checked)
+							result.push(name + "=" + currentElement.value);
+						break;
+					default:
+						result.push(name + "=" + currentElement.value);
+				}
+			}
+		}
+		return URLParams.fromString(result.join("&"));
+	} // TODO
 };
 
 if ("object" === typeof module && "object" === typeof module.exports)
