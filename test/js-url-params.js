@@ -605,7 +605,182 @@ describe("Testing URLParams.fromString(string)", () => {
 		for (let i in cases)
 			chai.expect(f(cases[i].test)).to.eql(cases[i].expect);
 	});
-	it("Function works correctly");
 });
 
 describe("Testing URLParams.fromString(string) and URLParams.toString(object) equality", () => {});
+
+describe("Testing URLParams.set(key, value, object)", () => {
+	let f = params.URLParams.set;
+	it("Wrong types aren't allowed", () => {
+		chai.expect(() => f(null)).to.throw(TypeError);
+		chai.expect(() => f(123, "value", "object")).to.throw(TypeError);
+		chai.expect(() => f(false, "value", function() {})).to.throw(TypeError);
+		chai.expect(() => f(function() {}, "value", true)).to.throw(TypeError);
+	});
+
+	it("Single key-value pairs are set correctly", () => {
+		let o = {
+			key: "value"
+		};
+		f("key", "new value", o);
+		chai.expect(o).to.eql({"key": "new value"});
+	});
+
+	it("Nested key-value pairs are set correctly", () => {
+		let o = {
+			key: {
+				key: "value"
+			},
+			key2: {}
+		};
+		f("key.key", "new value", o);
+		chai.expect(o).to.eql({
+			key: {
+				key: "new value"
+			},
+			key2: {}
+		});
+		f("key2.key", "new value", o);
+		chai.expect(o).to.eql({
+			key: {
+				key: "new value"
+			},
+			key2: {
+				key: "new value"
+			}
+		});
+	});
+
+	it("Low nested key-value pairs overrides high depth old chains", () => {
+		let o = {
+			key: {
+				subKey: {
+					subsubKey: "value"
+				}
+			}
+		};
+		f("key", "value", o);
+		chai.expect(o).to.eql({
+			key: "value"
+		});
+	});
+
+	it("Nested key-value pairs with number index are set correctly", () => {
+		let o = {
+			array: [1, 2, {}]
+		};
+		f("array.0", "value", o);
+		chai.expect(o).to.eql({
+			array: ["value", 2, {}]
+		});
+		f("array.1", "value", o);
+		chai.expect(o).to.eql({
+			array: ["value", "value", {}]
+		});
+		f("array.2.subkey", "value", o);
+		chai.expect(o).to.eql({
+			array: ["value", "value", {
+				subkey: "value"
+			}]
+		});
+	});
+
+	it("Nonexistent entries are automatically created", () => {
+		let o = {};
+		f("key.subkey", "value", o);
+		chai.expect(o).to.eql({
+			key: {
+				subkey: "value"
+			}
+		});
+		f("key.subkey0", "value0", o);
+		chai.expect(o).to.eql({
+			key: {
+				subkey: "value",
+				subkey0: "value0"
+			}
+		});
+		f("key0.subkey0.subsubkey0", "value0", o);
+		chai.expect(o).to.eql({
+			key: {
+				subkey: "value",
+				subkey0: "value0"
+			},
+			key0: {
+				subkey0: {
+					subsubkey0: "value0"
+				}
+			}
+		});
+		o = {};
+		f("key.0", "value", o);
+		chai.expect(o).to.eql({
+			key: {
+				0: "value"
+			}
+		});
+		f("key.0.0.0", "value", o);
+		chai.expect(o).to.eql({
+			key: {
+				0: {
+					0: {
+						0: "value"
+					}
+				}
+			}
+		});
+	});
+
+	it("Brand new values return nulls", () => {
+		let o = {};
+		chai.assert.isNull(f("key", "value", o));
+		chai.assert.isNull(f("superkey.subkey", "subvalue", o));
+		chai.assert.isNull(f("array.0", "value", o));
+	});
+
+	it("New values return replaced values", () => {
+		let o = {
+			key: "value",
+			array: [
+				"a"
+			],
+			superkey: {
+				subkey: "subvalue"
+			}
+		};
+		chai.assert.equal(f("key", "new value", o), "value");
+		chai.assert.equal(f("array.0", "A", o), "a");
+		chai.assert.equal(f("superkey.subkey", "new subvalue", o), "subvalue");
+		chai.assert.equal(f("key", "value", o), "new value");
+	});
+
+	it("Object keys override arrays and preserve indices", () => {
+		let o = {
+			array: [
+				"a"
+			]
+		};
+		f("array.key", "a", o);
+		chai.expect(o).to.eql({
+			array: {
+				0: "a",
+				key: "a"
+			}
+		});
+	});
+
+	it("Array indices are inserted and do not override objects", () => {
+		let o = {
+			object: {
+				key: "value"
+			}
+		};
+		f("object.0", "a", o);
+		chai.expect(o).to.eql({
+			object: {
+				0: "a",
+				key: "value"
+			}
+		});
+	});
+});

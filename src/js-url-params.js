@@ -136,17 +136,27 @@ var URLParams = {
 		var result = isArray ? [] : {};
 		for (var key in obj) {
 			var value = obj[key];
-			if (typeof value === "object") {
+			if (typeof value === "object")
 				if (isArray)
 					result.push(URLParams.objectToArray(value));
 				else
 					result[key] = URLParams.objectToArray(value);
-			} else {
+			else
 				if (isArray)
 					result.push(value);
 				else
 					result[key] = value;
-			}
+		}
+		return result;
+	},
+
+	/**
+	 * @private
+	 */
+	arrayToObject: function(arr) {
+		var result = {};
+		for (var i in arr) {
+			result[i] = arr[i];
 		}
 		return result;
 	},
@@ -215,35 +225,62 @@ var URLParams = {
 		return true;
 	},
 
-	getFormQueryObject: function(form) {
-		var elements = form.querySelectorAll("[name]");
-		var result = [];
-		for (var i = 0; i < elements.length; i++) {
-			var currentElement = elements[i];
-			var type = currentElement.getAttribute("type");
-			var name = currentElement.getAttribute("name");
-			var tagName = currentElement.tagName.toLowerCase();
-			if (tagName === "select") {
-				if (currentElement.getAttribute("multiple") === null)
-					result.push(name + "=" + currentElement.value);
-				else
-					for (var j = 0; j < currentElement.children.length; j++)
-						if (currentElement.children[i].checked)
-							result.push(name + "=" + currentElement.children[i].value);
-			} else if (tagName === "input") {
-				switch (type) {
-					case "checkbox":
-					case "radio":
-						if (currentElement.checked)
-							result.push(name + "=" + currentElement.value);
-						break;
-					default:
-						result.push(name + "=" + currentElement.value);
+	/**
+	 * Sets single query value at a time.
+	 * @param {string} key Key which value to be changed.
+	 *                     To change nested values use dot notation like
+	 *                     "key1.key2". Number indexes also can be used.
+	 * @param {string} value New value.
+	 * @param {object} [object=URLParams.getQuery()] The object into which the value is inserted.
+	 * @return {string} Previous value or null if there was no old value.
+	 * @throws {TypeError} If types of passed arguments do not match the expectable.
+	 */
+	set: function(key, value, object) {
+		if (object !== undefined && typeof object !== "object")
+			throw new TypeError("Only objects allowed for the third argument");
+		if (typeof key !== "string")
+			throw new TypeError("The key parameter should be of string type");
+		var queryObj = object || URLParams.getQuery();
+		var pathArray = key.split(".");
+		var lastPathKey = pathArray.pop();
+		lastPathKey = +lastPathKey == lastPathKey ? +lastPathKey : lastPathKey;
+		var currentEntry = queryObj;
+		for (var i in pathArray) {
+			var pathKey = pathArray[i];
+			var pathKeyIsNum = +pathKey == pathKey;
+			pathKey = pathKeyIsNum ? +pathKey : pathKey;
+			if (!(pathKey in currentEntry) || (typeof currentEntry[pathKey] !== "object" && !Array.isArray(currentEntry[pathKey]))) {
+				var nextPathKey = pathKey[i + 1];
+				if (nextPathKey && +nextPathKey == nextPathKey) {
+					currentEntry[pathKey] = [];
+				} else {
+					currentEntry[pathKey] = {};
 				}
 			}
+			currentEntry = currentEntry[pathKey];
 		}
-		return URLParams.fromString(result.join("&"));
-	} // TODO
+		var old = currentEntry[lastPathKey];
+		currentEntry[lastPathKey] = value;
+		if (!object)
+			URLParams.setQuery(queryObj);
+		return old ? old : null;
+	}, // TODO
+
+	/**
+	 * 
+	 * @param {string} key
+	 * @return {string}
+	 */
+	get: function(key) {}, // TODO
+
+	/**
+	 * 
+	 * @param {string} key 
+	 * @return {string}
+	 */
+	remove: function(key) {}, // TODO
+
+	getFormQueryObject: function(form) {} // TODO
 };
 
 if ("object" === typeof module && "object" === typeof module.exports)
