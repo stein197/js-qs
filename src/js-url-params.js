@@ -264,14 +264,30 @@ var URLParams = {
 		if (!object)
 			URLParams.setQuery(queryObj);
 		return old ? old : null;
-	}, // TODO
+	},
 
 	/**
-	 * 
-	 * @param {string} key
-	 * @return {string}
+	 * Returns single query key value.
+	 * @param {string} key Key of which value is returned.
+	 *                     To retrieve nested values use dot notation like
+	 *                     "key1.key2". Number indexes also can be used.
+	 * @param {object} [object=URL.getQuery()] The object from which the value is retrieved.
+	 * @return {string} Requested value or null if value is not present.
 	 */
-	get: function(key) {}, // TODO
+	get: function(key, object) {
+		var queryObj = object || URLParams.getQuery();
+		var pathArray = key.split(".");
+		var currentEntry = queryObj;
+		for (var i in pathArray) {
+			try {
+				var pathKey = +pathArray[i] == pathArray[i] ? +pathArray[i] : pathArray[i];
+				currentEntry = currentEntry[pathKey];
+			} catch (ex) {
+				return null;
+			}
+		}
+		return currentEntry ? currentEntry : null;
+	}, // TODO
 
 	/**
 	 * 

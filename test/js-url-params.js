@@ -784,3 +784,39 @@ describe("Testing URLParams.set(key, value, object)", () => {
 		});
 	});
 });
+
+describe("Testing URLParams.set(key, value, object)", () => {
+	let f = params.URLParams.get;
+	it("Nonexistent paths return nulls", () => {
+		let o = {
+			key: "value"
+		};
+		chai.assert.isNull(f("key0", o));
+	});
+	it("Deep nonexistent paths return nulls", () => {
+		let o = {
+			key: "value"
+		};
+		chai.assert.isNull(f("key0.key.subkey", o));
+		chai.assert.isNull(f("key0.0.key.0.key", o));
+		chai.assert.isNull(f("key0.0", o));
+		chai.assert.isNull(f("key0.0.0", o));
+	});
+	it("Existent paths return value", () => {
+		let o = {
+			key: "value",
+			array: [
+				1, 2, {
+					arraykey: "arrayvalue"
+				}
+			],
+			subkey: {
+				subkey: "subkey value"
+			}
+		};
+		chai.assert.equal(f("key", o), "value");
+		chai.assert.equal(f("array.0", o), 1);
+		chai.assert.equal(f("array.2.arraykey", o), "arrayvalue");
+		chai.assert.equal(f("subkey.subkey", o), "subkey value");
+	});
+});
