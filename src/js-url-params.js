@@ -232,7 +232,7 @@ var URLParams = {
 	 *                     "key1.key2". Number indexes also can be used.
 	 * @param {string} value New value.
 	 * @param {object} [object=URLParams.getQuery()] The object into which the value is inserted.
-	 * @return {string} Previous value or null if there was no old value.
+	 * @return {Object} Previous value or null if there was no old value.
 	 * @throws {TypeError} If types of passed arguments do not match the expectable.
 	 */
 	set: function(key, value, object) {
@@ -272,7 +272,7 @@ var URLParams = {
 	 *                     To retrieve nested values use dot notation like
 	 *                     "key1.key2". Number indexes also can be used.
 	 * @param {object} [object=URL.getQuery()] The object from which the value is retrieved.
-	 * @return {string} Requested value or null if value is not present.
+	 * @return {Object} Requested value or null if value is not presented.
 	 */
 	get: function(key, object) {
 		var queryObj = object || URLParams.getQuery();
@@ -295,7 +295,7 @@ var URLParams = {
 	 *                     To retrieve nested values use dot notation like
 	 *                     "key1.key2". Number indexes also can be used.
 	 * @param {object} [object=URL.getQuery()] The object from which the value is removed.
-	 * @return {string} Old value or null if there is no such a key
+	 * @return {Object} Old value or null if there is no such a key
 	 */
 	remove: function(key, object) {
 		var queryObj = object || URLParams.getQuery();
@@ -321,7 +321,7 @@ var URLParams = {
 
 	/**
 	 * Clears page's query string.
-	 * @return {object} Current page query string.
+	 * @return {Object} Current page query string.
 	 */
 	clear: function() {
 		var old = URLParams.getQuery();
