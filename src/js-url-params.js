@@ -319,6 +319,15 @@ var URLParams = {
 		return old !== undefined ? old : null;
 	},
 
+	/**
+	 * Clears page's query string.
+	 * @return {object} Current page query string.
+	 */
+	clear: function() {
+		var old = URLParams.getQuery();
+		URLParams.setQuery({});
+	},
+
 	getFormQueryObject: function(form) {} // TODO
 };
 
