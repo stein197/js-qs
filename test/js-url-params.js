@@ -785,7 +785,7 @@ describe("Testing URLParams.set(key, value, object)", () => {
 	});
 });
 
-describe("Testing URLParams.set(key, value, object)", () => {
+describe("Testing URLParams.get(key, object)", () => {
 	let f = params.URLParams.get;
 	it("Nonexistent paths return nulls", () => {
 		let o = {
@@ -818,5 +818,108 @@ describe("Testing URLParams.set(key, value, object)", () => {
 		chai.assert.equal(f("array.0", o), 1);
 		chai.assert.equal(f("array.2.arraykey", o), "arrayvalue");
 		chai.assert.equal(f("subkey.subkey", o), "subkey value");
+	});
+});
+
+describe("Testing URLParams.remove(key, object)", () => {
+	let f = params.URLParams.remove;
+	it("Nonexistent keys do not affect query", () => {
+		let o = {
+			key: "value"
+		};
+		f("key0", o);
+		f("key.subkey", o);
+		f("key.0.key", o);
+		f("array.0.0", o);
+		chai.expect(o).to.eql({
+			key: "value"
+		});
+	});
+
+	it("Nonexistent keys return null", () => {
+		let o = {
+			key: "value"
+		};
+		chai.assert.isNull(f("key0", o));
+		chai.assert.isNull(f("key.subkey", o));
+		chai.assert.isNull(f("key.0.key", o));
+		chai.assert.isNull(f("array.0.0", o));
+	});
+	
+	it("Existent keys affect query", () => {
+		let o = {
+			a: 0,
+			b: 1,
+			c: 2,
+			d: {
+				a: "a",
+				b: [
+					1, {
+						a: "nested"
+					}
+				]
+			}
+		};
+		f("a", o);
+		chai.expect(o).to.eql({
+			b: 1,
+			c: 2,
+			d: {
+				a: "a",
+				b: [
+					1, {
+						a: "nested"
+					}
+				]
+			}
+		});
+		f("d.b.1.a", o);
+		chai.expect(o).to.eql({
+			b: 1,
+			c: 2,
+			d: {
+				a: "a",
+				b: [
+					1, {}
+				]
+			}
+		});
+		f("d.b", o);
+		chai.expect(o).to.eql({
+			b: 1,
+			c: 2,
+			d: {
+				a: "a"
+			}
+		});
+		f("d", o);
+		chai.expect(o).to.eql({
+			b: 1,
+			c: 2,
+		});
+	});
+
+	it("Existent keys return old values", () => {
+		let o = {
+			a: 0,
+			b: 1,
+			c: 2,
+			d: {
+				a: "a",
+				b: [
+					1, {
+						a: "nested"
+					}
+				]
+			}
+		};
+		chai.assert.equal(f("a", o), 0);
+		chai.assert.equal(f("d.b.1.a", o), "nested");
+		chai.expect(f("d.b", o)).to.eql([
+			1, {}
+		]);
+		chai.expect(f("d", o)).to.eql({
+			a: "a"
+		});
 	});
 });

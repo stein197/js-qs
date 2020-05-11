@@ -279,22 +279,45 @@ var URLParams = {
 		var pathArray = key.split(".");
 		var currentEntry = queryObj;
 		for (var i in pathArray) {
+			var pathKey = +pathArray[i] == pathArray[i] ? +pathArray[i] : pathArray[i];
 			try {
-				var pathKey = +pathArray[i] == pathArray[i] ? +pathArray[i] : pathArray[i];
 				currentEntry = currentEntry[pathKey];
 			} catch (ex) {
 				return null;
 			}
 		}
-		return currentEntry ? currentEntry : null;
-	}, // TODO
+		return currentEntry !== undefined ? currentEntry : null;
+	},
 
 	/**
-	 * 
-	 * @param {string} key 
-	 * @return {string}
+	 * Removes specified value from query string.
+	 * @param {string} key Key of which value is removed.
+	 *                     To retrieve nested values use dot notation like
+	 *                     "key1.key2". Number indexes also can be used.
+	 * @param {object} [object=URL.getQuery()] The object from which the value is removed.
+	 * @return {string} Old value or null if there is no such a key
 	 */
-	remove: function(key) {}, // TODO
+	remove: function(key, object) {
+		var queryObj = object || URLParams.getQuery();
+		var pathArray = key.split(".");
+		var currentEntry = queryObj;
+		var lastPathKey = pathArray.pop();
+		for (var i in pathArray) {
+			var pathKey = +pathArray[i] == pathArray[i] ? +pathArray[i] : pathArray[i];
+			try {
+				currentEntry = currentEntry[pathKey];
+				if (typeof currentEntry !== "object" && !Array.isArray(currentEntry))
+					return null;
+			} catch (ex) {
+				return null;
+			}
+		}
+		var old = currentEntry[lastPathKey];
+		delete currentEntry[lastPathKey];
+		if (!object)
+			URLParams.setQuery(queryObj);
+		return old !== undefined ? old : null;
+	},
 
 	getFormQueryObject: function(form) {} // TODO
 };
