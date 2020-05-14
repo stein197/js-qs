@@ -15,7 +15,7 @@ All the functions to use are located in URLParams global object.
 |Object|fromString(String string)|Parses given string into object structure. Produces structures as php's arrays. Empty strings produce empty objects. Supports nested values like `a[b][c]=1`.|
 |Object|setQuery(Object data)|Sets page's query string params presented by given object. Replaces old query string. Returns old one as object.|
 |Object|getQuery()|Returns page's query string params as object. Returns empty object if page does not have query string.|
-|boolean|queriesAreEqual(str1, str2)|Check if two query strings are equal. Query strings are equal if they have same amount of parameters and its values. The order does not matter.|
+|boolean|queriesAreEqual(String str1, String str2)|Check if two query strings are equal. Query strings are equal if they have same amount of parameters and its values. The order does not matter.|
 |Object|set(String key, value)|Sets single query value at a time. Returns previous value or null if there was no old value.|
 |Object|get(String key)|Returns single query key value or null if value is not presented.|
 |Object|remove(String key)|Removes specified value from query string. Returns old value or null if there is no such a key.|
