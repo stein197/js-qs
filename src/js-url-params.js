@@ -178,7 +178,7 @@ var URLParams = {
 		history.pushState({
 			path: url
 		}, "", url);
-		return URLParams.fromString(old);
+		return old ? URLParams.fromString(old) : {};
 	},
 
 	/**
