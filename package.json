@@ -4,7 +4,8 @@
 	"description": "js url params",
 	"main": "index.js",
 	"scripts": {
-		"test": "cls && .\\node_modules\\.bin\\mocha --reporter spec"
+		"test": "cls && .\\node_modules\\.bin\\mocha --reporter spec",
+		"minify": "uglifyjs src/js-url-params.js -o dist/js-url-params.min.js"
 	},
 	"repository": {
 		"type": "git",
@@ -21,5 +22,8 @@
 		"esm": "^3.2.25",
 		"jsdom": "^15.2.1",
 		"mocha": "^6.2.3"
+	},
+	"devDependencies": {
+		"uglify-js": "^3.11.6"
 	}
 }
