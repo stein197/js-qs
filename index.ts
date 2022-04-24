@@ -1,17 +1,35 @@
-/**
- * Recursively converts object to query string.
- * @param data Object to be converted to query string.
- * @return Query string presented by data parameter. Empty if the object is empty.
- */
-export function toString(data: object): string {
-	return encodeURIComponent(result);
+const DEFAULT_OPTIONS: Options = {
+	discardEmpty: false
 }
 
 /**
- * Parses given string into object structure.
- * @param data String to be parsed into an object.
- * @return Object parsed from given string. Returns empty object if string is empty.
+ * Stringifies an object to query string.
+ * @param data Object stringufy.
+ * @return Query string from the object. Returns empty string if the object is empty.
  */
-export function fromString(data: string): object {
-	data = decodeURIComponent(data).replace(/^\?/, "");
+export function toString(data: object, options: Partial<Options> = DEFAULT_OPTIONS): string {
+	options = mergeOptions(options);
+}
+
+/**
+ * Parses the given string into an object.
+ * @param data String to parse.
+ * @return Object parsed from given string. Returns empty object if the string is empty.
+ */
+export function fromString(data: string, options: Partial<Options> = DEFAULT_OPTIONS): object {
+	options = mergeOptions(options);
+	while (data != (data = decodeURIComponent(data)));
+	data = data.replace(/^\?/, "");
+}
+
+function mergeOptions(options: Partial<Options>): Options {
+	return (options === DEFAULT_OPTIONS ? options : {
+		...DEFAULT_OPTIONS,
+		...options
+	}) as Options;
+}
+
+type Options = {
+	/** Discards entries with empty values if set to `true`. `false` by default */
+	discardEmpty: boolean;
 }
