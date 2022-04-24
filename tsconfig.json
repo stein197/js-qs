@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"outDir": "out",
+		"target": "ESNext",
+		"strict": true,
+		"baseUrl": "src",
+		"rootDir": "src",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"allowUnusedLabels": false,
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true,
+		"importsNotUsedAsValues": "remove"
+	},
+	"files": [
+		"index.ts"
+	]
+}

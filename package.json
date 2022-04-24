@@ -1,29 +1,25 @@
 {
-	"name": "js-url-params",
-	"version": "1.0.0",
-	"description": "js url params",
-	"main": "index.js",
-	"scripts": {
-		"test": "cls && .\\node_modules\\.bin\\mocha --reporter spec",
-		"minify": "uglifyjs src/js-url-params.js -o dist/js-url-params.min.js"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/STEIN197/js-url-params.git"
-	},
-	"author": "STEIN197",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/STEIN197/js-url-params/issues"
-	},
-	"homepage": "https://github.com/STEIN197/js-url-params#readme",
-	"dependencies": {
-		"chai": "^4.2.0",
-		"esm": "^3.2.25",
-		"jsdom": "^15.2.1",
-		"mocha": "^6.2.3"
-	},
-	"devDependencies": {
-		"uglify-js": "^3.11.6"
-	}
+  "name": "@stein197/qs",
+  "version": "1.0.0",
+  "description": "Query string parser",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stein197/js-qs.git"
+  },
+  "keywords": [
+    "query",
+    "string",
+    "parser"
+  ],
+  "author": "Nail' Gafarov <nil20122013@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stein197/js-qs/issues"
+  },
+  "homepage": "https://github.com/stein197/js-qs#readme",
+  "devDependencies": {
+    "typescript": "4.6.3"
+  }
 }
