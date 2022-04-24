@@ -33,7 +33,7 @@ function stringify(data: object, options: Options, path: string[]): string {
 		if (options.discardEmpty && jsonUtil.isEmpty(value))
 			continue;
 		if (typeof value === "object") {
-			const pathClone = jsonUtil.clone(path) as string[];
+			const pathClone = jsonUtil.clone(path);
 			pathClone.push(Array.isArray(data) && !options.emitIndices ? "" : key);
 			result.push(stringify(value, options, pathClone));
 		} else {
