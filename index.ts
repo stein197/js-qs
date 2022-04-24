@@ -1,3 +1,5 @@
+import jsonUtil from "@stein197/json-util";
+
 const DEFAULT_OPTIONS: Options = {
 	discardEmpty: false,
 	inferTypes: false,
@@ -10,7 +12,7 @@ const DEFAULT_OPTIONS: Options = {
  * @return Query string from the object. Returns empty string if the object is empty.
  */
 export function toString(data: object, options: Partial<Options> = DEFAULT_OPTIONS): string {
-	options = mergeOptions(options);
+	return stringify(data, mergeOptions(options), []);
 }
 
 /**
@@ -22,6 +24,23 @@ export function fromString(data: string, options: Partial<Options> = DEFAULT_OPT
 	options = mergeOptions(options);
 	while (data != (data = decodeURIComponent(data)));
 	data = data.replace(/^\?/, "");
+}
+
+function stringify(data: object, options: Options, path: string[]): string {
+	const result: string[] = [];
+	for (const key in data) {
+		const value = data[key];
+		if (options.discardEmpty && jsonUtil.isEmpty(value))
+			continue;
+		if (typeof value === "object") {
+			const pathClone = jsonUtil.clone(path) as string[];
+			pathClone.push(Array.isArray(data) && !options.emitIndices ? "" : key);
+			result.push(stringify(value, options, pathClone));
+		} else {
+			const qKey = key + (path.length ? `[${path.join("][")}]` : "");
+			result.push(`${qKey}=${encodeURIComponent(value.toString())}`);
+		}
+	}
 }
 
 function mergeOptions(options: Partial<Options>): Options {
