@@ -1,6 +1,7 @@
 const DEFAULT_OPTIONS: Options = {
 	discardEmpty: false,
-	parseTypes: false,
+	inferTypes: false,
+	emitIndices: false
 }
 
 /**
@@ -31,8 +32,10 @@ function mergeOptions(options: Partial<Options>): Options {
 }
 
 type Options = {
-	/** Discards entries with empty values if set to `true`. `false` by default */
+	/** Discards entries with empty values if set to `true`. `false` by default. */
 	discardEmpty: boolean;
-	/** If entry values could be converted to a corresponding type ("true" to true, "1" to 1, etc.) then do it. `false` by default */
-	parseTypes: boolean;
+	/** If entry values could be converted to a corresponding type ("true" to true, "1" to 1, etc.) then do it. `false` by default. */
+	inferTypes: boolean;
+	/** Outputs indices for arrays when stringifying if `true`. `false` by default. */
+	emitIndices: boolean;
 }
