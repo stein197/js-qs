@@ -32,15 +32,17 @@ function stringify(data: object, options: Options, path: string[]): string {
 		const value = data[key];
 		if (options.discardEmpty && jsonUtil.isEmpty(value))
 			continue;
+		const pathClone = jsonUtil.clone(path);
+		pathClone.push(Array.isArray(data) && !options.emitIndices ? "" : key);
 		if (typeof value === "object") {
-			const pathClone = jsonUtil.clone(path);
-			pathClone.push(Array.isArray(data) && !options.emitIndices ? "" : key);
 			result.push(stringify(value, options, pathClone));
 		} else {
-			const qKey = key + (path.length ? `[${path.join("][")}]` : "");
+			let qKey = pathClone.shift()!;
+			qKey += pathClone.length ? `[${pathClone.join("][")}]` : "";
 			result.push(`${qKey}=${encodeURIComponent(value.toString())}`);
 		}
 	}
+	return result.join("&");
 }
 
 function mergeOptions(options: Partial<Options>): Options {
