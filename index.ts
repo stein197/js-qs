@@ -34,10 +34,10 @@ export function fromString(data: string, options: Partial<ParseOptions> = DEFAUL
 	options = mergeOptions(options, DEFAULT_OPTIONS_PARSE);
 	while (data != (data = decodeURIComponent(data)));
 	data = data.replace(/^\?/, "");
-	const result: object = {};
+	const result: any = {};
 	for (const [key, value] of data.split(/&+/).filter(entry => entry).map(entry => parseEntry(entry, options))) {
 		let curObject = result;
-		const lastKey = key.pop();
+		const lastKey = key.pop()!;
 		for (const i in key) {
 			let part = key[i];
 			if (!part) {
@@ -75,8 +75,9 @@ function stringify(data: Exclude<Json, null>, options: StringifyOptions, path: s
 	return result.join("&");
 }
 
-function parseEntry(entry: string, options: ParseOptions): [key: string[], value?: any] {
+function parseEntry(entry: string, options: Partial<ParseOptions>): [key: string[], value?: any] {
 	let [key, ...values] = entry.split("=");
+	let keyPath: string[] = [];
 	let value: any = null;
 	if (values.length) {
 		value = values.join("=");
@@ -94,22 +95,20 @@ function parseEntry(entry: string, options: ParseOptions): [key: string[], value
 		value = true;
 	}
 
-	return [
-		key
-			.split("[]")
-			.filter(k => k)
-			.reduce<string[]>((init, v, i, a) => (
-				init.push(v),
-				i === a.length - 1 ? null : init.push(""),
-				init
-			), [])
-			.map(entry => entry.replace(/[\[\]]/, "")),
-		value];
+	let matches = key.match(/\[[^\[\]]*\]/g);
+	if (!matches) {
+		keyPath = [key];
+	} else {
+		keyPath.push(key.split(/\[\]/, 1)[0]);
+		keyPath.push(...matches);
+	}
+
+	return [keyPath, value];
 }
 
-function normalize(data: Json): Json {
+// function normalize(data: Json): Json {
 
-}
+// }
 
 function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions: T): T {
 	return (userOptions === defaultOptions ? userOptions : {
