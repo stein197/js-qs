@@ -1,13 +1,14 @@
 import jsonUtil from "@stein197/json-util";
+import {Json} from "@stein197/ts-util";
 
 const DEFAULT_OPTIONS: Options = {
-	discardEmpty: false,
-	useFlags: true
+	discardEmpty: false
 }
 
 const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 	...DEFAULT_OPTIONS,
-	useIndices: false
+	useIndices: false,
+	useFlags: true
 }
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
@@ -20,7 +21,7 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
  * @param data Object stringufy.
  * @return Query string from the object. Returns empty string if the object is empty.
  */
-export function toString(data: object, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
+export function toString(data: Exclude<Json, null>, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
 	return stringify(data, mergeOptions(options, DEFAULT_OPTIONS_STRINGIFY), []);
 }
 
@@ -29,18 +30,34 @@ export function toString(data: object, options: Partial<StringifyOptions> = DEFA
  * @param data String to parse.
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
-export function fromString(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): object {
+export function fromString(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Exclude<Json, null> {
 	options = mergeOptions(options, DEFAULT_OPTIONS_PARSE);
 	while (data != (data = decodeURIComponent(data)));
 	data = data.replace(/^\?/, "");
-	const result = {};
+	const result: object = {};
+	for (const [key, value] of data.split(/&+/).filter(entry => entry).map(entry => parseEntry(entry, options))) {
+		let curObject = result;
+		const lastKey = key.pop();
+		for (const i in key) {
+			let part = key[i];
+			if (!part) {
+				const indices = Object.keys(curObject).map(k => +k);
+				part = (indices.length ? Math.max(...indices) + 1 : 0).toString();
+			}
+			if (!curObject[part] || typeof curObject[part] !== "object")
+				curObject[part] = {};
+			curObject = curObject[part];
+		}
+		curObject[lastKey] = value;
+	}
+	return result;
+	// return normalize(result);
 }
 
-function stringify(data: object, options: StringifyOptions, path: string[]): string {
+function stringify(data: Exclude<Json, null>, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
-	for (const key in data) {
-		const value = data[key];
-		if (options.discardEmpty && jsonUtil.isEmpty(value))
+	for (const [key, value] of Object.entries(data)) {
+		if (value == null || options.discardEmpty && jsonUtil.isEmpty(value))
 			continue;
 		const pathClone = jsonUtil.clone(path);
 		pathClone.push(Array.isArray(data) && !options.useIndices ? "" : key);
@@ -58,7 +75,33 @@ function stringify(data: object, options: StringifyOptions, path: string[]): str
 	return result.join("&");
 }
 
-function parse(data: object, options: ParseOptions, result: object): object {}
+function parseEntry(entry: string, options: ParseOptions): [key: string[], value?: any] {
+	let [key, ...values] = entry.split("=");
+	let value: any = null;
+	if (values.length) {
+		value = values.join("=");
+		if (options.discardEmpty && !value)
+			value = null;
+		if (options.inferTypes) {
+			if (value === "true")
+				value = true;
+			else if (value === "false")
+				value = false;
+			else if (!isNaN(+value))
+				value = +value;
+		}
+	} else {
+		value = true;
+	}
+
+	return [
+		key.split("[]").reduce((init: string[], v, i, a) => (init.push(v), (i === a.length - 1 ? null : init.push("")), init), []).map(entry => entry.replace(/[\[\]]/, "")),
+		value];
+}
+
+function normalize(data: Json): Json {
+
+}
 
 function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions: T): T {
 	return (userOptions === defaultOptions ? userOptions : {
@@ -78,18 +121,6 @@ type Options = {
 	 * ```
 	 */
 	discardEmpty: boolean;
-
-	/**
-	 * Converts entries with `true` values as a query flag (key without value and assign character) when stringifying.
-	 * Converts query flags to an entries with `true` value when parsing. Otherwise consider these values as strings.
-	 * `true` by default.
-	 * @example
-	 * ```ts
-	 * qs.toString({a: 1, b: true}, {useFlags: true}); // "a=1&b"
-	 * qs.fromString("a=1&b", {useFlags: true});       // {a: "1", b: true}
-	 * ```
-	 */
-	useFlags: boolean;
 }
 
 type StringifyOptions = Options & {
@@ -103,6 +134,18 @@ type StringifyOptions = Options & {
 	 * ```
 	 */
 	useIndices: boolean;
+
+	/**
+	 * Converts entries with `true` values as a query flag (key without value and assign character) when stringifying.
+	 * Converts query flags to an entries with `true` value when parsing. Otherwise consider these values as strings.
+	 * `true` by default.
+	 * @example
+	 * ```ts
+	 * qs.toString({a: 1, b: true}, {useFlags: true}); // "a=1&b"
+	 * qs.fromString("a=1&b", {useFlags: true});       // {a: "1", b: true}
+	 * ```
+	 */
+	 useFlags: boolean;
 }
 
 type ParseOptions = Options & {
