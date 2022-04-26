@@ -95,7 +95,15 @@ function parseEntry(entry: string, options: ParseOptions): [key: string[], value
 	}
 
 	return [
-		key.split("[]").reduce((init: string[], v, i, a) => (init.push(v), (i === a.length - 1 ? null : init.push("")), init), []).map(entry => entry.replace(/[\[\]]/, "")),
+		key
+			.split("[]")
+			.filter(k => k)
+			.reduce<string[]>((init, v, i, a) => (
+				init.push(v),
+				i === a.length - 1 ? null : init.push(""),
+				init
+			), [])
+			.map(entry => entry.replace(/[\[\]]/, "")),
 		value];
 }
 
