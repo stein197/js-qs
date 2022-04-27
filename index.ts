@@ -1,5 +1,5 @@
 import jsonUtil from "@stein197/json-util";
-import {Json} from "@stein197/ts-util";
+import {Json, JsonArray, JsonObject} from "@stein197/ts-util";
 
 const DEFAULT_OPTIONS: Options = {
 	discardEmpty: false
@@ -50,8 +50,7 @@ export function fromString(data: string, options: Partial<ParseOptions> = DEFAUL
 		}
 		curObject[lastKey] = value;
 	}
-	return result;
-	// return normalize(result);
+	return normalize(result);
 }
 
 function stringify(data: Exclude<Json, null>, options: StringifyOptions, path: string[]): string {
@@ -106,9 +105,13 @@ function parseEntry(entry: string, options: Partial<ParseOptions>): [key: string
 	return [keyPath, value];
 }
 
-// function normalize(data: Json): Json {
-
-// }
+function normalize(data: JsonObject): JsonObject | JsonArray {
+	const isArray = Object.keys(data).every(k => k.match(/^\d+$/));
+	const result: JsonArray | JsonObject = isArray ? [] : {};
+	for (const i in data)
+		result[i as any] = typeof data[i] === "object" ? normalize(data[i] as JsonObject) : data[i];
+	return result;
+}
 
 function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions: T): T {
 	return (userOptions === defaultOptions ? userOptions : {
