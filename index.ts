@@ -89,6 +89,8 @@ function parseEntry(entry: string, options: Partial<ParseOptions>): [key: string
 				value = false;
 			else if (!isNaN(+value))
 				value = +value;
+			else if (new Date(value).toISOString() === value)
+				value = new Date(value);
 		}
 	} else {
 		value = true;
@@ -155,7 +157,7 @@ type StringifyOptions = Options & {
 	 * qs.fromString("a=1&b", {useFlags: true});       // {a: "1", b: true}
 	 * ```
 	 */
-	 useFlags: boolean;
+	useFlags: boolean;
 }
 
 type ParseOptions = Options & {
