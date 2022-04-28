@@ -19,6 +19,7 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 /**
  * Stringifies an object to query string.
  * @param data Object stringufy.
+ * @param options Options to use.
  * @return Query string from the object. Returns empty string if the object is empty.
  */
 export function toString(data: Exclude<Json, null>, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
@@ -26,8 +27,11 @@ export function toString(data: Exclude<Json, null>, options: Partial<StringifyOp
 }
 
 /**
- * Parses the given string into an object.
+ * Parses the given string into an object. The object satisfies the next conditions:
+ * - If the string is empty then return empty object.
+ * - If the string contains multiple keys with different values then only the last one is preserved.
  * @param data String to parse.
+ * @param options Options to use. See {@link DEFAULT_OPTIONS_PARSE}
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
 export function fromString(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Exclude<Json, null> {
