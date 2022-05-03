@@ -2,15 +2,31 @@ import * as qs from ".";
 import * as mocha from "mocha";
 import "should";
 
-/*-----------------------------------------------
-The functions should be tested against:
-- Simple values: true, 1, "string"
-- Encoded values: "%20"
-- Empty values: undefined, null, "", [], {}
-- Nested values: {a: [1]}, {a: {b: 2}}
-- Nested objects in arrays: {a: [{b: 2}, {c: 3}]}
-- Nested arrays in objects: {a: {b: [2]}}
------------------------------------------------*/
+/*-------------------------------------------------------
+toString() should be tested against:
+- Empty object
+- Empty array
+- Empty values (null, "", [], {})
+- Simple object
+- Simple array
+- Nested arrays
+- Nested objects
+- Nested array in objects
+- Nested objects in arrays
+toString() should be tested with options:
+- discardEmpty
+- useIndices
+- useFlags
+fromString() should be tested against:
+- Empty string
+- Simple string
+- String with no values for keys
+- String with flags
+- String with numeric and string keys for a single entry
+fromString() should be tested with options:
+- discardEmpty
+- inferTypes
+-------------------------------------------------------*/
 
 mocha.describe("toString()", () => {
 	mocha.it.skip("Should return empty string when the object is empty", () => {});
