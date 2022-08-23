@@ -132,7 +132,7 @@ function mergeObject<T extends Options>(userObject: Partial<T>, defaultObject: T
 	}) as T;
 }
 
-// TODO: What to do with encoding? Encode keys/values?
+// TODO: What to do with URL encoding/decoding? Encode keys/values?
 type Options = {
 
 	/**
