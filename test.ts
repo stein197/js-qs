@@ -15,8 +15,8 @@ toString() should be tested against:
 - Nested objects in arrays
 toString() should be tested with options:
 - discardEmpty
-- useIndices
-- useFlags
+- indices
+- flags
 fromString() should be tested against:
 - Empty string
 - Simple string
@@ -39,8 +39,8 @@ mocha.describe("toString()", () => {
 	mocha.it.skip("Should be correct and use indices when the object contains nested arrays with contain objects", () => {});
 
 	mocha.describe.skip("toString({...}, {discardEmpty})", () => {});
-	mocha.describe.skip("toString({...}, {useFlags})", () => {});
-	mocha.describe.skip("toString({...}, {useIndices})", () => {});
+	mocha.describe.skip("toString({...}, {flags})", () => {});
+	mocha.describe.skip("toString({...}, {indices})", () => {});
 });
 
 mocha.describe("fromString()", () => {

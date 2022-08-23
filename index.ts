@@ -7,8 +7,8 @@ const DEFAULT_OPTIONS: Options = {
 
 const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 	...DEFAULT_OPTIONS,
-	useIndices: false,
-	useFlags: true
+	indices: false,
+	flags: true
 }
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
@@ -63,13 +63,13 @@ function stringify(data: Exclude<Json, null>, options: StringifyOptions, path: s
 		if (value == null || options.discardEmpty && jsonUtil.isEmpty(value))
 			continue;
 		const pathClone = jsonUtil.clone(path);
-		pathClone.push(Array.isArray(data) && !options.useIndices ? "" : key);
+		pathClone.push(Array.isArray(data) && !options.indices ? "" : key);
 		if (typeof value === "object") {
 			result.push(stringify(value, options, pathClone));
 		} else {
 			let qKey = pathClone.shift()!;
 			qKey += pathClone.length ? `[${pathClone.join("][")}]` : "";
-			if (options.useFlags)
+			if (options.flags)
 				result.push(qKey);
 			else
 				result.push(`${qKey}=${encodeURIComponent(value.toString())}`);
@@ -149,7 +149,7 @@ type StringifyOptions = Options & {
 	 * qs.toString({a: [1]}, {useIndices: false}); // "a[]=1"
 	 * ```
 	 */
-	useIndices: boolean;
+	indices: boolean;
 
 	/**
 	 * Converts entries with `true` values as a query flag (key without value and assign character) when stringifying.
@@ -161,7 +161,7 @@ type StringifyOptions = Options & {
 	 * qs.fromString("a=1&b", {useFlags: true});       // {a: "1", b: true}
 	 * ```
 	 */
-	useFlags: boolean;
+	flags: boolean;
 }
 
 type ParseOptions = Options & {
