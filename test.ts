@@ -1,6 +1,5 @@
 import * as qs from ".";
 import * as mocha from "mocha";
-import "should";
 
 /*-------------------------------------------------------
 stringify() should be tested against:
