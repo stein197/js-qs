@@ -27,11 +27,15 @@ export function stringify(data: Exclude<Json, null>, options: Partial<StringifyO
 }
 
 /**
- * Parses the given string into an object. The object satisfies the next conditions:
- * - If the string is empty then return empty object.
- * - If the string contains multiple keys with different values then only the last one is preserved.
+ * Parses the given string into an object. If the string contains multiple keys with different values then only the last
+ * one is preserved. Keys without values and equal sign (i.e. "flags") are always preserved and being parsed as `true`.
+ * For example:
+ * @example Parsing flags
+ * ```ts
+ * qs.parse("a&b"); // {a: true, b: true}
+ * ```
  * @param data String to parse.
- * @param options Options to use. See {@link DEFAULT_OPTIONS_PARSE}
+ * @param options Options to use.
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
 export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Exclude<Json, null> {
@@ -132,11 +136,12 @@ function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions
 type Options = {
 
 	/**
-	 * Discards entries with empty values if `true`, `false` by default. Empty values are "", [] and {}
+	 * Discards entries with empty values if `true`, `false` by default. Empty values are "", [] and {}. Does not
+	 * discard flags.
 	 * @example
 	 * ```ts
 	 * qs.stringify({a: 1, b: ""}, {discardEmpty: true}); // "a=1"
-	 * qs.parse("a=1&b=", {discardEmpty: true});          // {a: "1"}
+	 * qs.parse("a=1&b=&c", {discardEmpty: true});          // {a: "1", c: "true"}
 	 * ```
 	 */
 	discardEmpty: boolean;
@@ -160,8 +165,8 @@ type StringifyOptions = Options & {
 	 * `true` by default.
 	 * @example
 	 * ```ts
-	 * qs.stringify({a: 1, b: true}, {flags: true}); // "a=1&b"
-	 * qs.parse("a=1&b", {flags: true});             // {a: "1", b: true}
+	 * qs.stringify({a: 1, b: true}, {flags: true});  // "a=1&b"
+	 * qs.stringify({a: 1, b: true}, {flags: false}); // "a=1&b=true"
 	 * ```
 	 */
 	flags: boolean;
