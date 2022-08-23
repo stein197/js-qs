@@ -24,7 +24,7 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
  * @return Query string from the object. Returns empty string if the object is empty.
  */
 export function stringify(data: Exclude<Json, null>, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
-	return internalStringify(data, mergeOptions(options, DEFAULT_OPTIONS_STRINGIFY), []);
+	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
 }
 
 /**
@@ -40,11 +40,11 @@ export function stringify(data: Exclude<Json, null>, options: Partial<StringifyO
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
 export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Exclude<Json, null> {
-	options = mergeOptions(options, DEFAULT_OPTIONS_PARSE);
+	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	while (data != (data = decodeURIComponent(data)));
 	data = data.replace(/^\?/, "");
 	const result: any = {};
-	for (const [key, value] of data.split(/&+/).filter(entry => entry).map(entry => parseEntry(entry, options))) {
+	for (const [key, value] of data.split(/&+/).filter(entry => entry).map(entry => parseEntry(entry, opts))) {
 		let curObject = result;
 		const lastKey = key.pop()!;
 		for (const i in key) {
@@ -83,7 +83,7 @@ function internalStringify(data: Exclude<Json, null>, options: StringifyOptions,
 	return result.join("&");
 }
 
-function parseEntry(entry: string, options: Partial<ParseOptions>): [key: string[], value?: any] {
+function parseEntry(entry: string, options: ParseOptions): [key: string[], value?: any] {
 	let [key, ...values] = entry.split("=");
 	let keyPath: string[] = [];
 	let value: any = null;
@@ -122,10 +122,10 @@ function normalize(data: JsonObject): JsonObject | JsonArray {
 	return result;
 }
 
-function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions: T): T {
-	return (userOptions === defaultOptions ? userOptions : {
-		...defaultOptions,
-		...userOptions
+function mergeObject<T extends Options>(userObject: Partial<T>, defaultObject: T): T {
+	return (userObject === defaultObject ? userObject : {
+		...defaultObject,
+		...userObject
 	}) as T;
 }
 
