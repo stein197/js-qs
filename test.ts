@@ -25,7 +25,7 @@ fromString() should be tested against:
 - String with numeric and string keys for a single entry
 fromString() should be tested with options:
 - discardEmpty
-- inferTypes
+- scalars
 -------------------------------------------------------*/
 
 mocha.describe("toString()", () => {
@@ -56,7 +56,7 @@ mocha.describe("fromString()", () => {
 	mocha.it.skip("Should return an array when the top-level keys are numbers", () => {});
 
 	mocha.describe.skip("fromString({...}, {discardEmpty})", () => {});
-	mocha.describe.skip("fromString({...}, {inferTypes})", () => {});
+	mocha.describe.skip("fromString({...}, {scalars})", () => {});
 });
 
 mocha.describe("toString(...) === fromString(...)", () => {

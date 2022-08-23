@@ -13,7 +13,7 @@ const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	...DEFAULT_OPTIONS,
-	inferTypes: false
+	scalars: false
 }
 
 /**
@@ -86,7 +86,7 @@ function parseEntry(entry: string, options: Partial<ParseOptions>): [key: string
 		value = values.join("=");
 		if (options.discardEmpty && !value)
 			value = null;
-		if (options.inferTypes) {
+		if (options.scalars) {
 			if (value === "true")
 				value = true;
 			else if (value === "false")
@@ -126,6 +126,8 @@ function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions
 	}) as T;
 }
 
+// TODO: Discard flags?
+// TODO: What to do with encoding? Encode keys/values?
 type Options = {
 
 	/**
@@ -171,9 +173,9 @@ type ParseOptions = Options & {
 	 * by default.
 	 * @example
 	 * ```ts
-	 * qs.fromString("a=true&b=1", {inferTypes: true});  // {a: true, b: 1}
-	 * qs.fromString("a=true&b=1", {inferTypes: false}); // {a: "true", b: "1"}
+	 * qs.fromString("a=true&b=1", {scalars: true});  // {a: true, b: 1}
+	 * qs.fromString("a=true&b=1", {scalars: false}); // {a: "true", b: "1"}
 	 * ```
 	 */
-	inferTypes: boolean;
+	scalars: boolean;
 }
