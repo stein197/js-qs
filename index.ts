@@ -3,19 +3,22 @@ import {Json, JsonArray, JsonObject} from "@stein197/ts-util";
 
 const DEFAULT_OPTIONS: Options = {
 	preserveEmpty: false
-}
+};
 
 const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 	...DEFAULT_OPTIONS,
 	indices: false,
 	flags: true,
 	nulls: false
-}
+};
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	...DEFAULT_OPTIONS,
 	scalars: true
-}
+};
+
+const QUERY_SEPARATOR = "&";
+const KEY_VALUE_SEPARATOR = "=";
 
 /**
  * Stringifies an object to query string.
@@ -80,15 +83,15 @@ function internalStringify(data: Exclude<Json, null>, options: StringifyOptions,
 				result.push(`${qKey}=${encodeURIComponent(value.toString())}`);
 		}
 	}
-	return result.join("&");
+	return result.join(QUERY_SEPARATOR);
 }
 
 function parseEntry(entry: string, options: ParseOptions): [key: string[], value?: any] {
-	let [key, ...values] = entry.split("=");
+	let [key, ...values] = entry.split(KEY_VALUE_SEPARATOR);
 	let keyPath: string[] = [];
 	let value: any = null;
 	if (values.length) {
-		value = values.join("=");
+		value = values.join(KEY_VALUE_SEPARATOR);
 		if (!options.preserveEmpty && !value)
 			value = null;
 		if (options.scalars) {
