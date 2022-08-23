@@ -132,7 +132,7 @@ function mergeObject<T extends Options>(userObject: Partial<T>, defaultObject: T
 	}) as T;
 }
 
-// TODO: What to do with URL encoding/decoding? Encode keys/values?
+// TODO: What to do with URL encoding/decoding? Encode keys/values? Test for encoded chars like "&", "=" and multibyte ones
 type Options = {
 
 	/**
