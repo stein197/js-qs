@@ -22,8 +22,8 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
  * @param options Options to use.
  * @return Query string from the object. Returns empty string if the object is empty.
  */
-export function toString(data: Exclude<Json, null>, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
-	return stringify(data, mergeOptions(options, DEFAULT_OPTIONS_STRINGIFY), []);
+export function stringify(data: Exclude<Json, null>, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
+	return internalStringify(data, mergeOptions(options, DEFAULT_OPTIONS_STRINGIFY), []);
 }
 
 /**
@@ -34,7 +34,7 @@ export function toString(data: Exclude<Json, null>, options: Partial<StringifyOp
  * @param options Options to use. See {@link DEFAULT_OPTIONS_PARSE}
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
-export function fromString(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Exclude<Json, null> {
+export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Exclude<Json, null> {
 	options = mergeOptions(options, DEFAULT_OPTIONS_PARSE);
 	while (data != (data = decodeURIComponent(data)));
 	data = data.replace(/^\?/, "");
@@ -57,7 +57,7 @@ export function fromString(data: string, options: Partial<ParseOptions> = DEFAUL
 	return normalize(result);
 }
 
-function stringify(data: Exclude<Json, null>, options: StringifyOptions, path: string[]): string {
+function internalStringify(data: Exclude<Json, null>, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
 	for (const [key, value] of Object.entries(data)) {
 		if (value == null || options.discardEmpty && jsonUtil.isEmpty(value))
@@ -65,7 +65,7 @@ function stringify(data: Exclude<Json, null>, options: StringifyOptions, path: s
 		const pathClone = jsonUtil.clone(path);
 		pathClone.push(Array.isArray(data) && !options.indices ? "" : key);
 		if (typeof value === "object") {
-			result.push(stringify(value, options, pathClone));
+			result.push(internalStringify(value, options, pathClone));
 		} else {
 			let qKey = pathClone.shift()!;
 			qKey += pathClone.length ? `[${pathClone.join("][")}]` : "";
@@ -135,8 +135,8 @@ type Options = {
 	 * Discards entries with empty values if `true`, `false` by default. Empty values are "", [] and {}
 	 * @example
 	 * ```ts
-	 * qs.toString({a: 1, b: ""}, {discardEmpty: true}); // "a=1"
-	 * qs.fromString("a=1&b=", {discardEmpty: true});    // {a: "1"}
+	 * qs.stringify({a: 1, b: ""}, {discardEmpty: true}); // "a=1"
+	 * qs.parse("a=1&b=", {discardEmpty: true});          // {a: "1"}
 	 * ```
 	 */
 	discardEmpty: boolean;
@@ -148,8 +148,8 @@ type StringifyOptions = Options & {
 	 * Outputs indices for arrays if `true`, `false` by default.
 	 * @example
 	 * ```ts
-	 * qs.toString({a: [1]}, {indices: true});  // "a[0]=1"
-	 * qs.toString({a: [1]}, {indices: false}); // "a[]=1"
+	 * qs.stringify({a: [1]}, {indices: true});  // "a[0]=1"
+	 * qs.stringify({a: [1]}, {indices: false}); // "a[]=1"
 	 * ```
 	 */
 	indices: boolean;
@@ -160,8 +160,8 @@ type StringifyOptions = Options & {
 	 * `true` by default.
 	 * @example
 	 * ```ts
-	 * qs.toString({a: 1, b: true}, {flags: true}); // "a=1&b"
-	 * qs.fromString("a=1&b", {flags: true});       // {a: "1", b: true}
+	 * qs.stringify({a: 1, b: true}, {flags: true}); // "a=1&b"
+	 * qs.parse("a=1&b", {flags: true});             // {a: "1", b: true}
 	 * ```
 	 */
 	flags: boolean;
@@ -174,8 +174,8 @@ type ParseOptions = Options & {
 	 * by default.
 	 * @example
 	 * ```ts
-	 * qs.fromString("a=true&b=1", {scalars: true});  // {a: true, b: 1}
-	 * qs.fromString("a=true&b=1", {scalars: false}); // {a: "true", b: "1"}
+	 * qs.parse("a=true&b=1", {scalars: true});  // {a: true, b: 1}
+	 * qs.parse("a=true&b=1", {scalars: false}); // {a: "true", b: "1"}
 	 * ```
 	 */
 	scalars: boolean;
