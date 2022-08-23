@@ -3,7 +3,7 @@ import * as mocha from "mocha";
 import "should";
 
 /*-------------------------------------------------------
-toString() should be tested against:
+stringify() should be tested against:
 - Empty object
 - Empty array
 - Empty values (null, "", [], {})
@@ -13,22 +13,22 @@ toString() should be tested against:
 - Nested objects
 - Nested array in objects
 - Nested objects in arrays
-toString() should be tested with options:
+stringify() should be tested with options:
 - discardEmpty
 - indices
 - flags
-fromString() should be tested against:
+parse() should be tested against:
 - Empty string
 - Simple string
 - String with no values for keys
 - String with flags
 - String with numeric and string keys for a single entry
-fromString() should be tested with options:
+parse() should be tested with options:
 - discardEmpty
 - scalars
 -------------------------------------------------------*/
 
-mocha.describe("toString()", () => {
+mocha.describe("stringify()", () => {
 	mocha.it.skip("Should return empty string when the object is empty", () => {});
 	mocha.it.skip("Should not discard empty values", () => {});
 	mocha.it.skip("Should not discard empty values when object is nesting", () => {});
@@ -38,12 +38,12 @@ mocha.describe("toString()", () => {
 	mocha.it.skip("Should be correct when the object contains nested arrays", () => {});
 	mocha.it.skip("Should be correct and use indices when the object contains nested arrays with contain objects", () => {});
 
-	mocha.describe.skip("toString({...}, {discardEmpty})", () => {});
-	mocha.describe.skip("toString({...}, {flags})", () => {});
-	mocha.describe.skip("toString({...}, {indices})", () => {});
+	mocha.describe.skip("stringify({...}, {discardEmpty})", () => {});
+	mocha.describe.skip("stringify({...}, {flags})", () => {});
+	mocha.describe.skip("stringify({...}, {indices})", () => {});
 });
 
-mocha.describe("fromString()", () => {
+mocha.describe("parse()", () => {
 	mocha.it.skip("Should return empty object when the string is empty", () => {});
 	mocha.it.skip("Should return decoded values when the string is encoded", () => {});
 	mocha.it.skip("Should discard leading question mark", () => {});
@@ -55,11 +55,11 @@ mocha.describe("fromString()", () => {
 	mocha.it.skip("Should return object for strings \"a[b]=1&a[]=2\" and produce consequential numeric keys for empty keys", () => {});
 	mocha.it.skip("Should return an array when the top-level keys are numbers", () => {});
 
-	mocha.describe.skip("fromString({...}, {discardEmpty})", () => {});
-	mocha.describe.skip("fromString({...}, {scalars})", () => {});
+	mocha.describe.skip("parse({...}, {discardEmpty})", () => {});
+	mocha.describe.skip("parse({...}, {scalars})", () => {});
 });
 
-mocha.describe("toString(...) === fromString(...)", () => {
+mocha.describe("stringify(...) === parse(...)", () => {
 
 });
 
