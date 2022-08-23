@@ -128,6 +128,7 @@ function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions
 
 // TODO: Discard flags?
 // TODO: What to do with encoding? Encode keys/values?
+// TODO: What to do with nulls?
 type Options = {
 
 	/**
