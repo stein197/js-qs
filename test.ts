@@ -14,7 +14,7 @@ stringify() should be tested against:
 - Nested array in objects
 - Nested objects in arrays
 stringify() should be tested with options:
-- discardEmpty
+- preserveEmpty
 - indices
 - flags
 parse() should be tested against:
@@ -24,7 +24,7 @@ parse() should be tested against:
 - String with flags
 - String with numeric and string keys for a single entry
 parse() should be tested with options:
-- discardEmpty
+- preserveEmpty
 - scalars
 -------------------------------------------------------*/
 
@@ -38,7 +38,7 @@ mocha.describe("stringify()", () => {
 	mocha.it.skip("Should be correct when the object contains nested arrays", () => {});
 	mocha.it.skip("Should be correct and use indices when the object contains nested arrays with contain objects", () => {});
 
-	mocha.describe.skip("stringify({...}, {discardEmpty})", () => {});
+	mocha.describe.skip("stringify({...}, {preserveEmpty})", () => {});
 	mocha.describe.skip("stringify({...}, {flags})", () => {});
 	mocha.describe.skip("stringify({...}, {indices})", () => {});
 });
@@ -55,7 +55,7 @@ mocha.describe("parse()", () => {
 	mocha.it.skip("Should return object for strings \"a[b]=1&a[]=2\" and produce consequential numeric keys for empty keys", () => {});
 	mocha.it.skip("Should return an array when the top-level keys are numbers", () => {});
 
-	mocha.describe.skip("parse({...}, {discardEmpty})", () => {});
+	mocha.describe.skip("parse({...}, {preserveEmpty})", () => {});
 	mocha.describe.skip("parse({...}, {scalars})", () => {});
 });
 

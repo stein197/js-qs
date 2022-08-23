@@ -2,7 +2,7 @@ import jsonUtil from "@stein197/json-util";
 import {Json, JsonArray, JsonObject} from "@stein197/ts-util";
 
 const DEFAULT_OPTIONS: Options = {
-	discardEmpty: false
+	preserveEmpty: false
 }
 
 const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
@@ -64,7 +64,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 function internalStringify(data: Exclude<Json, null>, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
 	for (const [key, value] of Object.entries(data)) {
-		if (value == null || options.discardEmpty && jsonUtil.isEmpty(value))
+		if (value == null || options.preserveEmpty && jsonUtil.isEmpty(value))
 			continue;
 		const pathClone = jsonUtil.clone(path);
 		pathClone.push(Array.isArray(data) && !options.indices ? "" : key);
@@ -88,7 +88,7 @@ function parseEntry(entry: string, options: Partial<ParseOptions>): [key: string
 	let value: any = null;
 	if (values.length) {
 		value = values.join("=");
-		if (options.discardEmpty && !value)
+		if (!options.preserveEmpty && !value)
 			value = null;
 		if (options.scalars) {
 			if (value === "true")
@@ -136,15 +136,15 @@ function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions
 type Options = {
 
 	/**
-	 * Discards entries with empty values if `true`, `false` by default. Empty values are "", [] and {}. Does not
-	 * discard flags.
+	 * Preserves entries with empty values if `true`, `false` by default. Empty values are "", [] and {}. Does not
+	 * discard flags when parsing.
 	 * @example
 	 * ```ts
-	 * qs.stringify({a: 1, b: ""}, {discardEmpty: true}); // "a=1"
-	 * qs.parse("a=1&b=&c", {discardEmpty: true});          // {a: "1", c: "true"}
+	 * qs.stringify({a: 1, b: ""}, {preserveEmpty: false});  // "a=1"
+	 * qs.parse("a=1&b=&c", {preserveEmpty: true});          // {a: "1", b: "", c: true}
 	 * ```
 	 */
-	discardEmpty: boolean;
+	preserveEmpty: boolean;
 }
 
 type StringifyOptions = Options & {
