@@ -8,12 +8,13 @@ const DEFAULT_OPTIONS: Options = {
 const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 	...DEFAULT_OPTIONS,
 	indices: false,
-	flags: true
+	flags: true,
+	nulls: false
 }
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	...DEFAULT_OPTIONS,
-	scalars: false
+	scalars: true
 }
 
 /**
@@ -97,8 +98,6 @@ function parseEntry(entry: string, options: Partial<ParseOptions>): [key: string
 				value = false;
 			else if (!isNaN(+value))
 				value = +value;
-			else if (new Date(value).toISOString() === value)
-				value = new Date(value);
 		}
 	} else {
 		value = true;
@@ -130,9 +129,7 @@ function mergeOptions<T extends Options>(userOptions: Partial<T>, defaultOptions
 	}) as T;
 }
 
-// TODO: Discard flags?
 // TODO: What to do with encoding? Encode keys/values?
-// TODO: What to do with nulls?
 type Options = {
 
 	/**
@@ -170,13 +167,28 @@ type StringifyOptions = Options & {
 	 * ```
 	 */
 	flags: boolean;
+
+	/**
+	 * Stringifies `null` and `undefined` values if `true`. `false` by default.
+	 * @example
+	 * ```ts
+	 * qs.stringify({a: null, b: undefined}, {nulls: true});  // "a=null&b=undefined"
+	 * qs.stringify({a: null, b: undefined}, {nulls: false}); // ""
+	 * ```
+	 */
+	nulls: boolean;
 }
 
 type ParseOptions = Options & {
 
 	/**
-	 * If entry values could be converted to a corresponding type ("true" to true, "1" to 1, etc.) then do it, `false`
-	 * by default.
+	 * Convers a value to a corresponding type if possible. Available convertations are:
+	 * - boolean ("true" => true)
+	 * - number ("1" => 1)
+	 * - null ("null" => null)
+	 * - undefined ("undefined" => undefined)
+	 * 
+	 * `true` by default.
 	 * @example
 	 * ```ts
 	 * qs.parse("a=true&b=1", {scalars: true});  // {a: true, b: 1}
