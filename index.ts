@@ -145,8 +145,8 @@ type StringifyOptions = Options & {
 	 * Outputs indices for arrays if `true`, `false` by default.
 	 * @example
 	 * ```ts
-	 * qs.toString({a: [1]}, {useIndices: true});  // "a[0]=1"
-	 * qs.toString({a: [1]}, {useIndices: false}); // "a[]=1"
+	 * qs.toString({a: [1]}, {indices: true});  // "a[0]=1"
+	 * qs.toString({a: [1]}, {indices: false}); // "a[]=1"
 	 * ```
 	 */
 	indices: boolean;
@@ -157,8 +157,8 @@ type StringifyOptions = Options & {
 	 * `true` by default.
 	 * @example
 	 * ```ts
-	 * qs.toString({a: 1, b: true}, {useFlags: true}); // "a=1&b"
-	 * qs.fromString("a=1&b", {useFlags: true});       // {a: "1", b: true}
+	 * qs.toString({a: 1, b: true}, {flags: true}); // "a=1&b"
+	 * qs.fromString("a=1&b", {flags: true});       // {a: "1", b: true}
 	 * ```
 	 */
 	flags: boolean;
