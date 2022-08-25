@@ -4,7 +4,9 @@
   "description": "Query string parser",
   "main": "index.js",
   "scripts": {
-    "build": "tsc"
+    "compile": "tsc",
+    "pretest": "npm run compile",
+    "test": "mocha test.js"
   },
   "repository": {
     "type": "git",

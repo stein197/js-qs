@@ -22,4 +22,5 @@ Go to [releases]() page, download the script then use it as follows:
 
 ## NPM scripts
 - `build` - builds the project
+- `test` - runs unit tests
 

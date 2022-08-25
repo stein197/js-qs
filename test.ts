@@ -1,5 +1,5 @@
 import assert from "assert";
-import mocha from "mocha";
+import * as mocha from "mocha";
 import * as qs from ".";
 
 mocha.describe("stringify()", () => {

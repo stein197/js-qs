@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ESNext",
+		"module": "CommonJS",
 		"strict": true,
 		"declaration": true,
 		"noUnusedLocals": true,
@@ -11,7 +12,7 @@
 		"allowSyntheticDefaultImports": true,
 		"importsNotUsedAsValues": "remove"
 	},
-	"files": [
-		"index.ts"
+	"include": [
+		"*.ts"
 	]
 }
