@@ -17,6 +17,10 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	scalars: true
 };
 
+const ENCODE_RESERVED_CHARS: string[] = [
+	":", "/", "?", "#", "[", "]", "@", "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="
+];
+
 const QUERY_SEPARATOR = "&";
 const KEY_VALUE_SEPARATOR = "=";
 
