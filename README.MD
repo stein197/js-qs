@@ -21,4 +21,5 @@ Go to [releases]() page, download the script then use it as follows:
 ## Usage
 
 ## NPM scripts
+- `build` - builds the project
 
