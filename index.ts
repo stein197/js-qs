@@ -40,7 +40,7 @@ export function stringify(data: Exclude<Json, null>, options: Partial<StringifyO
  * For example:
  * @example Parsing flags
  * ```ts
- * qs.parse("a&b"); // {a: true, b: true}
+ * parse("a&b"); // {a: true, b: true}
  * ```
  * @param data String to parse.
  * @param options Options to use.
@@ -144,8 +144,8 @@ type Options = {
 	 * discard flags when parsing.
 	 * @example
 	 * ```ts
-	 * qs.stringify({a: 1, b: ""}, {preserveEmpty: false});  // "a=1"
-	 * qs.parse("a=1&b=&c", {preserveEmpty: true});          // {a: "1", b: "", c: true}
+	 * stringify({a: 1, b: ""}, {preserveEmpty: false});  // "a=1"
+	 * parse("a=1&b=&c", {preserveEmpty: true});          // {a: "1", b: "", c: true}
 	 * ```
 	 */
 	preserveEmpty: boolean;
@@ -157,8 +157,8 @@ type StringifyOptions = Options & {
 	 * Outputs indices for arrays if `true`, `false` by default.
 	 * @example
 	 * ```ts
-	 * qs.stringify({a: [1]}, {indices: true});  // "a[0]=1"
-	 * qs.stringify({a: [1]}, {indices: false}); // "a[]=1"
+	 * stringify({a: [1]}, {indices: true});  // "a[0]=1"
+	 * stringify({a: [1]}, {indices: false}); // "a[]=1"
 	 * ```
 	 */
 	indices: boolean;
@@ -169,8 +169,8 @@ type StringifyOptions = Options & {
 	 * `true` by default.
 	 * @example
 	 * ```ts
-	 * qs.stringify({a: 1, b: true}, {flags: true});  // "a=1&b"
-	 * qs.stringify({a: 1, b: true}, {flags: false}); // "a=1&b=true"
+	 * stringify({a: 1, b: true}, {flags: true});  // "a=1&b"
+	 * stringify({a: 1, b: true}, {flags: false}); // "a=1&b=true"
 	 * ```
 	 */
 	flags: boolean;
@@ -179,8 +179,8 @@ type StringifyOptions = Options & {
 	 * Stringifies `null` and `undefined` values if `true`. `false` by default.
 	 * @example
 	 * ```ts
-	 * qs.stringify({a: null, b: undefined}, {nulls: true});  // "a=null&b=undefined"
-	 * qs.stringify({a: null, b: undefined}, {nulls: false}); // ""
+	 * stringify({a: null, b: undefined}, {nulls: true});  // "a=null&b=undefined"
+	 * stringify({a: null, b: undefined}, {nulls: false}); // ""
 	 * ```
 	 */
 	nulls: boolean;
@@ -198,8 +198,8 @@ type ParseOptions = Options & {
 	 * `true` by default.
 	 * @example
 	 * ```ts
-	 * qs.parse("a=true&b=1", {scalars: true});  // {a: true, b: 1}
-	 * qs.parse("a=true&b=1", {scalars: false}); // {a: "true", b: "1"}
+	 * parse("a=true&b=1", {scalars: true});  // {a: true, b: 1}
+	 * parse("a=true&b=1", {scalars: false}); // {a: "true", b: "1"}
 	 * ```
 	 */
 	scalars: boolean;
