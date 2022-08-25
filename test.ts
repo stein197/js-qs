@@ -71,19 +71,30 @@ mocha.describe("stringify()", () => {
 
 // TODO: Populate with more tests
 mocha.describe("parse()", () => {
-	mocha.it.skip("Should return empty object when the string is empty", () => {});
-	mocha.it.skip("Should return decoded values when the string is encoded", () => {});
-	mocha.it.skip("Should discard leading question mark", () => {});
-	mocha.it.skip("Should discard edge ampersands", () => {});
-	mocha.it.skip("Should discard multiple ampersands", () => {});
-	mocha.it.skip("Should preserve keys with empty values", () => {});
-	mocha.it.skip("Should return true for flags", () => {});
-	mocha.it.skip("Should return the last value for multiple key occurences", () => {});
-	mocha.it.skip("Should return object for strings \"a[b]=1&a[]=2\" and produce consequential numeric keys for empty keys", () => {});
-	mocha.it.skip("Should return an array when the top-level keys are numbers", () => {});
+	mocha.it.skip("Should return empty object literal when the string is empty");
+	mocha.it.skip("Should return empty object literal when the string consists of delimiters");
+	mocha.it.skip("Should return empty object literal when the string constists of empty values");
+	mocha.it.skip("Should decode keys when keys are encoded");
+	mocha.it.skip("Should decode values when values are encoded");
+	mocha.it.skip("Should consider multiple delimiters as a single one");
+	mocha.it.skip("Should return true for flags");
+	mocha.it.skip("Should discard empty values by default when options aren't present");
+	mocha.it.skip("Should cast string scalars to corresponding types");
+	mocha.it.skip("Should return the last value for multiple key occurences");
+	mocha.it.skip("Should create new entry for each empty index ([])");
+	mocha.it.skip("Should return an array when the top-level keys are numbers");
+	mocha.it.skip("Should return correct result when parsing complex query string");
 
-	mocha.describe.skip("parse({...}, {preserveEmpty})", () => {});
-	mocha.describe.skip("parse({...}, {scalars})", () => {});
+	mocha.describe("Options", () => {
+		mocha.describe("\"preserveEmpty\"", () => {
+			mocha.it.skip("Should discard empty values when \"preserveEmpty\" is false");
+			mocha.it.skip("Should preserve empty values when \"preserveEmpty\" is true");
+		});
+		mocha.describe("\"scalars\"", () => {
+			mocha.it.skip("Should preserve values as strings when \"scalars\" is false");
+			mocha.it.skip("Should cast values to corresponding types when \"scalars\" is true");
+		});
+	});
 });
 
 // TODO
