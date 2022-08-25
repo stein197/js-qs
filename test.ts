@@ -42,6 +42,7 @@ mocha.describe("stringify()", () => {
 	mocha.describe.skip("stringify({...}, {indices})", () => {});
 });
 
+// TODO: Populate with more tests
 mocha.describe("parse()", () => {
 	mocha.it.skip("Should return empty object when the string is empty", () => {});
 	mocha.it.skip("Should return decoded values when the string is encoded", () => {});
@@ -58,7 +59,8 @@ mocha.describe("parse()", () => {
 	mocha.describe.skip("parse({...}, {scalars})", () => {});
 });
 
-mocha.describe("stringify(...) === parse(...)", () => {
+// TODO
+mocha.describe("stringify() === parse()", () => {
 
 });
 
