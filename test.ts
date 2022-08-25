@@ -97,9 +97,6 @@ mocha.describe("parse()", () => {
 	});
 });
 
-// TODO
 mocha.describe("stringify() === parse()", () => {
-
+	mocha.it.skip("Should return equal results with default options");
 });
-
-// TODO: test url encoding, see npm qs
