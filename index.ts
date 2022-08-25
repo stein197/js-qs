@@ -27,12 +27,12 @@ const QUERY_SEPARATOR = "&";
 const KEY_VALUE_SEPARATOR = "=";
 
 /**
- * Stringifies an object to query string.
- * @param data Object stringufy.
+ * Stringifies an object or array to a query string.
+ * @param data Object to stringify.
  * @param options Options to use.
  * @return Query string from the object. Returns empty string if the object is empty.
  */
-export function stringify(data: Exclude<Json, null>, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
+export function stringify(data: JsonArray | JsonObject, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
 	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
 }
 
@@ -76,7 +76,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	return normalize(result);
 }
 
-function internalStringify(data: Exclude<Json, null>, options: StringifyOptions, path: string[]): string {
+function internalStringify(data: JsonArray | JsonObject, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
 	for (const [key, value] of Object.entries(data)) {
 		if (value == null || options.preserveEmpty && jsonUtil.isEmpty(value))
