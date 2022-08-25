@@ -9,7 +9,9 @@ const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 	...DEFAULT_OPTIONS,
 	indices: false,
 	flags: true,
-	nulls: false
+	nulls: false,
+	encodeKeys: false,
+	encodeValues: false
 };
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
@@ -41,6 +43,11 @@ export function stringify(data: Exclude<Json, null>, options: Partial<StringifyO
  * @example Parsing flags
  * ```ts
  * parse("a&b"); // {a: true, b: true}
+ * ```
+ * Values and keys are automatically decoded.
+ * @example Autodecoding
+ * ```ts
+ * parse("%3Aa=1"); // {":a": 1}
  * ```
  * @param data String to parse.
  * @param options Options to use.
@@ -184,6 +191,26 @@ type StringifyOptions = Options & {
 	 * ```
 	 */
 	nulls: boolean;
+
+	/**
+	 * Encodes keys in percent notation. `false` by default. Note than if the key contains "special" characters, then
+	 * they will be encoded anyway even of the option is unset.
+	 * @example
+	 * ```ts
+	 * stringify({":a": "1"}, {encodeKeys: false}); // "%3Aa=1"
+	 * ```
+	 */
+	encodeKeys: boolean;
+
+	/**
+	 * Encodes values in percent notation. `false` by default. Note than if the key contains "special" characters, then
+	 * they will be encoded anyway even of the option is unset.
+	 * @example
+	 * ```ts
+	 * stringify({1: ":a"}, {encodeValues: false}); // "1=%3Aa"
+	 * ```
+	 */
+	encodeValues: boolean;
 }
 
 type ParseOptions = Options & {
