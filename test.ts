@@ -69,7 +69,6 @@ mocha.describe("stringify()", () => {
 	});
 });
 
-// TODO: Populate with more tests
 mocha.describe("parse()", () => {
 	mocha.it.skip("Should return empty object literal when the string is empty");
 	mocha.it.skip("Should return empty object literal when the string consists of delimiters");
