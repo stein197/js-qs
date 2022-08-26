@@ -57,7 +57,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	while (data != (data = decodeURIComponent(data)));
 	data = data.replace(/^\?/, "");
-	const result: any = {};
+	const result: any = Object.create(null);
 	for (const [key, value] of data.split(/&+/).filter(entry => entry).map(entry => parseEntry(entry, opts))) {
 		let curObject = result;
 		const lastKey = key.pop()!;
@@ -68,7 +68,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 				part = (indices.length ? Math.max(...indices) + 1 : 0).toString();
 			}
 			if (!curObject[part] || typeof curObject[part] !== "object")
-				curObject[part] = {};
+				curObject[part] = Object.create(null);
 			curObject = curObject[part];
 		}
 		curObject[lastKey] = value;
@@ -130,7 +130,7 @@ function parseEntry(entry: string, options: ParseOptions): [key: string[], value
 
 function normalize(data: JsonObject): JsonObject | JsonArray {
 	const isArray = Object.keys(data).every(k => k.match(/^\d+$/));
-	const result: JsonArray | JsonObject = isArray ? [] : {};
+	const result: JsonArray | JsonObject = isArray ? [] : Object.create(null);
 	for (const i in data)
 		result[i as any] = typeof data[i] === "object" ? normalize(data[i] as JsonObject) : data[i];
 	return result;
