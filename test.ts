@@ -11,6 +11,7 @@ mocha.describe("stringify()", () => {
 	mocha.it.skip("Should not encode values by default when options aren't present");
 	mocha.it.skip("Should encode special characters in keys");
 	mocha.it.skip("Should encode special characters in values");
+	mocha.it.skip("Should not encode brackets");
 	mocha.it.skip("Should return correct result when passing large complex object with custom options");
 
 	mocha.describe("Options", () => {
