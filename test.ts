@@ -55,10 +55,18 @@ mocha.describe("stringify()", () => {
 	mocha.describe("Arrays in arrays", () => {
 		mocha.it.skip("Should return correct result when passing an array in array");
 		mocha.it.skip("Should return empty string when the arrays are empty");
+		mocha.it.skip("Should not produce indices when nested arrays contain single item");
+		mocha.it.skip("Should not produce indices when deeply nested arrays contain single item");
+		mocha.it.skip("Should produce explicit indices when nested arrays contain multiple items");
+		mocha.it.skip("Should produce explicit indices when deeply nested arrays contain multiple items");
 	});
 	mocha.describe("Objects in arrays", () => {
 		mocha.it.skip("Should return correct result when passing an object in array");
 		mocha.it.skip("Should return empty string when object and array are empty");
+		mocha.it.skip("Should not produce indices when nested objects contain single item");
+		mocha.it.skip("Should not procues indices when deeply nested objects contain single item");
+		mocha.it.skip("Should produce explicit indices when nested objects contain multiple items");
+		mocha.it.skip("Should produce explicit indices when deeply nested objects contain multiple items");
 	});
 	mocha.describe("Objects in objects", () => {
 		mocha.it.skip("Should return correct result when passing an object in object");
