@@ -90,6 +90,7 @@ mocha.describe("parse()", () => {
 	mocha.it.skip("Should cast string scalars to corresponding types");
 	mocha.it.skip("Should return the last value for multiple key occurences");
 	mocha.it.skip("Should create new entry for each empty index ([])");
+	mocha.it.skip("Should create new entry for each empty index ([]) for deep objects");
 	mocha.it.skip("Should return an array when the top-level keys are numbers");
 	mocha.it.skip("Should return correct result when parsing complex query string");
 	mocha.it.skip("Should return an array when specifying an explicit numeric keys");
