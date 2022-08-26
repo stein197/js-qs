@@ -89,8 +89,8 @@ mocha.describe("parse()", () => {
 	mocha.it.skip("Should override inherited properties when key is one of inherited property");
 	mocha.it.skip("Should return malformed URI values as is instead of throwing an error");
 	mocha.it.skip("Should return sparsed array when the string contains sparsed numeric indices");
-	mocha.it.skip("Should return plain object when the key contains open brace");
-	mocha.it.skip("Should return plain object when the key contains close brace");
+	mocha.it.skip("Should return plain object when the key contains open bracket");
+	mocha.it.skip("Should return plain object when the key contains close bracket");
 
 	mocha.describe("Options", () => {
 		mocha.describe("\"preserveEmpty\"", () => {
