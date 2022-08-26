@@ -83,6 +83,14 @@ mocha.describe("parse()", () => {
 	mocha.it.skip("Should create new entry for each empty index ([])");
 	mocha.it.skip("Should return an array when the top-level keys are numbers");
 	mocha.it.skip("Should return correct result when parsing complex query string");
+	mocha.it.skip("Should return an array when specifying an explicit numeric keys");
+	mocha.it.skip("Should preserve all equal signs after the first one when the value contains raw equal signs");
+	mocha.it.skip("Should allow raw brackets in values");
+	mocha.it.skip("Should override inherited properties when key is one of inherited property");
+	mocha.it.skip("Should return malformed URI values as is instead of throwing an error");
+	mocha.it.skip("Should return sparsed array when the string contains sparsed numeric indices");
+	mocha.it.skip("Should return plain object when the key contains open brace");
+	mocha.it.skip("Should return plain object when the key contains close brace");
 
 	mocha.describe("Options", () => {
 		mocha.describe("\"preserveEmpty\"", () => {
