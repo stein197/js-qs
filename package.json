@@ -30,7 +30,6 @@
     "typescript": "4.6.3"
   },
   "dependencies": {
-    "@stein197/json-util": "1.2.1",
-    "@stein197/ts-util": "1.3.2"
+    "@stein197/json-util": "1.2.1"
   }
 }

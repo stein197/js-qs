@@ -13,7 +13,6 @@ mocha.describe("stringify()", () => {
 		assert.equal(qs.stringify({a: "", b: [], c: {}}), "");
 	});
 	mocha.it("Should discard null and undefined by default when options aren't present", () => {
-		// @ts-ignore
 		assert.equal(qs.stringify({a: null, b: undefined}), "");
 	});
 	mocha.it("Should not encode keys by default when options aren't present", () => {
@@ -82,11 +81,9 @@ mocha.describe("stringify()", () => {
 		});
 		mocha.describe("\"nulls\"", () => {
 			mocha.it("Should discard null and undefined when \"nulls\" is false", () => {
-				// @ts-ignore
 				assert.equal(qs.stringify({a: null, b: undefined}, {nulls: false}), "");
 			});
 			mocha.it("Should stringify null and undefined when \"nulls\" is true", () => {
-				// @ts-ignore
 				assert.equal(qs.stringify({a: null, b: undefined}, {nulls: true}), "a=null&b=undefined");
 			});
 		});
@@ -115,9 +112,15 @@ mocha.describe("stringify()", () => {
 	});
 
 	mocha.describe("Plain arrays", () => {
-		mocha.it.skip("Should return correct result when passing a common array");
-		mocha.it.skip("Should return empty string when the array is empty");
-		mocha.it.skip("Should discard empty values when the array is sparsed");
+		mocha.it("Should return correct result when passing a common array", () => {
+			assert.equal(qs.stringify(["a", "b", "c"]), "0=a&1=b&2=c");
+		});
+		mocha.it("Should return empty string when the array is empty", () => {
+			assert.equal(qs.stringify([]), "");
+		});
+		mocha.it("Should discard empty values when the array is sparsed", () => {
+			assert.equal(qs.stringify(["a", , "c"]), "0=a&2=c");
+		});
 	});
 	mocha.describe("Plain objects", () => {
 		mocha.it.skip("Should return correct result when passing a common object");
