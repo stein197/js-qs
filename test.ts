@@ -52,6 +52,17 @@ mocha.describe("stringify()", () => {
 			"%25": "%25",
 			"key": "value"
 		}), "a[b][]=c&a[b][][d]=4&b[]=1&b[]=2&%3D=%3D&%2525=%2525&key=value");
+		assert.equal(qs.stringify({
+			ios: true,
+			platform: "android",
+			ids: [
+				123, 456, 789
+			],
+			user: {
+				name: "Jon Doe",
+				company: "J&J"
+			}
+		}), "ios&platform=android&ids[]=123&ids[]=456&ids[]=789&user[name]=Jon Doe&user[company]=J%26J");
 	});
 
 	mocha.describe("Options", () => {
@@ -123,32 +134,56 @@ mocha.describe("stringify()", () => {
 		});
 	});
 	mocha.describe("Plain objects", () => {
-		mocha.it.skip("Should return correct result when passing a common object");
-		mocha.it.skip("Should return empty string when the object is empty");
+		mocha.it("Should return correct result when passing a common object", () => {
+			assert.equal(qs.stringify({a: 1, b: 2, c: 3}), "a=1&b=2&c=3");
+		});
+		mocha.it("Should return empty string when the object is empty", () => {
+			assert.equal(qs.stringify({}), "");
+		});
 	});
 	mocha.describe("Arrays in arrays", () => {
-		mocha.it.skip("Should return correct result when passing an array in array");
-		mocha.it.skip("Should return empty string when the arrays are empty");
-		mocha.it.skip("Should not produce indices when nested arrays contain single item");
-		mocha.it.skip("Should not produce indices when deeply nested arrays contain single item");
-		mocha.it.skip("Should produce explicit indices when nested arrays contain multiple items");
-		mocha.it.skip("Should produce explicit indices when deeply nested arrays contain multiple items");
+		mocha.it("Should return correct result when passing an array in array", () => {
+			assert.equal(qs.stringify([["a"]]), "0[]=a");
+		});
+		mocha.it("Should return empty string when the arrays are empty", () => {
+			assert.equal(qs.stringify([[], []]), "");
+		});
+		mocha.it("Should not produce indices when nested arrays contain single item", () => {
+			assert.equal(qs.stringify([["a"], ["b"], ["c"]]), "0[]=a&1[]=b&2[]=c");
+		});
+		mocha.it("Should not produce indices when deeply nested arrays contain single item", () => {
+			assert.equal(qs.stringify([[["a"]], [["b"]], [["c"]]]), "0[][]=a&1[][]=b&2[][]=c");
+		});
+		mocha.it("Should produce explicit indices when nested arrays contain multiple items", () => {
+			assert.equal(qs.stringify([["a", "b", "c"]]), "0[0]=a&0[1]=b&0[2]=c");
+		});
+		mocha.it("Should produce explicit indices when deeply nested arrays contain multiple items", () => {
+			assert.equal(qs.stringify([[["a"], ["b"], ["c"]]]), "0[0][]=a&1[0][]=b&2[0][]=c");
+		});
 	});
 	mocha.describe("Objects in arrays", () => {
-		mocha.it.skip("Should return correct result when passing an object in array");
-		mocha.it.skip("Should return empty string when object and array are empty");
-		mocha.it.skip("Should not produce indices when nested objects contain single item");
-		mocha.it.skip("Should not procues indices when deeply nested objects contain single item");
-		mocha.it.skip("Should produce explicit indices when nested objects contain multiple items");
-		mocha.it.skip("Should produce explicit indices when deeply nested objects contain multiple items");
+		mocha.it("Should return correct result when passing an object in array", () => {
+			assert.equal(qs.stringify([{a: 1}]), "0[a]=1");
+		});
+		mocha.it("Should return empty string when object and array are empty", () => {
+			assert.equal(qs.stringify([{}, {}]), "");
+		});
 	});
 	mocha.describe("Objects in objects", () => {
-		mocha.it.skip("Should return correct result when passing an object in object");
-		mocha.it.skip("Should return empty string when objects are empty");
+		mocha.it("Should return correct result when passing an object in object", () => {
+			assert.equal(qs.stringify({a: {b: {c: 3}}, b: {c: 3}, c: 3}), "a[b][c]=3&b[c]=3&c=3");
+		});
+		mocha.it("Should return empty string when objects are empty", () => {
+			assert.equal(qs.stringify({a: {b: {}}}), "");
+		});
 	});
 	mocha.describe("Arrays in objects", () => {
-		mocha.it.skip("Should return correct result when passing an arrasy in object");
-		mocha.it.skip("Should return empty string when arrays and objects are empty");
+		mocha.it("Should return correct result when passing an array in object", () => {
+			assert.equal(qs.stringify({a: ["a", "b", "c"]}), "a[]=a&a[]=b&a[]=c");
+		});
+		mocha.it("Should return empty string when arrays and objects are empty", () => {
+			assert.equal(qs.stringify({a: []}), "");
+		});
 	});
 });
 
