@@ -1,5 +1,4 @@
 import jsonUtil from "@stein197/json-util";
-import {Json, JsonArray, JsonObject} from "@stein197/ts-util";
 
 const DEFAULT_OPTIONS: Options = {
 	preserveEmpty: false
@@ -20,7 +19,7 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 };
 
 const ENCODE_RESERVED_CHARS: string[] = [
-	":", "/", "?", "#", "[", "]", "@", "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="
+	"%", "=", "&", "[", "]"
 ];
 
 const QUERY_SEPARATOR = "&";
@@ -32,7 +31,7 @@ const KEY_VALUE_SEPARATOR = "=";
  * @param options Options to use.
  * @return Query string from the object. Returns empty string if the object is empty.
  */
-export function stringify(data: JsonArray | JsonObject, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
+export function stringify(data: Stringifyable, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
 	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
 }
 
@@ -53,7 +52,7 @@ export function stringify(data: JsonArray | JsonObject, options: Partial<Stringi
  * @param options Options to use.
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
-export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Exclude<Json, null> {
+export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Stringifyable {
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	while (data != (data = decodeURIComponent(data)));
 	data = data.replace(/^\?/, "");
@@ -76,7 +75,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	return normalize(result);
 }
 
-function internalStringify(data: JsonArray | JsonObject, options: StringifyOptions, path: string[]): string {
+function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
 	for (const [key, value] of Object.entries(data)) {
 		if (value == null || options.preserveEmpty && jsonUtil.isEmpty(value))
@@ -128,11 +127,11 @@ function parseEntry(entry: string, options: ParseOptions): [key: string[], value
 	return [keyPath, value];
 }
 
-function normalize(data: JsonObject): JsonObject | JsonArray {
+function normalize(data: Stringifyable): Stringifyable {
 	const isArray = Object.keys(data).every(k => k.match(/^\d+$/));
-	const result: JsonArray | JsonObject = isArray ? [] : Object.create(null);
+	const result: Stringifyable = isArray ? [] : Object.create(null);
 	for (const i in data)
-		result[i as any] = typeof data[i] === "object" ? normalize(data[i] as JsonObject) : data[i];
+		result[i as any] = typeof data[i] === "object" ? normalize(data[i]) : data[i];
 	return result;
 }
 
@@ -141,6 +140,11 @@ function mergeObject<T extends Options>(userObject: Partial<T>, defaultObject: T
 		...defaultObject,
 		...userObject
 	}) as T;
+}
+
+type Stringifyable = any[] | {
+	[k: string]: any;
+	[k: number]: any;
 }
 
 type Options = {
