@@ -42,6 +42,16 @@ mocha.describe("stringify()", () => {
 	mocha.it("Should always discard empty objects", () => {
 		assert.equal(qs.stringify({a: {b: {c: {}}}}, {preserveEmpty: true}), "");
 	});
+	mocha.it("Should throw an error when stringifying circular references", () => {
+		const a: any = {};
+		const b: any = {};
+		a.b = b;
+		b.a = a;
+		assert.throws(() => qs.stringify(a), {
+			name: "ReferenceError",
+			message: "Cannot stringify an object: circular reference"
+		});
+	});
 	mocha.it("Should return correct result when passing large complex object with custom options", () => {
 		assert.equal(qs.stringify({
 			a: {
