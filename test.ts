@@ -251,6 +251,12 @@ mocha.describe("parse()", () => {
 	mocha.it("Should return plain object when the key contains close bracket", () => {
 		assert.deepStrictEqual(qs.parse("a]=1"), {"a]": 1});
 	});
+	mocha.it("Should continue counting keys when object has explicit numeric keys and implicit ones", () => {
+		assert.deepStrictEqual(qs.parse("a[1]=a&a[2]=b&a[]=c"), {a: [, "a", "b", "c"]});
+	});
+	mocha.it("Should start counting from 0 when object has explicit string keys and implicit ones", () => {
+		assert.deepStrictEqual(qs.parse("a[a]=1&a[b]=2&a[]=3"), {a: {a: 1, b: 2, 0: 3}});
+	});
 	mocha.it("Should return correct result when parsing complex query string", () => {
 		assert.equal(qs.parse("a[b][]=c&a[b][][d]=4&b[]=1&b[]=2&%3D=%3D&%2525=%2525&key=value"), {
 			a: {
