@@ -76,8 +76,20 @@ mocha.describe("stringify()", () => {
 			mocha.it("Should discard empty values when \"preserveEmpty\" is false", () => {
 				assert.equal(qs.stringify({a: "", b: [], c: {}}, {preserveEmpty: false}), "");
 			});
+			mocha.it("Should discard empty values inside an array when \"preserveEmpty\" is false", () => {
+				assert.equal(qs.stringify({a: ["", "", ""]}, {preserveEmpty: false}), "");
+			});
+			mocha.it("Should discard empty values inside an object when \"preserveEmpty\" is false", () => {
+				assert.equal(qs.stringify({a: {b: ""}}, {preserveEmpty: false}), "");
+			});
 			mocha.it("Should preserve empty values when \"preserveEmpty\" is true", () => {
 				assert.equal(qs.stringify({abc: "", def: [], ghi: {}}, {preserveEmpty: true}), "abc=&def=&ghi=");
+			});
+			mocha.it("Should preserve empty values inside an array when \"preserveEmpty\" is true", () => {
+				assert.equal(qs.stringify({a: ["", "", ""]}, {preserveEmpty: true}), "a[]=&a[]=&a[]=");
+			});
+			mocha.it("Should preserve empty values inside an object when \"preserveEmpty\" is true", () => {
+				assert.equal(qs.stringify({a: {b: ""}}, {preserveEmpty: true}), "a[b]=");
 			});
 		});
 		mocha.describe("\"indices\"", () => {
