@@ -108,7 +108,7 @@ function encode(data: string, force: boolean): string {
 function isEmpty(data: any): boolean {
 	const dataType = typeof data;
 	if (dataType === "string")
-		return !!data.length;
+		return !data.length;
 	if (dataType === "object") {
 		for (const i in data)
 			if (!isEmpty(data[i]))

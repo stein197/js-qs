@@ -127,7 +127,7 @@ mocha.describe("stringify()", () => {
 		];
 		for (const testCase of cases)
 			// @ts-ignore
-			assert.equal(qs.stringify(testCase.value), testCase.value);
+			assert.equal(qs.stringify(testCase.value), testCase.expected);
 	});
 	mocha.it("Should return correct result when passing large complex object with custom options", () => {
 		assert.equal(qs.stringify({
