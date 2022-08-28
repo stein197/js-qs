@@ -1,4 +1,4 @@
-import assert from "assert";
+import * as assert from "assert";
 import * as mocha from "mocha";
 import * as qs from ".";
 
@@ -47,10 +47,87 @@ mocha.describe("stringify()", () => {
 		const b: any = {};
 		a.b = b;
 		b.a = a;
-		assert.throws(() => qs.stringify(a), {
-			name: "ReferenceError",
-			message: "Cannot stringify an object: circular reference"
-		});
+		assert.throws(() => qs.stringify(a), ReferenceError);
+	});
+	mocha.it("Should correctly omit indices for nested structures", () => {
+		const cases = [
+			{
+				expected: "0[]=1",
+				value: [
+					[
+						1
+					]
+				]
+			},
+			{
+				expected: "3=a",
+				value: [,,,"a"]
+			},
+			{
+				expected: "0[3]=a",
+				value: [
+					[,,,"a"]
+				],
+			},
+			{
+				expected: "0[a][]=2&0[b]=3",
+				value: [
+					{
+						a: [
+							2
+						],
+						b: 3
+					}
+				]
+			},
+			{
+				expected: "a[]=2&b=3",
+				value: {
+					a: [
+						2
+					],
+					b: 3
+				}
+			},
+			{
+				expected: "0=2",
+				value: [
+					2
+				]
+			},
+			{
+				expected: "0[]=4&0[]=5",
+				value: [
+					[
+						4,
+						5
+					]
+				],
+			},
+			{
+				expected: "0=1&1[0][a][]=2&1[0][b]=3&2[]=4&2[]=5",
+				value: [
+					1,
+					[
+						{
+							a: [
+								2
+							],
+							b: 3
+						}
+					],
+					[
+						[
+							4,
+							5
+						]
+					]
+				]
+			}
+		];
+		for (const testCase of cases)
+			// @ts-ignore
+			assert.equal(qs.stringify(testCase.value), testCase.value);
 	});
 	mocha.it("Should return correct result when passing large complex object with custom options", () => {
 		assert.equal(qs.stringify({
