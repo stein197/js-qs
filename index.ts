@@ -18,7 +18,7 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	scalars: true
 };
 
-const ENCODE_RESERVED_CHARS: string[] = [
+const CHARS_RESERVED: string[] = [
 	"%", "=", "&", "[", "]"
 ];
 
@@ -95,6 +95,48 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 		}
 	}
 	return result.join(QUERY_SEPARATOR);
+}
+
+function encode(data: string, force: boolean): string {
+	if (force)
+		return encodeURIComponent(data);
+	let result: string = "";
+	for (const char of data)
+		result += CHARS_RESERVED.includes(char) ? encodeURIComponent(char) : char;
+	return result;
+}
+
+function isEmpty(data: any): boolean {
+	const dataType = typeof data;
+	if (dataType === "string")
+		return !!data.length;
+	if (dataType === "object") {
+		for (const i in data)
+			if (!isEmpty(data[i]))
+				return false;
+		return true;
+	}
+	return false;
+}
+
+function shouldUseIndex(data: any, depth: number): boolean {
+	const isObject = jsonUtil.isObject(data);
+	const isArray = jsonUtil.isArray(data);
+	if (!isObject && !isArray)
+		return false;
+	const keys = Object.keys(data);
+	const sparse = isArray && isSparse(data);
+	const isComplex = depth ? isObject && keys.length > 1 || isArray && data.length > 1 && (!sparse || sparse && keys.length > 1) : isObject || isArray && sparse;
+	if (isComplex)
+		return true;
+	for (const i in data)
+		if (shouldUseIndex(data[i], depth + 1))
+			return true;
+	return false;
+}
+
+function isSparse(array: any[]): boolean {
+	return array.length !== Object.keys(array).length;
 }
 
 function parseEntry(entry: string, options: ParseOptions): [key: string[], value?: any] {
