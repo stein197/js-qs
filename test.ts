@@ -36,6 +36,12 @@ mocha.describe("stringify()", () => {
 	mocha.it("Should encode encoded characters in values", () => {
 		assert.equal(qs.stringify({a: "%25"}), "a=%2525");
 	});
+	mocha.it("Should always discard empty arrays", () => {
+		assert.equal(qs.stringify({a: [[[]]]}, {preserveEmpty: true}), "");
+	});
+	mocha.it("Should always discard empty objects", () => {
+		assert.equal(qs.stringify({a: {b: {c: {}}}, {preserveEmpty: true}), "");
+	});
 	mocha.it("Should return correct result when passing large complex object with custom options", () => {
 		assert.equal(qs.stringify({
 			a: {
