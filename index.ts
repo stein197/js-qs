@@ -30,6 +30,7 @@ const KEY_VALUE_SEPARATOR = "=";
  * @param data Object to stringify.
  * @param options Options to use.
  * @return Query string from the object. Returns empty string if the object is empty.
+ * @throws {@link ReferenceError} When data contains circular references.
  */
 export function stringify(data: Stringifyable, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
 	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
