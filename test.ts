@@ -43,11 +43,27 @@ mocha.describe("stringify()", () => {
 		assert.equal(qs.stringify({a: {b: {c: {}}}}, {preserveEmpty: true}), "");
 	});
 	mocha.it("Should throw an error when stringifying circular references", () => {
-		const a: any = {};
-		const b: any = {};
+		let a: any = {};
+		let b: any = {};
 		a.b = b;
 		b.a = a;
-		assert.throws(() => qs.stringify(a), ReferenceError);
+		assert.throws(() => qs.stringify(a), {
+			name: "ReferenceError",
+			message: "Cannot stringify data because of circular reference at [\"b\"]"
+		});
+		a = {
+			a: {
+				b: [
+					1
+				]
+			}
+		}
+		b = a
+		a.a.b.push(b);
+		assert.throws(() => qs.stringify(a), {
+			name: "ReferenceError",
+			message: "Cannot stringify data because of circular reference at [\"a\"][\"b\"][1]"
+		});
 	});
 	mocha.it("Should correctly omit indices for nested structures", () => {
 		const cases = [

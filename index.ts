@@ -22,6 +22,11 @@ const CHARS_RESERVED: string[] = [
 	"%", "=", "&", "[", "]"
 ];
 
+const CHARS_ESCAPE: string[] = [
+	"\"", "'", "\\"
+];
+
+const CHAR_STRING_ESCAPE = "\\";
 const QUERY_SEPARATOR = "&";
 const KEY_VALUE_SEPARATOR = "=";
 
@@ -33,7 +38,7 @@ const KEY_VALUE_SEPARATOR = "=";
  * @throws {@link ReferenceError} When data contains circular references.
  */
 export function stringify(data: Stringifyable, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
-	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
+	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), [], []);
 }
 
 /**
@@ -74,7 +79,8 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	return normalize(result);
 }
 
-function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[]): string {
+function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[], references: any[]): string {
+	references.push(data);
 	const result: string[] = [];
 	const needIndex = shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
@@ -83,7 +89,9 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 		const pathCopy = jsonUtil.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
 		if (typeof value === "object") {
-			result.push(internalStringify(value, options, pathCopy));
+			if (references.includes(value))
+				throw new ReferenceError(`Cannot stringify data because of circular reference at ${path.map(k => isNaN(+k) ? `["${escape(k)}"]` : `[${k}]`).join("")}`);
+			result.push(internalStringify(value, options, pathCopy, references));
 		} else {
 			let qKey = encode(pathCopy.shift()!, options.encodeKeys);
 			qKey += pathCopy.length ? `[${pathCopy.map(k => encode(k, options.encodeKeys)).join("][")}]` : "";
@@ -102,6 +110,13 @@ function encode(data: string, force: boolean): string {
 	let result: string = "";
 	for (const char of data)
 		result += CHARS_RESERVED.includes(char) ? encodeURIComponent(char) : char;
+	return result;
+}
+
+function escape(string: string): string {
+	let result = "";
+	for (const char of string)
+		result += CHARS_ESCAPE.includes(char) ? CHAR_STRING_ESCAPE + char : char;
 	return result;
 }
 
