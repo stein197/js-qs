@@ -119,18 +119,18 @@ function isEmpty(data: any): boolean {
 	return false;
 }
 
-function shouldUseIndex(data: any, depth: number): boolean {
+function shouldUseIndex(data: any, deep: boolean): boolean {
 	const isObject = jsonUtil.isObject(data);
 	const isArray = jsonUtil.isArray(data);
 	if (!isObject && !isArray)
 		return false;
 	const keys = Object.keys(data);
 	const sparse = isArray && isSparse(data);
-	const isComplex = depth ? isObject && keys.length > 1 || isArray && data.length > 1 && (!sparse || sparse && keys.length > 1) : isObject || isArray && sparse;
+	const isComplex = deep ? isObject && keys.length > 1 || isArray && data.length > 1 && (!sparse || sparse && keys.length > 1) : isObject || isArray && sparse;
 	if (isComplex)
 		return true;
 	for (const i in data)
-		if (shouldUseIndex(data[i], depth + 1))
+		if (shouldUseIndex(data[i], true))
 			return true;
 	return false;
 }
