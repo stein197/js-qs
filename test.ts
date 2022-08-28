@@ -40,7 +40,7 @@ mocha.describe("stringify()", () => {
 		assert.equal(qs.stringify({a: [[[]]]}, {preserveEmpty: true}), "");
 	});
 	mocha.it("Should always discard empty objects", () => {
-		assert.equal(qs.stringify({a: {b: {c: {}}}, {preserveEmpty: true}), "");
+		assert.equal(qs.stringify({a: {b: {c: {}}}}, {preserveEmpty: true}), "");
 	});
 	mocha.it("Should return correct result when passing large complex object with custom options", () => {
 		assert.equal(qs.stringify({
