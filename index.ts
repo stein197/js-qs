@@ -1,4 +1,4 @@
-import jsonUtil from "@stein197/json-util";
+import * as jsonUtil from "@stein197/json-util";
 
 const DEFAULT_OPTIONS: Options = {
 	preserveEmpty: false
@@ -55,8 +55,6 @@ export function stringify(data: Stringifyable, options: Partial<StringifyOptions
  */
 export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Stringifyable {
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
-	while (data != (data = decodeURIComponent(data)));
-	data = data.replace(/^\?/, "");
 	const result: any = Object.create(null);
 	for (const [key, value] of data.split(/&+/).filter(entry => entry).map(entry => parseEntry(entry, opts))) {
 		let curObject = result;
@@ -78,20 +76,21 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 
 function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
+	const needIndex = shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
-		if (value == null || options.preserveEmpty && jsonUtil.isEmpty(value))
+		if (!options.preserveEmpty && isEmpty(value) || !options.nulls && value == null)
 			continue;
-		const pathClone = jsonUtil.clone(path);
-		pathClone.push(Array.isArray(data) && !options.indices ? "" : key);
+		const pathCopy = jsonUtil.clone(path);
+		pathCopy.push(options.indices || needIndex ? key : "");
 		if (typeof value === "object") {
-			result.push(internalStringify(value, options, pathClone));
+			result.push(internalStringify(value, options, pathCopy));
 		} else {
-			let qKey = pathClone.shift()!;
-			qKey += pathClone.length ? `[${pathClone.join("][")}]` : "";
-			if (options.flags)
+			let qKey = encode(pathCopy.shift()!, options.encodeKeys);
+			qKey += pathCopy.length ? `[${pathCopy.map(k => encode(k, options.encodeKeys)).join("][")}]` : "";
+			if (value === true && options.flags)
 				result.push(qKey);
 			else
-				result.push(`${qKey}=${encodeURIComponent(value.toString())}`);
+				result.push(`${qKey}=${encode(value.toString(), options.encodeValues)}`);
 		}
 	}
 	return result.join(QUERY_SEPARATOR);
@@ -130,6 +129,7 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 	if (isComplex)
 		return true;
 	for (const i in data)
+		// @ts-ignore
 		if (shouldUseIndex(data[i], true))
 			return true;
 	return false;
