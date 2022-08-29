@@ -124,13 +124,12 @@ function isEmpty(data: any): boolean {
 	const dataType = typeof data;
 	if (dataType === "string")
 		return !data.length;
-	if (dataType === "object") {
-		for (const i in data)
-			if (!isEmpty(data[i]))
-				return false;
-		return true;
-	}
-	return false;
+	if (dataType !== "object")
+		return false;
+	for (const i in data)
+		if (!isEmpty(data[i]))
+			return false;
+	return true;
 }
 
 function shouldUseIndex(data: any, deep: boolean): boolean {
