@@ -38,7 +38,8 @@ const KEY_VALUE_SEPARATOR = "=";
  * @throws {@link ReferenceError} When data contains circular references.
  */
 export function stringify(data: Stringifyable, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
-	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), [], []);
+	checkCircularReferences(data, [], []);
+	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
 }
 
 /**
@@ -79,8 +80,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	return normalize(result);
 }
 
-function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[], references: any[]): string {
-	references.push(data);
+function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
 	const needIndex = shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
@@ -89,9 +89,7 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 		const pathCopy = jsonUtil.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
 		if (typeof value === "object") {
-			if (references.includes(value))
-				throw new ReferenceError(`Cannot stringify data because of circular reference at ${path.map(k => isNaN(+k) ? `["${escape(k)}"]` : `[${k}]`).join("")}`);
-			result.push(internalStringify(value, options, pathCopy, references));
+			result.push(internalStringify(value, options, pathCopy));
 		} else {
 			let qKey = encode(pathCopy.shift()!, options.encodeKeys);
 			qKey += pathCopy.length ? `[${pathCopy.map(k => encode(k, options.encodeKeys)).join("][")}]` : "";
@@ -147,6 +145,19 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 		if (shouldUseIndex(data[i], true))
 			return true;
 	return false;
+}
+
+function checkCircularReferences(data: Stringifyable, path: string[], references: Stringifyable[]): void | never {
+	if (references.includes(data))
+		throw new ReferenceError(`Cannot stringify data because of circular reference at ${path.map(k => isNaN(+k) ? `["${escape(k)}"]` : `[${k}]`).join("")}`);
+	references.push(data);
+	for (const i in data) {
+		if (typeof data[i] !== "object")
+			continue;
+		const pathCopy = jsonUtil.clone(path);
+		pathCopy.push(i);
+		checkCircularReferences(data[i], pathCopy, references);
+	}
 }
 
 function isSparse(array: any[]): boolean {

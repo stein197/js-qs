@@ -49,7 +49,7 @@ mocha.describe("stringify()", () => {
 		b.a = a;
 		assert.throws(() => qs.stringify(a), {
 			name: "ReferenceError",
-			message: "Cannot stringify data because of circular reference at [\"b\"]"
+			message: "Cannot stringify data because of circular reference at [\"b\"][\"a\"]"
 		});
 		a = {
 			a: {
