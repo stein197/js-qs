@@ -203,10 +203,12 @@ function parseEntry(entry: string, options: ParseOptions): [key: string[], value
 }
 
 function normalize(data: Stringifyable): Stringifyable {
-	const isArray = Object.keys(data).every(k => k.match(/^\d+$/));
-	const result: Stringifyable = isArray ? [] : Object.create(null);
+	const originalKeys = Object.keys(data);
+	const castedKeys = originalKeys.map(key => +key);
+	const isDataArray = castedKeys.every(key => !isNaN(key) && Math.round(key) === key);
+	const result = isDataArray ? new Array(castedKeys.length ? Math.max(...castedKeys) + 1 : 0) : data;
 	for (const i in data)
-		result[i as any] = typeof data[i] === "object" ? normalize(data[i]) : data[i];
+		result[i] = typeof data[i] === "object" ? normalize(data[i]) : data[i];
 	return result;
 }
 
