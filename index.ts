@@ -82,7 +82,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 
 function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
-	const needIndex = shouldUseIndex(data, false);
+	const needIndex = !path.length || shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
 		if (!options.preserveEmpty && isEmpty(value) || !options.nulls && value == null)
 			continue;
