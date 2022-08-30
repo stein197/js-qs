@@ -90,7 +90,12 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 		const pathCopy = jsonUtil.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
 		if (!isNull && typeof value === "object") {
-			result.push(internalStringify(value, options, pathCopy));
+			const strResult = internalStringify(value, options, pathCopy);
+			if (options.preserveEmpty && !strResult) {
+				result.push(encode(pathCopy.shift()!, options.encodeKeys) + (pathCopy.length ? `[${pathCopy.map(k => encode(k, options.encodeKeys)).join("][")}]` : "") + "=")
+			} else {
+				result.push(strResult);
+			}
 		} else {
 			let qKey = encode(pathCopy.shift()!, options.encodeKeys);
 			qKey += pathCopy.length ? `[${pathCopy.map(k => encode(k, options.encodeKeys)).join("][")}]` : "";
