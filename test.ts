@@ -275,9 +275,6 @@ mocha.describe("stringify()", () => {
 		mocha.it("Should not produce indices when deeply nested arrays contain single item", () => {
 			assert.equal(qs.stringify([[["a"]], [["b"]], [["c"]]]), "0[][]=a&1[][]=b&2[][]=c");
 		});
-		mocha.it("Should produce explicit indices when nested arrays contain multiple items", () => {
-			assert.equal(qs.stringify([["a", "b", "c"]]), "0[0]=a&0[1]=b&0[2]=c");
-		});
 		mocha.it("Should produce explicit indices when deeply nested arrays contain multiple items", () => {
 			assert.equal(qs.stringify([[["a"], ["b"], ["c"]]]), "0[0][]=a&1[0][]=b&2[0][]=c");
 		});
