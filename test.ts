@@ -186,7 +186,7 @@ mocha.describe("stringify()", () => {
 				assert.equal(qs.stringify({a: {b: ""}}, {preserveEmpty: false}), "");
 			});
 			mocha.it("Should preserve empty values when \"preserveEmpty\" is true", () => {
-				assert.equal(qs.stringify({abc: "", def: [], ghi: {}}, {preserveEmpty: true}), "abc=&def=&ghi=");
+				assert.equal(qs.stringify({abc: "", def: [], ghi: {}, jkl: {mno: ""}}, {preserveEmpty: true}), "abc=&def=&ghi=&jkl[mno]=");
 			});
 			mocha.it("Should preserve empty values inside an array when \"preserveEmpty\" is true", () => {
 				assert.equal(qs.stringify({a: ["", "", ""]}, {preserveEmpty: true}), "a[]=&a[]=&a[]=");
