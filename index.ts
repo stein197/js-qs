@@ -84,11 +84,12 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 	const result: string[] = [];
 	const needIndex = !path.length || shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
-		if (!options.preserveEmpty && isEmpty(value) || !options.nulls && value == null)
+		const isNull = value == null;
+		if (!options.preserveEmpty && !isNull && isEmpty(value) || !options.nulls && value == null)
 			continue;
 		const pathCopy = jsonUtil.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
-		if (typeof value === "object") {
+		if (!isNull && typeof value === "object") {
 			result.push(internalStringify(value, options, pathCopy));
 		} else {
 			let qKey = encode(pathCopy.shift()!, options.encodeKeys);
@@ -96,7 +97,7 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 			if (value === true && options.flags)
 				result.push(qKey);
 			else
-				result.push(`${qKey}=${encode(value.toString(), options.encodeValues)}`);
+				result.push(`${qKey}=${encode(String(value), options.encodeValues)}`);
 		}
 	}
 	return result.join(QUERY_SEPARATOR);
