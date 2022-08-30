@@ -89,6 +89,7 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 			continue;
 		const pathCopy = jsonUtil.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
+		// TODO: Refactor it, pull qKey out, remove redundant ifs
 		if (!isNull && typeof value === "object") {
 			const strResult = internalStringify(value, options, pathCopy);
 			if (options.preserveEmpty && !strResult) {
