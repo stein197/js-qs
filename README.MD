@@ -1,6 +1,9 @@
 # JavaScript URL query string params parser and reader
 This simple script is used to parse URL query string to JS objects and stringify these objects into string so they can be used in AJAX queries. Supports nested objects.
 
+## Features
+- Automatically omits redundant indices
+
 ## Installation
 ### As a Node.js module
 ```
