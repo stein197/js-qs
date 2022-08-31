@@ -80,6 +80,36 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	return normalize(result);
 }
 
+function parseKey(key: string): string[] {
+	const result: string[] = [];
+	let curKey: string | null = "";
+	for (const char of key) {
+		if (char === "[" || char === "]") {
+			if (curKey != null)
+				result.push(curKey);
+			curKey = char === "[" ? "" : null;
+		} else {
+			curKey += char;
+		}
+	}
+	if (curKey != null)
+		result.push(curKey);
+	return result;
+}
+
+function castValue(value: string): undefined | null | boolean | number | string {
+	if (value === "undefined")
+		return undefined;
+	if (value === "null")
+		return null;
+	if (value === "true")
+		return true;
+	if (value === "false")
+		return false;
+	const numValue = +value;
+	return isNaN(numValue) ? value : numValue;
+}
+
 function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
 	const needIndex = !path.length || shouldUseIndex(data, false);
