@@ -60,6 +60,7 @@ export function stringify(data: Stringifyable, options: Partial<StringifyOptions
  * @param options Options to use.
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
+// TODO: {} -> Object.create(null)
 export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Stringifyable {
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	const result: any = {};
