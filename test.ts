@@ -452,6 +452,9 @@ mocha.describe("parse()", () => {
 			mocha.it("Should cast values to corresponding types when \"scalars\" is true", () => {
 				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {scalars: true}), {a: null, b: undefined, c: true, d: false, f: -1});
 			});
+			mocha.it("Should not cast space as zero when \"scalars\" is true", () => {
+				assert.deepStrictEqual(qs.parse("a= ", {scalars: true}), {a: " "})
+			});
 		});
 	});
 });
