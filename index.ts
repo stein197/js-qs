@@ -102,8 +102,8 @@ function parseKey(key: string): string[] {
 	let inBrace = false;
 	for (const char of key) {
 		if (char === "[" || char === "]") {
-			if (!inBrace && char === "]") {
-				curKey += "]";
+			if (!inBrace && char === "]" || inBrace && char === "[") {
+				curKey += char;
 				continue;
 			}
 			if (curKey != null)

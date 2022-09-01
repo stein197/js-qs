@@ -365,6 +365,7 @@ mocha.describe("parse()", () => {
 	});
 	mocha.it("Should return plain object when the key contains open bracket", () => {
 		assert.deepStrictEqual(qs.parse("a[=1"), {"a[": 1});
+		assert.deepStrictEqual(qs.parse("a[b[=1"), {"a[b[": 1});
 	});
 	mocha.it("Should return plain object when the key contains close bracket", () => {
 		assert.deepStrictEqual(qs.parse("a]=1"), {"a]": 1});
