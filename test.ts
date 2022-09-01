@@ -462,10 +462,19 @@ mocha.describe("parse()", () => {
 	});
 
 	mocha.describe("Overriding", () => {
-		mocha.it.skip("Should return value for the latest key occurence");
-		mocha.it.skip("Should drop value when the first key contains value and the second does not");
-		mocha.it.skip("Should override nested structure with primitive value");
-		mocha.it.skip("Should override primitive value with nested structure");
+		mocha.it("Should return value for the latest key occurence", () => {
+			assert.deepStrictEqual(qs.parse("a=a&a=b"), {a: "b"});
+		});
+		mocha.it("Should drop value when the first key contains value and the second does not", () => {
+			assert.deepStrictEqual(qs.parse("a=a&a=", {preserveEmpty: true}), {a: ""});
+			assert.deepStrictEqual(qs.parse("a=a&a=", {preserveEmpty: false}), {});
+		});
+		mocha.it("Should override nested structure with primitive value", () => {
+			assert.deepStrictEqual(qs.parse("a[]=a&a=b"), {a: "b"});
+		});
+		mocha.it("Should override primitive value with nested structure", () => {
+			assert.deepStrictEqual(qs.parse("a=a&a[]=b"), {a: ["b"]});
+		});
 	});
 
 	mocha.describe("Options", () => {
