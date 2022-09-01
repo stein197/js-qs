@@ -375,6 +375,7 @@ mocha.describe("parse()", () => {
 	mocha.it("Should start counting from 0 when object has explicit string keys and implicit ones", () => {
 		assert.deepStrictEqual(qs.parse("a[a]=1&a[b]=2&a[]=3"), {a: {a: 1, b: 2, 0: 3}});
 	});
+	mocha.it.skip("Should return object when the first keys are numbers and the last ones are strings");
 	mocha.it("Should return correct result when parsing complex query string", () => {
 		assert.deepStrictEqual(qs.parse("a[b][]=c&a[b][][d]=4&b[]=1&b[]=2&%3D=%3D&%2525=%2525&key=value"), {
 			a: {
@@ -404,6 +405,27 @@ mocha.describe("parse()", () => {
 		});
 	});
 
+	mocha.describe("Casting numbers", () => {
+		mocha.it.skip("Should properly cast zero");
+		mocha.it.skip("Should properly cast positive number");
+		mocha.it.skip("Should properly cast negative number");
+		mocha.it.skip("Should properly cast positive binary number");
+		mocha.it.skip("Should properly cast negative binary number");
+		mocha.it.skip("Should properly cast positive octal number");
+		mocha.it.skip("Should properly cast negative octal number");
+		mocha.it.skip("Should properly cast positive hexadecimal number");
+		mocha.it.skip("Should properly cast negative hexadecimal number");
+		mocha.it.skip("Should properly cast positive exponential number");
+		mocha.it.skip("Should properly cast negative exponential number");
+	});
+
+	mocha.describe("Overriding", () => {
+		mocha.it.skip("Should return value for the latest key occurence");
+		mocha.it.skip("Should drop value when the first key contains value and the second does not");
+		mocha.it.skip("Should override nested structure with primitive value");
+		mocha.it.skip("Should override primitive value with nested structure");
+	});
+
 	mocha.describe("Options", () => {
 		mocha.describe("\"preserveEmpty\"", () => {
 			mocha.it("Should discard empty values when \"preserveEmpty\" is false", () => {
@@ -415,10 +437,10 @@ mocha.describe("parse()", () => {
 		});
 		mocha.describe("\"scalars\"", () => {
 			mocha.it("Should preserve values as strings when \"scalars\" is false", () => {
-				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=-1", {scalars: false}), {a: "null", b: "undefined", c: "true", d: "-1"});
+				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {scalars: false}), {a: "null", b: "undefined", c: "true", d: "false", f: "-1"});
 			});
 			mocha.it("Should cast values to corresponding types when \"scalars\" is true", () => {
-				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=-1", {scalars: true}), {a: null, b: undefined, c: true, d: -1});
+				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {scalars: true}), {a: null, b: undefined, c: true, d: false, f: -1});
 			});
 		});
 	});
