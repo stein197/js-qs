@@ -29,6 +29,7 @@ const CHARS_ESCAPE: string[] = [
 const CHAR_STRING_ESCAPE = "\\";
 const QUERY_SEPARATOR = "&";
 const KEY_VALUE_SEPARATOR = "=";
+const REGEX_ENTRIES = /&+/;
 
 /**
  * Stringifies an object or array to a query string.
@@ -61,21 +62,36 @@ export function stringify(data: Stringifyable, options: Partial<StringifyOptions
  */
 export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Stringifyable {
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
-	const result: any = Object.create(null);
-	for (const [key, value] of data.split(/&+/).filter(entry => entry).map(entry => parseEntry(entry, opts))) {
-		let curObject = result;
-		const lastKey = key.pop()!;
-		for (const i in key) {
-			let part = key[i];
-			if (!part) {
-				const indices = Object.keys(curObject).map(k => +k);
-				part = (indices.length ? Math.max(...indices) + 1 : 0).toString();
-			}
-			if (!curObject[part] || typeof curObject[part] !== "object")
-				curObject[part] = Object.create(null);
-			curObject = curObject[part];
+	const result: any = {};
+	const entries = data.split(REGEX_ENTRIES);
+	for (const entry of entries) {
+		const [key, ...values] = entry.split(KEY_VALUE_SEPARATOR);
+		let value: any;
+		if (values.length) {
+			value = values.join(KEY_VALUE_SEPARATOR);
+			try {
+				value = decodeURIComponent(value);
+			} catch {}
+			if (!opts.preserveEmpty && !value)
+				continue;
+			if (opts.scalars)
+				value = castValue(value);
+		} else {
+			value = true;
 		}
-		curObject[lastKey] = value;
+		let keyPath: string[] = parseKey(key);
+		let curObj = result;
+		const lastKey = keyPath.pop()!;
+		for (let k of keyPath) {
+			if (!k) {
+				const indices = Object.keys(curObj).map(k => +k).filter(k => !isNaN(k));
+				k = (indices.length ? Math.max(...indices) + 1 : 0).toString();
+			}
+			if (!curObj[k] || typeof curObj[k] !== "object")
+				curObj[k] = {};
+			curObj = curObj[k];
+		}
+		curObj[lastKey] = value;
 	}
 	return normalize(result);
 }
@@ -94,7 +110,7 @@ function parseKey(key: string): string[] {
 	}
 	if (curKey != null)
 		result.push(curKey);
-	return result;
+	return result.map(k => decodeURIComponent(k));
 }
 
 function castValue(value: string): undefined | null | boolean | number | string {
@@ -199,37 +215,6 @@ function checkCircularReferences(data: Stringifyable, path: string[], references
 
 function isSparse(array: any[]): boolean {
 	return array.length !== Object.keys(array).length;
-}
-
-function parseEntry(entry: string, options: ParseOptions): [key: string[], value?: any] {
-	let [key, ...values] = entry.split(KEY_VALUE_SEPARATOR);
-	let keyPath: string[] = [];
-	let value: any = null;
-	if (values.length) {
-		value = values.join(KEY_VALUE_SEPARATOR);
-		if (!options.preserveEmpty && !value)
-			value = null;
-		if (options.scalars) {
-			if (value === "true")
-				value = true;
-			else if (value === "false")
-				value = false;
-			else if (!isNaN(+value))
-				value = +value;
-		}
-	} else {
-		value = true;
-	}
-
-	let matches = key.match(/\[[^\[\]]*\]/g);
-	if (!matches) {
-		keyPath = [key];
-	} else {
-		keyPath.push(key.split(/\[\]/, 1)[0]);
-		keyPath.push(...matches);
-	}
-
-	return [keyPath, value];
 }
 
 function normalize(data: Stringifyable): Stringifyable {
