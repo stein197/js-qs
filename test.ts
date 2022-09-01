@@ -375,9 +375,15 @@ mocha.describe("parse()", () => {
 	mocha.it("Should start counting from 0 when object has explicit string keys and implicit ones", () => {
 		assert.deepStrictEqual(qs.parse("a[a]=1&a[b]=2&a[]=3"), {a: {a: 1, b: 2, 0: 3}});
 	});
-	mocha.it.skip("Should return object when the first keys are numbers and the last ones are strings");
-	mocha.it.skip("Should return object for nested structures when the first keys ommited and the last ones are strings");
-	mocha.it.skip("Should return object for nested structures when the first keys are numbers and the last ones are strings");
+	mocha.it("Should return object when the first keys are numbers and the last ones are strings", () => {
+		assert.deepStrictEqual(qs.parse("0=a&1=b&c=c"), {0: "a", 1: "b", c: "c"});
+	});
+	mocha.it("Should return object for nested structures when the first keys ommited and the last ones are strings", () => {
+		assert.deepStrictEqual(qs.parse("a[]=a&a[]=b&a[c]=c"), {a: {0: "a", 1: "b", c: "c"}});
+	});
+	mocha.it("Should return object for nested structures when the first keys are numbers and the last ones are strings", () => {
+		assert.deepStrictEqual(qs.parse("a[0]=a&a[1]=b&a[c]=c"), {a: {0: "a", 1: "b", c: "c"}});
+	});
 	mocha.it("Should return correct result when parsing complex query string", () => {
 		assert.deepStrictEqual(qs.parse("a[b][]=c&a[b][][d]=4&b[]=1&b[]=2&%3D=%3D&%2525=%2525&key=value"), {
 			a: {
