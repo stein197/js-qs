@@ -28,7 +28,7 @@ const CHARS_ESCAPE: string[] = [
 
 const CHAR_BACKSLASH = "\\";
 const QUERY_SEPARATOR = "&";
-const KEY_VALUE_SEPARATOR = "=";
+const CHAR_EQUALS = "=";
 const REGEX_ENTRIES = /&+/;
 
 /**
@@ -66,10 +66,10 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	const result: any = {};
 	const entries = data.split(REGEX_ENTRIES).filter(entry => entry);
 	for (const entry of entries) {
-		const [key, ...values] = entry.split(KEY_VALUE_SEPARATOR);
+		const [key, ...values] = entry.split(CHAR_EQUALS);
 		let value: any;
 		if (values.length) {
-			value = values.join(KEY_VALUE_SEPARATOR);
+			value = values.join(CHAR_EQUALS);
 			try {
 				value = decodeURIComponent(value);
 			} catch {}
