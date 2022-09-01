@@ -346,7 +346,7 @@ mocha.describe("parse()", () => {
 		assert.deepStrictEqual(qs.parse("0=a&1=c"), ["a", "c"]);
 	});
 	mocha.it("Should return an array when specifying an explicit numeric keys", () => {
-		assert.deepStrictEqual(qs.parse("a[0]=1&a[1]=2"), [1, 2]);
+		assert.deepStrictEqual(qs.parse("a[0]=1&a[1]=2"), {a: [1, 2]});
 	});
 	mocha.it("Should preserve all equal signs after the first one when the value contains raw equal signs", () => {
 		assert.deepStrictEqual(qs.parse("a=b=c&b=c=d"), {a: "b=c", b: "c=d"});
