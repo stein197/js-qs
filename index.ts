@@ -26,7 +26,7 @@ const CHARS_ESCAPE: string[] = [
 	"\"", "'", "\\"
 ];
 
-const CHAR_STRING_ESCAPE = "\\";
+const CHAR_BACKSLASH = "\\";
 const QUERY_SEPARATOR = "&";
 const KEY_VALUE_SEPARATOR = "=";
 const REGEX_ENTRIES = /&+/;
@@ -181,7 +181,7 @@ function encode(data: string, force: boolean): string {
 function escape(string: string): string {
 	let result = "";
 	for (const char of string)
-		result += CHARS_ESCAPE.includes(char) ? CHAR_STRING_ESCAPE + char : char;
+		result += CHARS_ESCAPE.includes(char) ? CHAR_BACKSLASH + char : char;
 	return result;
 }
 
