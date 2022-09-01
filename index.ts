@@ -63,7 +63,7 @@ export function stringify(data: Stringifyable, options: Partial<StringifyOptions
 export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Stringifyable {
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	const result: any = {};
-	const entries = data.split(REGEX_ENTRIES);
+	const entries = data.split(REGEX_ENTRIES).filter(entry => entry);
 	for (const entry of entries) {
 		const [key, ...values] = entry.split(KEY_VALUE_SEPARATOR);
 		let value: any;
