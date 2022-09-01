@@ -97,18 +97,26 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 }
 
 function parseKey(key: string): string[] {
-	const result: string[] = [];
+	const result = [];
 	let curKey: string | null = "";
+	let inBrace = false;
 	for (const char of key) {
 		if (char === "[" || char === "]") {
+			if (!inBrace && char === "]") {
+				curKey += "]";
+				continue;
+			}
 			if (curKey != null)
 				result.push(curKey);
+			inBrace = char === "[";
 			curKey = char === "[" ? "" : null;
 		} else {
 			curKey += char;
 		}
 	}
-	if (curKey != null)
+	if (inBrace)
+		result[result.length - 1] = result[result.length - 1] + "[" + (curKey ?? "");
+	else if (curKey != null)
 		result.push(curKey);
 	return result.map(k => decodeURIComponent(k));
 }
