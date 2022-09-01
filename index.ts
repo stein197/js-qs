@@ -223,7 +223,7 @@ function normalize(data: Stringifyable): Stringifyable {
 	const isDataArray = castedKeys.length && castedKeys.length === originalKeys.length;
 	const result = isDataArray ? new Array(castedKeys.length ? Math.max(...castedKeys) + 1 : 0) : data;
 	for (const i in data)
-		result[i] = typeof data[i] === "object" ? normalize(data[i]) : data[i];
+		result[i] = typeof data[i] === "object" && data[i] != null ? normalize(data[i]) : data[i];
 	return result;
 }
 
