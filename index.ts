@@ -83,21 +83,20 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 		let curObj = result;
 		let lastKey = keyPath.pop()!;
 		for (let k of keyPath) {
-			if (!k) {
-				const indices = Object.keys(curObj).map(k => +k).filter(k => !isNaN(k));
-				k = (indices.length ? Math.max(...indices) + 1 : 0).toString();
-			}
+			k = k || getNextIndex(curObj).toString();
 			if (!curObj[k] || typeof curObj[k] !== "object")
 				curObj[k] = {};
 			curObj = curObj[k];
 		}
-		if (!lastKey) {
-			const indices = Object.keys(curObj).map(k => +k).filter(k => !isNaN(k));
-			lastKey = (indices.length ? Math.max(...indices) + 1 : 0).toString();
-		}
+		lastKey = lastKey || getNextIndex(curObj).toString();
 		curObj[lastKey] = value;
 	}
 	return normalize(result);
+}
+
+function getNextIndex(object: any): number {
+	const indices = Object.keys(object).map(k => +k).filter(k => !isNaN(k));
+	return indices.length ? Math.max(...indices) + 1 : 0;
 }
 
 function parseKey(key: string): string[] {
