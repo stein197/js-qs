@@ -220,7 +220,7 @@ function isSparse(array: any[]): boolean {
 function normalize(data: Stringifyable): Stringifyable {
 	const originalKeys = Object.keys(data);
 	const castedKeys = originalKeys.map(key => +key);
-	const isDataArray = castedKeys.every(key => !isNaN(key) && Math.round(key) === key);
+	const isDataArray = castedKeys.length && castedKeys.every(key => !isNaN(key) && Math.round(key) === key);
 	const result = isDataArray ? new Array(castedKeys.length ? Math.max(...castedKeys) + 1 : 0) : data;
 	for (const i in data)
 		result[i] = typeof data[i] === "object" ? normalize(data[i]) : data[i];
