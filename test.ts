@@ -376,7 +376,7 @@ mocha.describe("parse()", () => {
 		assert.deepStrictEqual(qs.parse("a[a]=1&a[b]=2&a[]=3"), {a: {a: 1, b: 2, 0: 3}});
 	});
 	mocha.it("Should return correct result when parsing complex query string", () => {
-		assert.equal(qs.parse("a[b][]=c&a[b][][d]=4&b[]=1&b[]=2&%3D=%3D&%2525=%2525&key=value"), {
+		assert.deepStrictEqual(qs.parse("a[b][]=c&a[b][][d]=4&b[]=1&b[]=2&%3D=%3D&%2525=%2525&key=value"), {
 			a: {
 				b: [
 					"c", {
@@ -391,7 +391,7 @@ mocha.describe("parse()", () => {
 			"%25": "%25",
 			"key": "value"
 		});
-		assert.equal(qs.parse("ios&platform=android&ids[]=123&ids[]=456&ids[]=789&user[name]=Jon Doe&user[company]=J%26J"), {
+		assert.deepStrictEqual(qs.parse("ios&platform=android&ids[]=123&ids[]=456&ids[]=789&user[name]=Jon Doe&user[company]=J%26J"), {
 			ios: true,
 			platform: "android",
 			ids: [
