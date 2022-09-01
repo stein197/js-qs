@@ -376,6 +376,8 @@ mocha.describe("parse()", () => {
 		assert.deepStrictEqual(qs.parse("a[a]=1&a[b]=2&a[]=3"), {a: {a: 1, b: 2, 0: 3}});
 	});
 	mocha.it.skip("Should return object when the first keys are numbers and the last ones are strings");
+	mocha.it.skip("Should return object for nested structures when the first keys ommited and the last ones are strings");
+	mocha.it.skip("Should return object for nested structures when the first keys are numbers and the last ones are strings");
 	mocha.it("Should return correct result when parsing complex query string", () => {
 		assert.deepStrictEqual(qs.parse("a[b][]=c&a[b][][d]=4&b[]=1&b[]=2&%3D=%3D&%2525=%2525&key=value"), {
 			a: {
@@ -409,6 +411,8 @@ mocha.describe("parse()", () => {
 		mocha.it.skip("Should properly cast zero");
 		mocha.it.skip("Should properly cast positive number");
 		mocha.it.skip("Should properly cast negative number");
+		mocha.it.skip("Should properly cast positive float");
+		mocha.it.skip("Should properly cast negative float");
 		mocha.it.skip("Should properly cast positive binary number");
 		mocha.it.skip("Should properly cast negative binary number");
 		mocha.it.skip("Should properly cast positive octal number");
