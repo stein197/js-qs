@@ -30,6 +30,7 @@ const CHAR_STRING_ESCAPE = "\\";
 const QUERY_SEPARATOR = "&";
 const KEY_VALUE_SEPARATOR = "=";
 const REGEX_ENTRIES = /&+/;
+const REGEX_INTEGER = /^\d+$/;
 
 /**
  * Stringifies an object or array to a query string.
@@ -122,8 +123,7 @@ function castValue(value: string): undefined | null | boolean | number | string 
 		return true;
 	if (value === "false")
 		return false;
-	const numValue = +value;
-	return isNaN(numValue) ? value : numValue;
+	return value.match(REGEX_INTEGER) ? +value : value;
 }
 
 function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[]): string {
@@ -219,7 +219,7 @@ function isSparse(array: any[]): boolean {
 
 function normalize(data: Stringifyable): Stringifyable {
 	const originalKeys = Object.keys(data);
-	const castedKeys = originalKeys.filter(key => key.match(/^\d+$/)).map(key => +key);
+	const castedKeys = originalKeys.filter(key => key.match(REGEX_INTEGER)).map(key => +key);
 	const isDataArray = castedKeys.length && castedKeys.length === originalKeys.length;
 	const result = isDataArray ? new Array(castedKeys.length ? Math.max(...castedKeys) + 1 : 0) : data;
 	for (const i in data)
