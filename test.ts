@@ -414,19 +414,51 @@ mocha.describe("parse()", () => {
 	});
 
 	mocha.describe("Casting numbers", () => {
-		mocha.it.skip("Should properly cast zero");
-		mocha.it.skip("Should properly cast positive number");
-		mocha.it.skip("Should properly cast negative number");
-		mocha.it.skip("Should properly cast positive float");
-		mocha.it.skip("Should properly cast negative float");
-		mocha.it.skip("Should properly cast positive binary number");
-		mocha.it.skip("Should properly cast negative binary number");
-		mocha.it.skip("Should properly cast positive octal number");
-		mocha.it.skip("Should properly cast negative octal number");
-		mocha.it.skip("Should properly cast positive hexadecimal number");
-		mocha.it.skip("Should properly cast negative hexadecimal number");
-		mocha.it.skip("Should properly cast positive exponential number");
-		mocha.it.skip("Should properly cast negative exponential number");
+		mocha.it("Should properly cast zero", () => {
+			assert.deepStrictEqual(qs.parse("a=0"), {a: 0});
+		});
+		mocha.it("Should properly cast positive number", () => {
+			assert.deepStrictEqual(qs.parse("a=5"), {a: 5});
+		});
+		mocha.it("Should properly cast negative number", () => {
+			assert.deepStrictEqual(qs.parse("a=-5"), {a: -5});
+		});
+		mocha.it("Should properly cast positive float", () => {
+			assert.deepStrictEqual(qs.parse("a=5.5"), {a: 5.5});
+		});
+		mocha.it("Should properly cast negative float", () => {
+			assert.deepStrictEqual(qs.parse("a=-5.5"), {a: -5.5});
+		});
+		mocha.it("Should properly cast positive binary number", () => {
+			assert.deepStrictEqual(qs.parse("a=0b111"), {a: 0b111});
+		});
+		mocha.it("Should properly cast negative binary number", () => {
+			assert.deepStrictEqual(qs.parse("a=-0b111"), {a: -0b111});
+		});
+		mocha.it("Should properly cast positive octal number", () => {
+			assert.deepStrictEqual(qs.parse("a=0o10"), {a: 0o10});
+		});
+		mocha.it("Should properly cast negative octal number", () => {
+			assert.deepStrictEqual(qs.parse("a=-0o10"), {a: -0o10});
+		});
+		mocha.it("Should properly cast positive hexadecimal number", () => {
+			assert.deepStrictEqual(qs.parse("a=0xF"), {a: 0xF});
+		});
+		mocha.it("Should properly cast negative hexadecimal number", () => {
+			assert.deepStrictEqual(qs.parse("a=-0xF"), {a: -0xF});
+		});
+		mocha.it("Should properly cast positive exponential number with positive degree", () => {
+			assert.deepStrictEqual(qs.parse("a=1e1"), {a: 1e1});
+		});
+		mocha.it("Should properly cast negative exponential number with positive degree", () => {
+			assert.deepStrictEqual(qs.parse("a=-1e1"), {a: -1e1});
+		});
+		mocha.it("Should properly cast positive exponential number with negative degree", () => {
+			assert.deepStrictEqual(qs.parse("a=1e-1"), {a: 1e-1});
+		});
+		mocha.it("Should properly cast negative exponential number with negative degree", () => {
+			assert.deepStrictEqual(qs.parse("a=-1e-1"), {a: -1e-1});
+		});
 	});
 
 	mocha.describe("Overriding", () => {
