@@ -27,7 +27,7 @@ const CHARS_ESCAPE: string[] = [
 ];
 
 const CHAR_BACKSLASH = "\\";
-const QUERY_SEPARATOR = "&";
+const CHAR_AMPERSAND = "&";
 const CHAR_EQUALS = "=";
 const REGEX_ENTRIES = /&+/;
 
@@ -166,7 +166,7 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 				result.push(`${qKey}=${encode(String(value), options.encodeValues)}`);
 		}
 	}
-	return result.join(QUERY_SEPARATOR);
+	return result.join(CHAR_AMPERSAND);
 }
 
 function encode(data: string, force: boolean): string {
