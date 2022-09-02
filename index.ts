@@ -162,7 +162,7 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 	const needIndex = !path.length || shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
 		const isNull = value == null;
-		if (!options.preserveEmpty && !isNull && isEmpty(value) || !options.nulls && value == null)
+		if (!options.preserveEmpty && !isNull && isEmpty(value) || !options.nulls && isNull)
 			continue;
 		const pathCopy = jsonUtil.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
