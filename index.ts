@@ -125,6 +125,23 @@ function parseKey(key: string): string[] {
 	return result.map(k => decodeURIComponent(k));
 }
 
+function parseNumber(number: string): number {
+	let sign = 0;
+	let i = 0;
+	for (const char of number) {
+		if (char === "+" && sign > 0 || char === "-" && sign < 0)
+			return NaN;
+		if (char === "+")
+			sign = 1;
+		else if (char === "-")
+			sign = -1;
+		else
+			break;
+		i++;
+	}
+	return (sign || 1) * +number.substring(i);
+}
+
 function castValue(value: string): undefined | null | boolean | number | string {
 	if (value === "undefined")
 		return undefined;
@@ -136,7 +153,7 @@ function castValue(value: string): undefined | null | boolean | number | string 
 		return false;
 	if (isBlank(value))
 		return value;
-	const numValue = +value;
+	const numValue = parseNumber(value);
 	return isNaN(numValue) ? value : numValue;
 }
 
