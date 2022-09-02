@@ -470,7 +470,7 @@ mocha.describe("parse()", () => {
 			assert.deepStrictEqual(qs.parse("a=a&a=", {preserveEmpty: true}), {a: ""});
 		});
 		mocha.it("Should drop value when the first key contains value and the second does not and \"preserveEmpty\" is false", () => {
-			assert.deepStrictEqual(qs.parse("a=a&a=", {preserveEmpty: false}), {});
+			assert.deepStrictEqual(qs.parse("a[b][c]=a&a[b]=", {preserveEmpty: false}), {});
 		});
 		mocha.it("Should override nested structure with primitive value", () => {
 			assert.deepStrictEqual(qs.parse("a[]=a&a=b"), {a: "b"});

@@ -73,8 +73,6 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 			try {
 				value = decodeURIComponent(value);
 			} catch {}
-			if (!opts.preserveEmpty && !value)
-				continue;
 			if (opts.scalars)
 				value = castValue(value);
 		} else {
@@ -92,6 +90,8 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 		lastKey = lastKey || getNextIndex(curObj).toString();
 		curObj[lastKey] = value;
 	}
+	if (!opts.preserveEmpty)
+		cleanup(result);
 	return normalize(result);
 }
 
@@ -203,7 +203,7 @@ function isEmpty(data: any): boolean {
 	const dataType = typeof data;
 	if (dataType === "string")
 		return !data.length;
-	if (dataType !== "object")
+	if (dataType !== "object" || data == null)
 		return false;
 	for (const i in data)
 		if (!isEmpty(data[i]))
@@ -247,6 +247,16 @@ function isSparse(array: any[]): boolean {
 
 function isBlank(string: string): boolean {
 	return !!string.match(/^\s*$/);
+}
+
+function cleanup(data: Stringifyable): void {
+	for (const i in data) {
+		const value = data[i];
+		if (typeof value === "object" && value != null)
+			cleanup(value);
+		if (isEmpty(value))
+			delete data[i];
+	}
 }
 
 function normalize(data: Stringifyable): Stringifyable {
