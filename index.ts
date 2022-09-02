@@ -166,21 +166,18 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 			continue;
 		const pathCopy = jsonUtil.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
-		// TODO: Refactor it, pull qKey out, remove redundant ifs
+		let strKey = encode(pathCopy[0], options.encodeKeys) + (pathCopy.length > 1 ? `[${pathCopy.slice(1).map(k => encode(k, options.encodeKeys)).join("][")}]` : "");
 		if (!isNull && typeof value === "object") {
-			const strResult = internalStringify(value, options, pathCopy);
-			if (options.preserveEmpty && !strResult) {
-				result.push(encode(pathCopy.shift()!, options.encodeKeys) + (pathCopy.length ? `[${pathCopy.map(k => encode(k, options.encodeKeys)).join("][")}]` : "") + "=")
-			} else {
-				result.push(strResult);
-			}
-		} else {
-			let qKey = encode(pathCopy.shift()!, options.encodeKeys);
-			qKey += pathCopy.length ? `[${pathCopy.map(k => encode(k, options.encodeKeys)).join("][")}]` : "";
-			if (value === true && options.flags)
-				result.push(qKey);
+			const strValue = internalStringify(value, options, pathCopy);
+			if (options.preserveEmpty && !strValue)
+				result.push(`${strKey}=`);
 			else
-				result.push(`${qKey}=${encode(String(value), options.encodeValues)}`);
+				result.push(strValue);
+		} else {
+			if (value === true && options.flags)
+				result.push(strKey);
+			else
+				result.push(`${strKey}=${encode(String(value), options.encodeValues)}`);
 		}
 	}
 	return result.join(CHAR_AMPERSAND);
