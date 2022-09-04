@@ -1,18 +1,12 @@
 # JavaScript query string params parser and reader
-This module is useful for parsing URL query string into JS objects and stringifying them back to a query string. The package is much simpler than [qs](https://github.com/ljharb/qs) one, does not support different encodings, but has the most viable features and a few that that package does not. The package primarirly aims to be as most close to PHP's query string representation as possible.
+This module is useful for parsing URL query string into JS objects and stringifying them back to a query string. The package is much simpler than [qs](https://github.com/ljharb/qs) one, does not support different encodings, but has the most needed features and a few that that package does not. The package primarily aims to be as most close to PHP's query string representation as possible.
 
 ## Installation
-As a Node.js module:
 ```
 npm install @stein197/qs
 ```
 ```ts
 import * as qs from "@stein197/qs";
-```
-As a script tag:
-```html
-<!-- The global qs variable will be accessible -->
-<script src="qs.min.js"></script>
 ```
 
 ## Usage
@@ -76,7 +70,7 @@ It's rather specific option. If the key does not have both value and equal sign,
 qs.parse("a=1&b"); // {a: 1, b: true}
 qs.stringify({a: 1, b: true}); "a=1&b"
 ```
-To disable the option, pass `flags` option with `false` value. The [qs](https://github.com/ljharb/qs) package does not have this option
+To disable the option, pass `flags` option with `false` value
 
 ### Encoding special chars in keys and values
 When stringifying, special characters in keys and values will be percent-encoded:
