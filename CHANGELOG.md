@@ -3,5 +3,8 @@
 ### Added
 - `decodeValue` function to provide custom value decoder
 
+### Fixed
+- Entries with empty keys are discarded
+
 ## [1.0.0](../../1.0.0) - 2022-09-04
 Release

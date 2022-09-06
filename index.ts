@@ -67,6 +67,8 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	const entries = data.split(REGEX_ENTRIES).filter(entry => entry);
 	for (let i = 0, entry = entries[i]; i < entries.length; i++, entry = entries[i]) {
 		const [key, ...values] = entry.split(CHAR_EQUALS);
+		if (!key)
+			continue;
 		let value: any;
 		if (values.length) {
 			value = values.join(CHAR_EQUALS);
