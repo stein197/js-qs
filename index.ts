@@ -72,14 +72,13 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 		let value: any;
 		let hasValue = true;
 		if (values.length) {
-			value = values.join(CHAR_EQUALS);
+			let rawValue = values.join(CHAR_EQUALS);
 			try {
-				value = decodeURIComponent(value);
+				rawValue = decodeURIComponent(rawValue);
 			} catch {}
-			if (!value && !opts.preserveEmpty)
+			if (!rawValue && !opts.preserveEmpty)
 				hasValue = false;
-			if (opts.scalars)
-				value = castValue(value);
+			value = opts.scalars ? castValue(rawValue) : rawValue;
 		} else {
 			value = true;
 		}
