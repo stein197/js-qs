@@ -65,7 +65,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	const result: any = {};
 	const entries = data.split(REGEX_ENTRIES).filter(entry => entry);
-	for (const entry of entries) {
+	for (let i = 0, entry = entries[i]; i < entries.length; i++, entry = entries[i]) {
 		const [key, ...values] = entry.split(CHAR_EQUALS);
 		let value: any;
 		if (values.length) {
@@ -88,7 +88,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 			curObj = curObj[k];
 		}
 		lastKey = lastKey || getNextIndex(curObj).toString();
-		curObj[lastKey] = value;
+		curObj[lastKey] = options.decodeValue?.(key, value, i) ?? value;
 	}
 	if (!opts.preserveEmpty)
 		cleanup(result);
@@ -367,4 +367,19 @@ type ParseOptions = Options & {
 	 * ```
 	 */
 	scalars: boolean;
+
+	/**
+	 * Function that should return custom value for each entry. When provided, the function gets called for each entry
+	 * and the result will override the default values. Example:
+	 * @example
+	 * ```ts
+	 * parse("a=1&b=2", {decodeValue: (key, value, index) => value * 2}); // {a: 2, b: 4}
+	 * ```
+	 * `undefined` by default (`parse()` returns only parsed values).
+	 * @param key Raw entry key.
+	 * @param value Parsed entry value.
+	 * @param index Index of the entry. The index matches the position of the entry in the raw query string.
+	 * @returns A new value that will override the default one.
+	 */
+	decodeValue?(key: string, value: undefined | null | boolean | number | string, index: number): any;
 }

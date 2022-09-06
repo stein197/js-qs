@@ -305,6 +305,7 @@ mocha.describe("stringify()", () => {
 	});
 });
 
+// TODO: decodeValue() tests
 mocha.describe("parse()", () => {
 	mocha.it("Should return empty object literal when the string is empty", () => {
 		assert.deepStrictEqual(qs.parse(""), {});

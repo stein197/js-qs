@@ -29,6 +29,7 @@ qs.parse("key=value&object[a]=1", {scalars: true}); // {key: "value", object: {a
 - [Encoding special chars in keys and values](#encoding-special-chars-in-keys-and-values)
 - [Decoding of percent-encoded characters](#decoding-of-percent-encoded-characters)
 - [Sparse arrays support](#sparse-arrays-support)
+- [Custom value decoder](#custom-value-decoder)
 
 ### Nesting structures support
 You can pass to both functions complex structures, which includes objects and arrays:
@@ -96,6 +97,13 @@ qs.stringify({a: [, 1]}); // "a[1]=1"
 ```
 The [qs](https://github.com/ljharb/qs) package supports this only for stringifying function.
 
+### Custom value decoder
+If you want to provice custom value decoder, pass `decodeValue` function to `parse()` function:
+```ts
+parse("a=1&b=2", {decodeValue: (key, value, index) => value * 2}); // {a: 2, b: 4}
+```
+The function accepts three arguments: raw key of a query entry, parsed value of a query entry and the index of a query entry.
+
 ## API
 | Function | Description |
 |----------|-------------|
@@ -113,6 +121,7 @@ The [qs](https://github.com/ljharb/qs) package supports this only for stringifyi
 | `nulls` | boolean | Stringifies `null` and `undefined` values if `true` |
 | `encodeKeys` | boolean | Encodes keys in percent notation |
 | `encodeValues` | boolean | Encodes values in percent notation |
+| `decodeValue` | (key: string, value: undefined | null | boolean | number | string, index: number): any | Function that should return custom value for each entry |
 
 > For more information, please refer the documentation in source code.
 
