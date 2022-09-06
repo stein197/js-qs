@@ -385,7 +385,6 @@ mocha.describe("parse()", () => {
 	mocha.it("Should return object for nested structures when the first keys are numbers and the last ones are strings", () => {
 		assert.deepStrictEqual(qs.parse("a[0]=a&a[1]=b&a[c]=c"), {a: {0: "a", 1: "b", c: "c"}});
 	});
-	// TODO
 	mocha.it("Should discard entry with empty key", () => {
 		assert.deepStrictEqual(qs.parse("=1&b=2"), {b: 2});
 	});
