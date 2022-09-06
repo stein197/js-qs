@@ -375,7 +375,8 @@ type ParseOptions = Options & {
 	 * ```ts
 	 * parse("a=1&b=2", {decodeValue: (key, value, index) => value * 2}); // {a: 2, b: 4}
 	 * ```
-	 * `undefined` by default (`parse()` returns only parsed values).
+	 * Function won't be called for entries with empty values. To make the function call for every entry, set
+	 * `preserveEmpty` to true. `undefined` by default (`parse()` returns only parsed values).
 	 * @param key Raw entry key.
 	 * @param value Parsed entry value.
 	 * @param index Index of the entry. The index matches the position of the entry in the raw query string.
