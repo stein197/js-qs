@@ -305,7 +305,6 @@ mocha.describe("stringify()", () => {
 	});
 });
 
-// TODO: decodeValue() tests
 mocha.describe("parse()", () => {
 	mocha.it("Should return empty object literal when the string is empty", () => {
 		assert.deepStrictEqual(qs.parse(""), {});
@@ -500,6 +499,16 @@ mocha.describe("parse()", () => {
 			mocha.it("Should not cast space to zero when \"scalars\" is true", () => {
 				assert.deepStrictEqual(qs.parse("a= ", {scalars: true}), {a: " "})
 			});
+		});
+		// TODO
+		mocha.describe("\"decodeValue\"", () => {
+			mocha.it.skip("Should accept valid arguments");
+			mocha.it.skip("Should not be called when query string is empty");
+			mocha.it.skip("Should not be called for empty values when \"preserveEmpty\" is false");
+			mocha.it.skip("Should be called for empty values when \"preserveEmpty\" is true");
+			mocha.it.skip("Should accept valid index argument for every entry when some of them empty and \"preserveEmpty\" is false");
+			mocha.it.skip("Should override default values for plain structures");
+			mocha.it.skip("Should override default values for nested structures");
 		});
 	});
 });
