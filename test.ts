@@ -386,8 +386,7 @@ mocha.describe("parse()", () => {
 		assert.deepStrictEqual(qs.parse("a[0]=a&a[1]=b&a[c]=c"), {a: {0: "a", 1: "b", c: "c"}});
 	});
 	// TODO
-	mocha.it.skip("Should decode percent-encoded keys only once");
-	mocha.it.skip("Should decode percent-encoded values only once");
+	mocha.it.skip("Should discard entry with empty key");
 	mocha.it("Should return correct result when parsing complex query string", () => {
 		assert.deepStrictEqual(qs.parse("a[b][]=c&a[b][][d]=4&b[]=1&b[]=2&%3D=%3D&%2525=%2525&key=value"), {
 			a: {
