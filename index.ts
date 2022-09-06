@@ -70,11 +70,14 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 		if (!key)
 			continue;
 		let value: any;
+		let hasValue = true;
 		if (values.length) {
 			value = values.join(CHAR_EQUALS);
 			try {
 				value = decodeURIComponent(value);
 			} catch {}
+			if (!value && !opts.preserveEmpty)
+				hasValue = false;
 			if (opts.scalars)
 				value = castValue(value);
 		} else {
@@ -90,7 +93,7 @@ export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPT
 			curObj = curObj[k];
 		}
 		lastKey = lastKey || getNextIndex(curObj).toString();
-		curObj[lastKey] = options.decodeValue?.(key, value, i) ?? value;
+		curObj[lastKey] = hasValue && options.decodeValue ? options.decodeValue?.(key, value, i) : value;
 	}
 	if (!opts.preserveEmpty)
 		cleanup(result);
@@ -103,7 +106,7 @@ function getNextIndex(object: any): number {
 }
 
 function parseKey(key: string): string[] {
-	const result = [];
+	const result: string[] = [];
 	let curKey: string | null = "";
 	let inBrace = false;
 	for (const char of key) {

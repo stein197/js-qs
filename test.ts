@@ -509,15 +509,52 @@ mocha.describe("parse()", () => {
 				assert.deepStrictEqual(qs.parse("a= ", {scalars: true}), {a: " "})
 			});
 		});
-		// TODO
 		mocha.describe("\"decodeValue\"", () => {
-			mocha.it.skip("Should accept valid arguments");
-			mocha.it.skip("Should not be called when query string is empty");
-			mocha.it.skip("Should not be called for empty values when \"preserveEmpty\" is false");
-			mocha.it.skip("Should be called for empty values when \"preserveEmpty\" is true");
-			mocha.it.skip("Should accept valid index argument for every entry when some of them empty and \"preserveEmpty\" is false");
-			mocha.it.skip("Should override default values for plain structures");
-			mocha.it.skip("Should override default values for nested structures");
+			mocha.it("Should accept valid arguments", () => {
+				const keys: string[] = [];
+				const values: any[] = [];
+				const indices: number[] = [];
+				qs.parse("a=undefined&b=null&c=false&d=12&e=string&f", {decodeValue(k, v, i): void {
+					keys.push(k);
+					values.push(v);
+					indices.push(i);
+				}});
+				assert.deepStrictEqual(keys, ["a", "b", "c", "d", "e", "f"]);
+				assert.deepStrictEqual(values, [undefined, null, false, 12, "string", true]);
+				assert.deepStrictEqual(indices, [0, 1, 2, 3, 4, 5]);
+			});
+			mocha.it("Should not be called when query string is empty", () => {
+				let called = false;
+				const noop = () => called = true;
+				qs.parse("", {decodeValue: noop});
+				assert.equal(called, false);
+			});
+			mocha.it("Should not be called for empty values when \"preserveEmpty\" is false", () => {
+				const tracker = new assert.CallTracker();
+				const noop = tracker.calls(() => {}, 2);
+				qs.parse("a=1&b=2&c=", {preserveEmpty: false, decodeValue: noop});
+				tracker.verify();
+			});
+			mocha.it("Should be called for empty values when \"preserveEmpty\" is true", () => {
+				const tracker = new assert.CallTracker();
+				const noop = tracker.calls(() => {}, 3);
+				qs.parse("a=1&b=2&c=", {preserveEmpty: true, decodeValue: noop});
+				tracker.verify();
+			});
+			mocha.it("Should accept valid index argument for every entry when some of them empty and \"preserveEmpty\" is false", () => {
+				const indices: number[] = [];
+				qs.parse("a=1&b=&c=3", {decodeValue(k, v, i): void {
+					k; v;
+					indices.push(i);
+				}});
+				assert.deepStrictEqual(indices, [0, 2]);
+			});
+			mocha.it("Should override default values for plain structures", () => {
+				assert.deepStrictEqual(qs.parse("a=1&b=2&c=3", {decodeValue: k => k}), {a: "a", b: "b", c: "c"});
+			});
+			mocha.it("Should override default values for nested structures", () => {
+				assert.deepStrictEqual(qs.parse("a[]=1&a[]=2&a[]=3", {decodeValue: k => k}), {a: ["a[]", "a[]", "a[]"]});
+			});
 		});
 	});
 });
