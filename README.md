@@ -1,6 +1,6 @@
 # JavaScript query string params parser and reader
-![](https://img.shields.io/npm/v/@stein197/qs)
-![](https://img.shields.io/github/license/stein197/js-qs)
+[![](https://img.shields.io/npm/v/@stein197/qs)](https://www.npmjs.com/package/@stein197/qs)
+[![](https://img.shields.io/github/license/stein197/js-qs)](LICENSE)
 
 This module is useful for parsing URL query string into JS objects and stringifying them back to a query string. The package is much simpler than [qs](https://github.com/ljharb/qs) one, does not support different encodings, but has the most needed features and a few that that package does not. The package primarily aims to be as most close to PHP's query string representation as possible.
 
