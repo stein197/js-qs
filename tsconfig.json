@@ -3,6 +3,8 @@
 		"target": "ESNext",
 		"module": "CommonJS",
 		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
 		"declaration": true,
 		"sourceMap": true,
 		"inlineSources": true

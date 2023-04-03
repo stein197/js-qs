@@ -15,6 +15,7 @@ const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 	nulls: false,
 	encodeKeys: false,
 	encodeValues: false,
+	encode: "special",
 	key: encodeKey,
 	value: encodeValue
 };
@@ -101,23 +102,61 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
 }
 
 // TODO
-export function encodeKey(key: string[], value: any, index: number): string {
-	return "";
+export function encodeKey(key: string[]): string {
+	return key.length === 1 ? key[0] : key[0] + `[${key.slice(1).join("][")}]`;
 }
 
 // TODO
-export function encodeValue(key: string[], value: any, index: number): string {
-	return "";
+export function encodeValue(...[, value]: [never, any]): string {
+	return value == null ? "" : encode(value.toString(), false);
 }
 
 // TODO
-export function decodeKey(key: string, value: string, index: number): string[] {
-	return [];
+export function decodeKey(key: string): string[] {
+	const result: string[] = [];
+	let curKey: string | null = "";
+	let inBrace = false;
+	for (const char of key) {
+		if (char === "[" && !inBrace)
+			inBrace = true;
+		if (char === "]" && inBrace)
+			inBrace = false;
+		if (char !== "[" && char !== "]") {
+			curKey += char;
+			continue;
+		}
+		if (!inBrace && char === "]" || inBrace && char === "[") {
+			curKey += char;
+			continue;
+		}
+		if (curKey != null)
+			result.push(curKey);
+		curKey = char === "[" ? "" : null;
+	}
+	if (inBrace)
+		result[result.length - 1] = result[result.length - 1] + "[" + (curKey ?? "");
+	else if (curKey != null)
+		result.push(curKey);
+	return result;
 }
 
 // TODO
-export function decodeValue(key: string, value: string, index: number): any {
-	return "";
+export function decodeValue(key: string, value: string | null): any {
+	if (!key)
+		return key;
+	switch (value) {
+		case "undefined":
+			return undefined;
+		case "null":
+			return null;
+		case "true":
+			return true;
+		case "false":
+			return false;
+		default:
+			const numValue = parseNumber(value!);
+			return isNaN(numValue) ? value : numValue;
+	}
 }
 
 function getNextIndex(object: any): number {
@@ -275,10 +314,10 @@ function normalize(data: any): any {
 }
 
 function mergeObject<T extends Options>(userObject: Partial<T>, defaultObject: T): T {
-	return (userObject === defaultObject ? userObject : {
+	return userObject === defaultObject ? defaultObject : {
 		...defaultObject,
 		...userObject
-	}) as T;
+	};
 }
 
 type Options = {
@@ -353,6 +392,7 @@ type StringifyOptions = Options & {
 	 */
 	encodeValues: boolean;
 
+	encode: "none" | "special" | "all";
 	// TODO
 	key(key: string[], value: any, index: number): string;
 	// TODO
@@ -396,5 +436,5 @@ type ParseOptions = Options & {
 	// TODO
 	key(key: string, value: string, index: number): string[];
 	// TODO
-	value(key: string, value: string, index: number): any;
+	value(key: string, value: string | null, index: number): any;
 }
