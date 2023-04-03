@@ -1,4 +1,5 @@
-import * as jsonUtil from "@stein197/json-util";
+import * as utilObject from "@stein197/util/object";
+import * as utilJson from "@stein197/util/json";
 
 const DEFAULT_OPTIONS: Options = {
 	preserveEmpty: false
@@ -168,7 +169,7 @@ function internalStringify(data: Stringifyable, options: StringifyOptions, path:
 		const isNull = value == null;
 		if (!options.preserveEmpty && !isNull && isEmpty(value) || !options.nulls && isNull)
 			continue;
-		const pathCopy = jsonUtil.clone(path);
+		const pathCopy = utilObject.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
 		let strKey = encode(pathCopy[0], options.encodeKeys) + (pathCopy.length > 1 ? `[${pathCopy.slice(1).map(k => encode(k, options.encodeKeys)).join("][")}]` : "");
 		if (!isNull && typeof value === "object") {
@@ -216,8 +217,8 @@ function isEmpty(data: any): boolean {
 }
 
 function shouldUseIndex(data: any, deep: boolean): boolean {
-	const isObject = jsonUtil.isObject(data);
-	const isArray = jsonUtil.isArray(data);
+	const isObject = utilJson.isObject(data);
+	const isArray = utilJson.isArray(data);
 	if (!isObject && !isArray)
 		return false;
 	const keys = Object.keys(data);
@@ -239,7 +240,7 @@ function checkCircularReferences(data: Stringifyable, path: string[], references
 	for (const i in data) {
 		if (typeof data[i] !== "object")
 			continue;
-		const pathCopy = jsonUtil.clone(path);
+		const pathCopy = utilObject.clone(path);
 		pathCopy.push(i);
 		checkCircularReferences(data[i], pathCopy, references);
 	}

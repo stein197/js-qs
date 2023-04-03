@@ -30,6 +30,6 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@stein197/json-util": "^1.2.1"
+    "@stein197/util": "^1.23.0"
   }
 }
