@@ -1,5 +1,6 @@
 import * as utilObject from "@stein197/util/object";
 import * as utilJson from "@stein197/util/json";
+import type * as type from "@stein197/type";
 
 const DEFAULT_OPTIONS: Options = {
 	preserveEmpty: false
@@ -39,7 +40,7 @@ const REGEX_ENTRIES = /&+/;
  * @return Query string from the object. Returns empty string if the object is empty.
  * @throws {@link ReferenceError} When data contains circular references.
  */
-export function stringify(data: Stringifyable, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
+export function stringify(data: any, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
 	checkCircularReferences(data, [], []);
 	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
 }
@@ -62,7 +63,7 @@ export function stringify(data: Stringifyable, options: Partial<StringifyOptions
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
 // TODO: {} -> Object.create(null)
-export function parse(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): Stringifyable {
+export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): type.DeepPartial<T> {
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	const result: any = {};
 	const entries = data.split(REGEX_ENTRIES).filter(entry => entry);
@@ -162,7 +163,7 @@ function castValue(value: string): undefined | null | boolean | number | string 
 	return isNaN(numValue) ? value : numValue;
 }
 
-function internalStringify(data: Stringifyable, options: StringifyOptions, path: string[]): string {
+function internalStringify(data: any, options: StringifyOptions, path: string[]): string {
 	const result: string[] = [];
 	const needIndex = !path.length || shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
@@ -233,7 +234,7 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 	return false;
 }
 
-function checkCircularReferences(data: Stringifyable, path: string[], references: Stringifyable[]): void | never {
+function checkCircularReferences(data: any, path: string[], references: any[]): void | never {
 	if (references.includes(data))
 		throw new ReferenceError(`Cannot stringify data because of circular reference at ${path.map(k => isNaN(+k) ? `["${escape(k)}"]` : `[${k}]`).join("")}`);
 	references.push(data);
@@ -254,7 +255,7 @@ function isBlank(string: string): boolean {
 	return !!string.match(/^\s*$/);
 }
 
-function cleanup(data: Stringifyable): void {
+function cleanup(data: any): void {
 	for (const i in data) {
 		const value = data[i];
 		if (typeof value === "object" && value != null)
@@ -264,7 +265,7 @@ function cleanup(data: Stringifyable): void {
 	}
 }
 
-function normalize(data: Stringifyable): Stringifyable {
+function normalize(data: any): any {
 	const originalKeys = Object.keys(data);
 	const castedKeys = originalKeys.filter(key => key.match(/^\d+$/)).map(key => +key);
 	const isDataArray = castedKeys.length && castedKeys.length === originalKeys.length;
@@ -279,11 +280,6 @@ function mergeObject<T extends Options>(userObject: Partial<T>, defaultObject: T
 		...defaultObject,
 		...userObject
 	}) as T;
-}
-
-type Stringifyable = any[] | {
-	[k: string]: any;
-	[k: number]: any;
 }
 
 type Options = {
