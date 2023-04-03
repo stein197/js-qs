@@ -3,7 +3,9 @@ import * as utilJson from "@stein197/util/json";
 import type * as type from "@stein197/type";
 
 const DEFAULT_OPTIONS: Options = {
-	empty: false
+	empty: false,
+	entryDelimiter: "&",
+	valueDelimiter: "="
 };
 
 const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
@@ -12,16 +14,20 @@ const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 	flags: true,
 	nulls: false,
 	encodeKeys: false,
-	encodeValues: false
+	encodeValues: false,
+	key: encodeKey,
+	value: encodeValue
 };
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	...DEFAULT_OPTIONS,
-	types: true
+	types: true,
+	key: decodeKey,
+	value: decodeValue
 };
 
 const CHARS_RESERVED: string[] = [
-	"%", "=", "&", "[", "]"
+	"%", "=", "&", "[", "]", "."
 ];
 
 const CHARS_ESCAPE: string[] = [
@@ -62,7 +68,6 @@ export function stringify(data: any, options: Partial<StringifyOptions> = DEFAUL
  * @param options Options to use.
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
-// TODO: {} -> Object.create(null)
 export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): type.DeepPartial<T> {
 	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	const result: any = {};
@@ -99,6 +104,26 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
 	if (!opts.empty)
 		cleanup(result);
 	return normalize(result);
+}
+
+// TODO
+export function encodeKey(key: string[], value: any, index: number): string {
+	return "";
+}
+
+// TODO
+export function encodeValue(key: string[], value: any, index: number): string {
+	return "";
+}
+
+// TODO
+export function decodeKey(key: string, value: string, index: number): string[] {
+	return [];
+}
+
+// TODO
+export function decodeValue(key: string, value: string, index: number): any {
+	return "";
 }
 
 function getNextIndex(object: any): number {
@@ -234,6 +259,7 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 	return false;
 }
 
+// TODO: Remove
 function checkCircularReferences(data: any, path: string[], references: any[]): void | never {
 	if (references.includes(data))
 		throw new ReferenceError(`Cannot stringify data because of circular reference at ${path.map(k => isNaN(+k) ? `["${escape(k)}"]` : `[${k}]`).join("")}`);
@@ -294,6 +320,10 @@ type Options = {
 	 * ```
 	 */
 	empty: boolean;
+	// TODO
+	entryDelimiter: string;
+	// TODO
+	valueDelimiter: string;
 }
 
 type StringifyOptions = Options & {
@@ -349,6 +379,11 @@ type StringifyOptions = Options & {
 	 * ```
 	 */
 	encodeValues: boolean;
+
+	// TODO
+	key(key: string[], value: any, index: number): string;
+	// TODO
+	value(key: string[], value: any, index: number): string;
 }
 
 type ParseOptions = Options & {
@@ -384,4 +419,9 @@ type ParseOptions = Options & {
 	 * @returns A new value that will override the default one.
 	 */
 	decodeValue?(key: string, value: undefined | null | boolean | number | string, index: number): any;
+
+	// TODO
+	key(key: string, value: string, index: number): string[];
+	// TODO
+	value(key: string, value: string, index: number): any;
 }
