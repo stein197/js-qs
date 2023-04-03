@@ -30,11 +30,6 @@ const CHARS_RESERVED: string[] = [
 	"%", "=", "&", "[", "]", "."
 ];
 
-const CHARS_ESCAPE: string[] = [
-	"\"", "'", "\\"
-];
-
-const CHAR_BACKSLASH = "\\";
 const CHAR_AMPERSAND = "&";
 const CHAR_EQUALS = "=";
 const REGEX_ENTRIES = /&+/;
@@ -47,7 +42,6 @@ const REGEX_ENTRIES = /&+/;
  * @throws {@link ReferenceError} When data contains circular references.
  */
 export function stringify(data: any, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
-	checkCircularReferences(data, [], []);
 	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
 }
 
@@ -223,13 +217,6 @@ function encode(data: string, force: boolean): string {
 	return result;
 }
 
-function escape(string: string): string {
-	let result = "";
-	for (const char of string)
-		result += CHARS_ESCAPE.includes(char) ? CHAR_BACKSLASH + char : char;
-	return result;
-}
-
 function isEmpty(data: any): boolean {
 	const dataType = typeof data;
 	if (dataType === "string")
@@ -257,20 +244,6 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 		if (shouldUseIndex(data[i], true))
 			return true;
 	return false;
-}
-
-// TODO: Remove
-function checkCircularReferences(data: any, path: string[], references: any[]): void | never {
-	if (references.includes(data))
-		throw new ReferenceError(`Cannot stringify data because of circular reference at ${path.map(k => isNaN(+k) ? `["${escape(k)}"]` : `[${k}]`).join("")}`);
-	references.push(data);
-	for (const i in data) {
-		if (typeof data[i] !== "object")
-			continue;
-		const pathCopy = utilObject.clone(path);
-		pathCopy.push(i);
-		checkCircularReferences(data[i], pathCopy, references);
-	}
 }
 
 function isSparse(array: any[]): boolean {

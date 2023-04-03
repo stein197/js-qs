@@ -35,29 +35,6 @@ describe("stringify()", () => {
 	it("Should encode encoded characters in values", () => {
 		assert.equal(qs.stringify({a: "%25"}), "a=%2525");
 	});
-	it("Should throw an error when stringifying circular references", () => {
-		let a: any = {};
-		let b: any = {};
-		a.b = b;
-		b.a = a;
-		assert.throws(() => qs.stringify(a), {
-			name: "ReferenceError",
-			message: "Cannot stringify data because of circular reference at [\"b\"][\"a\"]"
-		});
-		a = {
-			a: {
-				b: [
-					1
-				]
-			}
-		}
-		b = a
-		a.a.b.push(b);
-		assert.throws(() => qs.stringify(a), {
-			name: "ReferenceError",
-			message: "Cannot stringify data because of circular reference at [\"a\"][\"b\"][1]"
-		});
-	});
 	it("Should correctly omit indices for nested structures", () => {
 		const cases = [
 			{
