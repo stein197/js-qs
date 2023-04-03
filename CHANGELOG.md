@@ -1,5 +1,7 @@
 # CHANGELOG
 ## [2.0.0](../../compare/1.1.0..2.0.0) - XXXX-XX-XX
+### Added
+- `parse()` has a generic return type now
 
 ## [1.1.0](../../compare/1.0.0..1.1.0) - 2022-09-07
 ### Added

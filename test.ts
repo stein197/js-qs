@@ -559,5 +559,10 @@ describe("parse()", () => {
 });
 
 describe("stringify() === parse()", () => {
-	it.skip("Should return equal results with default options");
+	it("Should return equal results with default options when first stringifying and then parsing", () => {
+		assert.deepStrictEqual(qs.parse(qs.stringify({a: 1, b: 2, c: {d: 4}})), {a: 1, b: 2, c: {d: 4}});
+	});
+	it("Should return equal results with default options when first parsing and then stringifying", () => {
+		assert.equal(qs.stringify(qs.parse("a=1&b=2&c[d]=4")), "a=1&b=2&c[d]=4");
+	});
 });
