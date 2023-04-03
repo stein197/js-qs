@@ -3,7 +3,7 @@ import * as utilJson from "@stein197/util/json";
 import type * as type from "@stein197/type";
 
 const DEFAULT_OPTIONS: Options = {
-	preserveEmpty: false
+	empty: false
 };
 
 const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
@@ -17,7 +17,7 @@ const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	...DEFAULT_OPTIONS,
-	scalars: true
+	types: true
 };
 
 const CHARS_RESERVED: string[] = [
@@ -78,9 +78,9 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
 			try {
 				rawValue = decodeURIComponent(rawValue);
 			} catch {}
-			if (!rawValue && !opts.preserveEmpty)
+			if (!rawValue && !opts.empty)
 				hasValue = false;
-			value = opts.scalars ? castValue(rawValue) : rawValue;
+			value = opts.types ? castValue(rawValue) : rawValue;
 		} else {
 			value = true;
 		}
@@ -96,7 +96,7 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
 		lastKey = lastKey || getNextIndex(curObj).toString();
 		curObj[lastKey] = hasValue && options.decodeValue ? options.decodeValue?.(key, value, i) : value;
 	}
-	if (!opts.preserveEmpty)
+	if (!opts.empty)
 		cleanup(result);
 	return normalize(result);
 }
@@ -168,14 +168,14 @@ function internalStringify(data: any, options: StringifyOptions, path: string[])
 	const needIndex = !path.length || shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
 		const isNull = value == null;
-		if (!options.preserveEmpty && !isNull && isEmpty(value) || !options.nulls && isNull)
+		if (!options.empty && !isNull && isEmpty(value) || !options.nulls && isNull)
 			continue;
 		const pathCopy = utilObject.clone(path);
 		pathCopy.push(options.indices || needIndex ? key : "");
 		let strKey = encode(pathCopy[0], options.encodeKeys) + (pathCopy.length > 1 ? `[${pathCopy.slice(1).map(k => encode(k, options.encodeKeys)).join("][")}]` : "");
 		if (!isNull && typeof value === "object") {
 			const strValue = internalStringify(value, options, pathCopy);
-			if (options.preserveEmpty && !strValue)
+			if (options.empty && !strValue)
 				result.push(`${strKey}=`);
 			else
 				result.push(strValue);
@@ -289,11 +289,11 @@ type Options = {
 	 * discard flags when parsing.
 	 * @example
 	 * ```ts
-	 * stringify({a: 1, b: ""}, {preserveEmpty: false});  // "a=1"
-	 * parse("a=1&b=&c", {preserveEmpty: true});          // {a: "1", b: "", c: true}
+	 * stringify({a: 1, b: ""}, {empty: false});  // "a=1"
+	 * parse("a=1&b=&c", {empty: true});          // {a: "1", b: "", c: true}
 	 * ```
 	 */
-	preserveEmpty: boolean;
+	empty: boolean;
 }
 
 type StringifyOptions = Options & {
@@ -363,11 +363,11 @@ type ParseOptions = Options & {
 	 * `true` by default.
 	 * @example
 	 * ```ts
-	 * parse("a=true&b=1", {scalars: true});  // {a: true, b: 1}
-	 * parse("a=true&b=1", {scalars: false}); // {a: "true", b: "1"}
+	 * parse("a=true&b=1", {types: true});  // {a: true, b: 1}
+	 * parse("a=true&b=1", {types: false}); // {a: "true", b: "1"}
 	 * ```
 	 */
-	scalars: boolean;
+	types: boolean;
 
 	/**
 	 * Function that should return custom value for each entry. When provided, the function gets called for each entry

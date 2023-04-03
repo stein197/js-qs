@@ -168,30 +168,30 @@ describe("stringify()", () => {
 	});
 
 	describe("Options", () => {
-		describe("\"preserveEmpty\"", () => {
-			it("Should discard empty values when \"preserveEmpty\" is false", () => {
-				assert.equal(qs.stringify({a: "", b: [], c: {}}, {preserveEmpty: false}), "");
+		describe("\"empty\"", () => {
+			it("Should discard empty values when \"empty\" is false", () => {
+				assert.equal(qs.stringify({a: "", b: [], c: {}}, {empty: false}), "");
 			});
-			it("Should discard empty values inside an array when \"preserveEmpty\" is false", () => {
-				assert.equal(qs.stringify({a: ["", "", ""]}, {preserveEmpty: false}), "");
+			it("Should discard empty values inside an array when \"empty\" is false", () => {
+				assert.equal(qs.stringify({a: ["", "", ""]}, {empty: false}), "");
 			});
-			it("Should discard empty values inside an object when \"preserveEmpty\" is false", () => {
-				assert.equal(qs.stringify({a: {b: ""}}, {preserveEmpty: false}), "");
+			it("Should discard empty values inside an object when \"empty\" is false", () => {
+				assert.equal(qs.stringify({a: {b: ""}}, {empty: false}), "");
 			});
-			it("Should preserve empty values when \"preserveEmpty\" is true", () => {
-				assert.equal(qs.stringify({abc: "", def: [], ghi: {}, jkl: {mno: ""}}, {preserveEmpty: true}), "abc=&def=&ghi=&jkl[mno]=");
+			it("Should preserve empty values when \"empty\" is true", () => {
+				assert.equal(qs.stringify({abc: "", def: [], ghi: {}, jkl: {mno: ""}}, {empty: true}), "abc=&def=&ghi=&jkl[mno]=");
 			});
-			it("Should preserve empty values inside an array when \"preserveEmpty\" is true", () => {
-				assert.equal(qs.stringify({a: ["", "", ""]}, {preserveEmpty: true}), "a[]=&a[]=&a[]=");
+			it("Should preserve empty values inside an array when \"empty\" is true", () => {
+				assert.equal(qs.stringify({a: ["", "", ""]}, {empty: true}), "a[]=&a[]=&a[]=");
 			});
-			it("Should preserve empty values inside an object when \"preserveEmpty\" is true", () => {
-				assert.equal(qs.stringify({a: {b: ""}}, {preserveEmpty: true}), "a[b]=");
+			it("Should preserve empty values inside an object when \"empty\" is true", () => {
+				assert.equal(qs.stringify({a: {b: ""}}, {empty: true}), "a[b]=");
 			});
-			it("Should not discard empty arrays when \"preserveEmpty\" is true", () => {
-				assert.equal(qs.stringify({a: [[[]]]}, {preserveEmpty: true}), "a[][]=");
+			it("Should not discard empty arrays when \"empty\" is true", () => {
+				assert.equal(qs.stringify({a: [[[]]]}, {empty: true}), "a[][]=");
 			});
-			it("Should not discard empty objects when \"preserveEmpty\" is true", () => {
-				assert.equal(qs.stringify({a: {b: {c: {}}}}, {preserveEmpty: true}), "a[b][c]=");
+			it("Should not discard empty objects when \"empty\" is true", () => {
+				assert.equal(qs.stringify({a: {b: {c: {}}}}, {empty: true}), "a[b][c]=");
 			});
 		});
 		describe("\"indices\"", () => {
@@ -329,7 +329,7 @@ describe("parse()", () => {
 	it("Should discard empty values by default when options aren't present", () => {
 		assert.deepStrictEqual(qs.parse("a=&b=2"), {b: 2});
 	});
-	it("Should cast string scalars to corresponding types", () => {
+	it("Should cast string types to corresponding types", () => {
 		assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=-1"), {a: null, b: undefined, c: true, d: -1});
 	});
 	it("Should return the last value for multiple key occurences", () => {
@@ -474,11 +474,11 @@ describe("parse()", () => {
 		it("Should return value for the latest key occurence", () => {
 			assert.deepStrictEqual(qs.parse("a=a&a=b"), {a: "b"});
 		});
-		it("Should drop value when the first key contains value and the second does not and \"preserveEmpty\" is true", () => {
-			assert.deepStrictEqual(qs.parse("a=a&a=", {preserveEmpty: true}), {a: ""});
+		it("Should drop value when the first key contains value and the second does not and \"empty\" is true", () => {
+			assert.deepStrictEqual(qs.parse("a=a&a=", {empty: true}), {a: ""});
 		});
-		it("Should drop value when the first key contains value and the second does not and \"preserveEmpty\" is false", () => {
-			assert.deepStrictEqual(qs.parse("a[b][c]=a&a[b]=", {preserveEmpty: false}), {});
+		it("Should drop value when the first key contains value and the second does not and \"empty\" is false", () => {
+			assert.deepStrictEqual(qs.parse("a[b][c]=a&a[b]=", {empty: false}), {});
 		});
 		it("Should override nested structure with primitive value", () => {
 			assert.deepStrictEqual(qs.parse("a[]=a&a=b"), {a: "b"});
@@ -489,23 +489,23 @@ describe("parse()", () => {
 	});
 
 	describe("Options", () => {
-		describe("\"preserveEmpty\"", () => {
-			it("Should discard empty values when \"preserveEmpty\" is false", () => {
-				assert.deepStrictEqual(qs.parse("a=&b=", {preserveEmpty: false}), {});
+		describe("\"empty\"", () => {
+			it("Should discard empty values when \"empty\" is false", () => {
+				assert.deepStrictEqual(qs.parse("a=&b=", {empty: false}), {});
 			});
-			it("Should preserve empty values when \"preserveEmpty\" is true", () => {
-				assert.deepStrictEqual(qs.parse("a=&b=", {preserveEmpty: true}), {a: "", b: ""});
+			it("Should preserve empty values when \"empty\" is true", () => {
+				assert.deepStrictEqual(qs.parse("a=&b=", {empty: true}), {a: "", b: ""});
 			});
 		});
-		describe("\"scalars\"", () => {
-			it("Should preserve values as strings when \"scalars\" is false", () => {
-				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {scalars: false}), {a: "null", b: "undefined", c: "true", d: "false", f: "-1"});
+		describe("\"types\"", () => {
+			it("Should preserve values as strings when \"types\" is false", () => {
+				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {types: false}), {a: "null", b: "undefined", c: "true", d: "false", f: "-1"});
 			});
-			it("Should cast values to corresponding types when \"scalars\" is true", () => {
-				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {scalars: true}), {a: null, b: undefined, c: true, d: false, f: -1});
+			it("Should cast values to corresponding types when \"types\" is true", () => {
+				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {types: true}), {a: null, b: undefined, c: true, d: false, f: -1});
 			});
-			it("Should not cast space to zero when \"scalars\" is true", () => {
-				assert.deepStrictEqual(qs.parse("a= ", {scalars: true}), {a: " "})
+			it("Should not cast space to zero when \"types\" is true", () => {
+				assert.deepStrictEqual(qs.parse("a= ", {types: true}), {a: " "})
 			});
 		});
 		describe("\"decodeValue\"", () => {
@@ -528,19 +528,19 @@ describe("parse()", () => {
 				qs.parse("", {decodeValue: noop});
 				assert.equal(called, false);
 			});
-			it("Should not be called for empty values when \"preserveEmpty\" is false", () => {
+			it("Should not be called for empty values when \"empty\" is false", () => {
 				const tracker = new assert.CallTracker();
 				const noop = tracker.calls(() => {}, 2);
-				qs.parse("a=1&b=2&c=", {preserveEmpty: false, decodeValue: noop});
+				qs.parse("a=1&b=2&c=", {empty: false, decodeValue: noop});
 				tracker.verify();
 			});
-			it("Should be called for empty values when \"preserveEmpty\" is true", () => {
+			it("Should be called for empty values when \"empty\" is true", () => {
 				const tracker = new assert.CallTracker();
 				const noop = tracker.calls(() => {}, 3);
-				qs.parse("a=1&b=2&c=", {preserveEmpty: true, decodeValue: noop});
+				qs.parse("a=1&b=2&c=", {empty: true, decodeValue: noop});
 				tracker.verify();
 			});
-			it("Should accept valid index argument for every entry when some of them empty and \"preserveEmpty\" is false", () => {
+			it("Should accept valid index argument for every entry when some of them empty and \"empty\" is false", () => {
 				const indices: number[] = [];
 				qs.parse("a=1&b=&c=3", {decodeValue(k, v, i): void {
 					k; v;
