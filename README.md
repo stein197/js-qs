@@ -16,7 +16,7 @@ import * as qs from "@stein197/qs";
 The module exports only two functions - `stringify()` and `parse()` and both of them accept two arguments - object to parse/stringify and options. Example:
 ```ts
 qs.stringify({key: "value", object: {a: 1, b: null}}, {nulls: false}); // "key=value&object[a]=1"
-qs.parse("key=value&object[a]=1", {scalars: true}); // {key: "value", object: {a: 1}}
+qs.parse("key=value&object[a]=1", {types: true}); // {key: "value", object: {a: 1}}
 ```
 
 ## Key features
@@ -55,7 +55,7 @@ qs.parse("a[0]=1"); // {a: [1]}
 Arrays could be inferred from more deep structures.
 
 ### Inferring primitive types where possible
-Values could be casted to a corresponding type (undefined, null, boolean or number) where possible. You can disable this option by providing `scalars` option with `false` value. You can do this with [qs](https://github.com/ljharb/qs) but here it's embedded.
+Values could be casted to a corresponding type (undefined, null, boolean or number) where possible. You can disable this option by providing `types` option with `false` value. You can do this with [qs](https://github.com/ljharb/qs) but here it's embedded.
 ```ts
 qs.parse("a=undefined&b=null&c=false&d=-1"); // {a: undefined, b: null, c: false, d: -1}
 ```
@@ -66,7 +66,7 @@ By default, both functions discard empty values:
 qs.parse("a=");        // {}
 qs.stringify({a: ""}); // ""
 ```
-To disable the option, pass `preserveEmpty` option with `true` value.
+To disable the option, pass `empty` option with `true` value.
 
 ### Inferring flags
 It's rather specific option. If the key does not have both value and equal sign, then the entry will have `true` value. Otherwise is correct too:
@@ -107,15 +107,15 @@ The function accepts three arguments: raw key of a query entry, parsed value of 
 ## API
 | Function | Description |
 |----------|-------------|
-| `stringify(data: Stringifyable, options: Partial<StringifyOptions>): string` | Stringifies an object or array to a query string |
-| `parse(data: string, options: Partial<ParseOptions>): Stringifyable` | Parses the given string into an object |
+| `stringify(data: any, options: Partial<StringifyOptions>): string` | Stringifies an object or array to a query string |
+| `parse<T>(data: string, options: Partial<ParseOptions>): T` | Parses the given string into an object |
 
 > For more information, please refer the documentation in source code.
 
 ## Options
 | Option | Type | Description |
 |--------|------|-------------|
-| `preserveEmpty` | boolean | Preserves entries with empty values if `true` |
+| `empty` | boolean | Preserves entries with empty values if `true` |
 | `indices` | boolean | Outputs indices for arrays if `true` |
 | `flags` | boolean | Converts entries with `true` values as a query flag |
 | `nulls` | boolean | Stringifies `null` and `undefined` values if `true` |
