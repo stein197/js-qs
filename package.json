@@ -1,12 +1,12 @@
 {
   "name": "@stein197/qs",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Query string parser",
   "main": "index.js",
   "scripts": {
+    "clean": "del .\\*.js .\\*.d.ts .\\*.map 2>nul",
     "build": "tsc",
-    "pretest": "npm run build",
-    "test": "mocha test.js"
+    "test": "ts-mocha test.ts"
   },
   "repository": {
     "type": "git",
@@ -24,12 +24,12 @@
   },
   "homepage": "https://github.com/stein197/js-qs#readme",
   "devDependencies": {
-    "@types/mocha": "9.1.1",
-    "@types/node": "18.7.13",
-    "mocha": "9.2.2",
-    "typescript": "4.6.3"
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.7.13",
+    "ts-mocha": "10.0.0",
+    "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@stein197/json-util": "1.2.1"
+    "@stein197/json-util": "^1.2.1"
   }
 }

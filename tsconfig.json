@@ -3,17 +3,11 @@
 		"target": "ESNext",
 		"module": "CommonJS",
 		"strict": true,
-		"noImplicitAny": false,
 		"declaration": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"allowUnusedLabels": false,
-		"moduleResolution": "node",
-		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": true,
-		"importsNotUsedAsValues": "remove"
+		"sourceMap": true,
+		"inlineSources": true
 	},
-	"include": [
-		"*.ts"
+	"files": [
+		"index.ts"
 	]
 }
