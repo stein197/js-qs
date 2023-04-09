@@ -4,7 +4,7 @@ import type * as type from "@stein197/type";
 
 const DEFAULT_OPTIONS: Options = {
 	empty: false,
-	entryDelimiter: "&",
+	itemDelimiter: "&",
 	valueDelimiter: "="
 };
 
@@ -37,8 +37,7 @@ const CHARS_RESERVED: string[] = [
 export function stringify(data: any, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
 	const result: string[] = [];
 	internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), [], result);
-	return result.join(options.entryDelimiter);
-	// return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []).join(options.entryDelimiter);
+	return result.join(options.itemDelimiter);
 }
 
 /**
@@ -61,9 +60,9 @@ export function stringify(data: any, options: Partial<StringifyOptions> = DEFAUL
 export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): type.DeepPartial<T> {
 	options = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	const result: any = {};
-	const entries = data.split(options.entryDelimiter!).filter(entry => entry);
-	for (let i = 0, entry = entries[i]; i < entries.length; i++, entry = entries[i]) {
-		const [rawKey, ...valueArray] = entry.split(options.valueDelimiter!);
+	const entries = data.split(options.itemDelimiter!).filter(item => item);
+	for (let i = 0, item = entries[i]; i < entries.length; i++, item = entries[i]) {
+		const [rawKey, ...valueArray] = item.split(options.valueDelimiter!);
 		if (!rawKey)
 			continue;
 		const rawValue = valueArray.length ? valueArray.join(options.valueDelimiter) : null;
@@ -257,39 +256,164 @@ function mergeObject<T extends Options>(userObject: Partial<T>, defaultObject: T
 type Options = {
 
 	/**
-	 * Preserves entries with empty values if `true`, `false` by default. Empty values are "", [] and {}. Does not
-	 * discard flags when parsing.
+	 * Preserves entries with empty values when `true`. Empty values are `""`, `[]` and `{}`.
+	 * @defaultValue `false`
 	 * @example
 	 * ```ts
 	 * stringify({a: 1, b: ""}, {empty: false});  // "a=1"
 	 * parse("a=1&b=&c", {empty: true});          // {a: "1", b: "", c: true}
 	 * ```
 	 */
-	empty: boolean;
-	// TODO
-	entryDelimiter: string;
-	// TODO
-	valueDelimiter: string;
+	empty: boolean; // TODO: tests
+
+	/**
+	 * Which char to use as a delimiter between query items.
+	 * @defaultValue `"&"`
+	 * @example
+	 * ```ts
+	 * stringify({a: 1, b: 2}, {itemDelimiter: ";"}); // "a=1;b=2"
+	 * parse("a=1&b=2");                              // {a: 1, b: 2}
+	 * ```
+	 */
+	itemDelimiter: string; // TODO: tests
+
+	/**
+	 * Which char to use as a delimiter between keys and values.
+	 * @defaultValue `"="`
+	 * @example
+	 * ```ts
+	 * stringify({a: 1, b: 2}, {valueDelimiter: ":"}); // "a:1&b:2"
+	 * parse("a=1&b=2");                               // {a: 1, b: 2}
+	 * ```
+	 */
+	valueDelimiter: string; // TODO: tests
 }
 
 type StringifyOptions = Options & {
 
-	// TODO
-	indices: boolean;
-	// TODO
-	encode: boolean;
-	// TODO
-	key(key: string[], value: any, index: number): string;
-	// TODO
-	value(key: string[], value: any, index: number): string;
+	/**
+	 * Always outputs indices for arrays when `true`. Omits them where possible when `false`.
+	 * @defaultValue `false`
+	 * @example
+	 * ```ts
+	 * stringify({a: [1]}, {indices: true});  // "a[0]=1"
+	 * stringify({a: [1]}, {indices: false}); // "a[]=1"
+	 * ```
+	 */
+	indices: boolean; // TODO: tests
+
+	/**
+	 * Performs URL-encoding before passing keys and values down to {@link StringifyOptions.key} and
+	 * {@link StringifyOptions.value} functions.
+	 * @defaultValue `false`
+	 * @example
+	 * ```ts
+	 * stringify({"the key": "the value"}, {encode: false}); // "the key=the value"
+	 * stringify({"the key": "the value"}, {encode: true});  // "the%20key=the%20value"
+	 * ```
+	 */
+	encode: boolean; // TODO: tests
+
+	/**
+	 * Key-encoding function that should return a string which will be used as a final key in the resulting query
+	 * string. The function is called at every key-value item occurence. The default behavior description can be found
+	 * in {@link encodeKey} docstrings. It is better to override both {@link StringifyOptions.key} and
+	 * {@link ParseOptions.key} functions. Accepts the same arguments as the {@link StringifyOptions.value} function.
+	 * @param key Key path array. The array represents a nesting structure of the query string.
+	 * @param value Value associated with the key.
+	 * @param index Zero-based position index.
+	 * @returns A string that will be used as a final key for the query string.
+	 * @example
+	 * ```ts
+	 * // The following code has only one call of the function which accepted the next arguments:
+	 * // | k               | v | i |
+	 * // |-----------------|---|---|
+	 * // | ["a", "b", "c"] | 3 | 0 |
+	 * stringify({a: {b: {c: 3}}}, {key: (k, v, i) => k.map(k => k.toUpperCase()).join(".")}); // "A.B.C=3"
+	 * ```
+	 */
+	key(key: string[], value: any, index: number): string; // TODO: tests
+
+	/**
+	 * Value-encoding function that should return a string which will be used as a final value in the resulting query
+	 * string. The function is called at every key-value item occurence. The default behavior description can be found
+	 * in {@link encodeValue} docstrings. It is better to override both {@link StringifyOptions.value} and
+	 * {@link ParseOptions.value} functions. Accepts the same arguments as the {@link StringifyOptions.key} function.
+	 * @param key Key path array. The array represents a nesting structure of the query string.
+	 * @param value Value associated with the key.
+	 * @param index Zero-based position index.
+	 * @returns A string that will be used as a final value for the query string.
+	 * @example
+	 * ```ts
+	 * // The following code has three calls of the function which accepted the next arguments:
+	 * // | k     | v | i |
+	 * // |-------|---|---|
+	 * // | ["a"] | 1 | 0 |
+	 * // | ["a"] | 2 | 1 |
+	 * // | ["a"] | 3 | 2 |
+	 * stringify({a: [1, 2, 3]}, {value: (k, v, i) => (v * i).toString()}); // "a[]=0&a[]=2&a[]=6"
+	 * ```
+	 */
+	value(key: string[], value: any, index: number): string; // TODO: tests
 }
 
 type ParseOptions = Options & {
 
-	// TODO
-	decode: boolean;
-	// TODO
-	key(key: string, value: string | null, index: number): string[];
-	// TODO
-	value(key: string, value: string | null, index: number): any;
+	/**
+	 * Performs URL-decoding after passing keys and values down to {@link ParseOptions.key} and
+	 * {@link ParseOptions.value} functions.
+	 * @defaultValue `false`
+	 * @example
+	 * ```ts
+	 * parse("the%20key=the%20value", {decode: false}); // {"the%20key": "the%20value"}
+	 * parse("the%20key=the%20value", {decode: true});  // {"the key": "the value"}
+	 * ```
+	 */
+	decode: boolean; // TODO: tests
+
+	/**
+	 * Key-decoding function that should return an array of strings that will be used as a final key path for the
+	 * resulting object. The function is called at every key-value item occurence. The default behavior description can
+	 * be found in {@link decodeKey} docstrings. It is better to override both {@link StringifyOptions.key} and
+	 * {@link ParseOptions.key} functions. Accepts the same arguments as the {@link ParseOptions.value} function.
+	 * @param key Raw key that should be splitted into an array.
+	 * @param value Raw value retrieved from the query string. Null value represents that an item doesn't even have a
+	 *              key-value delimiter to separate the item into a key and value (for example a string like
+	 *              `"a=1&b=&c"`. The first item's value is `"1"`, the second one's is `""` and the third one's is
+	 *              `null`).
+	 * @param index Zero-based position index.
+	 * @returns An array of string that will be used to create the nesting structure of the result.
+	 * @example
+	 * ```ts
+	 * // The following code has only one call of the function which accepted the next arguments:
+	 * // | k       | v       | i |
+	 * // |---------|---------|---|
+	 * // | "a.b.c" | "1,2,3" | 0 |
+	 * parse("a.b.c=1,2,3", {key: (k, v, i) => k.split(".")}); // {a: {b: {c: "1,2,3"}}}
+	 * ```
+	 */
+	key(key: string, value: string | null, index: number): string[]; // TODO: tests
+
+	/**
+	 * Value-decoding function that should return a parsed value that will be used as a final value for the resulting
+	 * object. The function is called at every key-value item occurence. The default behavior description can be found
+	 * in {@link decodeValue} docstrings. It is better to override both {@link StringifyOptions.value} and
+	 * {@link ParseOptions.value} functions. Accepts the same arguments as the {@link ParseOptions.key} function.
+	 * @param key Raw key that should be splitted into an array.
+	 * @param value Raw value retrieved from the query string. Null value represents that an item doesn't even have a
+	 *              key-value delimiter to separate the item into a key and value (for example a string like
+	 *              `"a=1&b=&c"`. The first item's value is `"1"`, the second one's is `""` and the third one's is
+	 *              `null`).
+	 * @param index Zero-based position index.
+	 * @returns Parsed value that will be used as a final value in the result.
+	 * @example
+	 * ```ts
+	 * // The following code has only one call of the function which accepted the next arguments:
+	 * // | k       | v       | i |
+	 * // |---------|---------|---|
+	 * // | "a.b.c" | "1,2,3" | 0 |
+	 * parse("a.b.c=1,2,3", {value: (k, v, i) => v.split(",").map(v => +v)}); // {"a.b.c": [1, 2, 3]}
+	 * ```
+	 */
+	value(key: string, value: string | null, index: number): any; // TODO: tests
 }
