@@ -1,4 +1,4 @@
-import * as utilObject from "@stein197/util/object";
+import * as utilArray from "@stein197/util/array";
 import * as utilJson from "@stein197/util/json";
 import type * as type from "@stein197/type";
 
@@ -11,18 +11,14 @@ const DEFAULT_OPTIONS: Options = {
 const DEFAULT_OPTIONS_STRINGIFY: StringifyOptions = {
 	...DEFAULT_OPTIONS,
 	indices: false,
-	flags: true,
-	nulls: false,
-	encodeKeys: false,
-	encodeValues: false,
-	encode: "special",
+	encode: false,
 	key: encodeKey,
 	value: encodeValue
 };
 
 const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	...DEFAULT_OPTIONS,
-	types: true,
+	decode: false,
 	key: decodeKey,
 	value: decodeValue
 };
@@ -30,10 +26,6 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 const CHARS_RESERVED: string[] = [
 	"%", "=", "&", "[", "]", "."
 ];
-
-const CHAR_AMPERSAND = "&";
-const CHAR_EQUALS = "=";
-const REGEX_ENTRIES = /&+/;
 
 /**
  * Stringifies an object or array to a query string.
@@ -43,7 +35,10 @@ const REGEX_ENTRIES = /&+/;
  * @throws {@link ReferenceError} When data contains circular references.
  */
 export function stringify(data: any, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
-	return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []);
+	const result: string[] = [];
+	internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), [], result);
+	return result.join(options.entryDelimiter);
+	// return internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), []).join(options.entryDelimiter);
 }
 
 /**
@@ -64,51 +59,46 @@ export function stringify(data: any, options: Partial<StringifyOptions> = DEFAUL
  * @return Object parsed from given string. Returns empty object if the string is empty.
  */
 export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_OPTIONS_PARSE): type.DeepPartial<T> {
-	const opts = mergeObject(options, DEFAULT_OPTIONS_PARSE);
+	options = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	const result: any = {};
-	const entries = data.split(REGEX_ENTRIES).filter(entry => entry);
+	const entries = data.split(options.entryDelimiter!).filter(entry => entry);
 	for (let i = 0, entry = entries[i]; i < entries.length; i++, entry = entries[i]) {
-		const [key, ...values] = entry.split(CHAR_EQUALS);
-		if (!key)
+		const [rawKey, ...valueArray] = entry.split(options.valueDelimiter!);
+		if (!rawKey)
 			continue;
-		let value: any;
-		let hasValue = true;
-		if (values.length) {
-			let rawValue = values.join(CHAR_EQUALS);
+		const rawValue = valueArray.length ? valueArray.join(options.valueDelimiter) : null;
+		let value: any = rawValue;
+		if (options.decode)
 			try {
-				rawValue = decodeURIComponent(rawValue);
+				value = decodeURIComponent(value);
 			} catch {}
-			if (!rawValue && !opts.empty)
-				hasValue = false;
-			value = opts.types ? castValue(rawValue) : rawValue;
-		} else {
-			value = true;
-		}
-		let keyPath: string[] = parseKey(key);
+		value = options.value!(rawKey, rawValue, i);
+		const keyArray = options.key!(rawKey, rawValue, i);
 		let curObj = result;
-		let lastKey = keyPath.pop()!;
-		for (let k of keyPath) {
+		let lastKey = keyArray.pop()!;
+		for (let k of keyArray) {
 			k = k || getNextIndex(curObj).toString();
 			if (!curObj[k] || typeof curObj[k] !== "object")
 				curObj[k] = {};
 			curObj = curObj[k];
 		}
 		lastKey = lastKey || getNextIndex(curObj).toString();
-		curObj[lastKey] = hasValue && options.decodeValue ? options.decodeValue?.(key, value, i) : value;
+		curObj[lastKey] = value;
 	}
-	if (!opts.empty)
-		cleanup(result);
+	if (!options.empty) // TODO: Make cleanup right here and delete cleanup() function?
+		removeEmptyValues(result);
 	return normalize(result);
 }
 
 // TODO
 export function encodeKey(key: string[]): string {
-	return key.length === 1 ? key[0] : key[0] + `[${key.slice(1).join("][")}]`;
+	const firstItem = encodeSpecialChars(key[0]);
+	return key.length === 1 ? firstItem : firstItem + `[${key.slice(1).map(item => encodeSpecialChars(item)).join("][")}]`;
 }
 
 // TODO
 export function encodeValue(...[, value]: [never, any]): string {
-	return value == null ? "" : encode(value.toString(), false);
+	return value == null ? "" : encodeSpecialChars(value.toString());
 }
 
 // TODO
@@ -141,10 +131,10 @@ export function decodeKey(key: string): string[] {
 }
 
 // TODO
-export function decodeValue(key: string, value: string | null): any {
-	if (!key)
-		return key;
+export function decodeValue(...[, value]: [never, string | null]): any {
 	switch (value) {
+		case "":
+			return "";
 		case "undefined":
 			return undefined;
 		case "null":
@@ -153,8 +143,10 @@ export function decodeValue(key: string, value: string | null): any {
 			return true;
 		case "false":
 			return false;
+		case null:
+			return true;
 		default:
-			const numValue = parseNumber(value!);
+			const numValue = parseNumber(value);
 			return isNaN(numValue) ? value : numValue;
 	}
 }
@@ -162,31 +154,6 @@ export function decodeValue(key: string, value: string | null): any {
 function getNextIndex(object: any): number {
 	const indices = Object.keys(object).map(k => +k).filter(k => !isNaN(k));
 	return indices.length ? Math.max(...indices) + 1 : 0;
-}
-
-function parseKey(key: string): string[] {
-	const result: string[] = [];
-	let curKey: string | null = "";
-	let inBrace = false;
-	for (const char of key) {
-		if (char === "[" || char === "]") {
-			if (!inBrace && char === "]" || inBrace && char === "[") {
-				curKey += char;
-				continue;
-			}
-			if (curKey != null)
-				result.push(curKey);
-			inBrace = char === "[";
-			curKey = char === "[" ? "" : null;
-		} else {
-			curKey += char;
-		}
-	}
-	if (inBrace)
-		result[result.length - 1] = result[result.length - 1] + "[" + (curKey ?? "");
-	else if (curKey != null)
-		result.push(curKey);
-	return result.map(k => decodeURIComponent(k));
 }
 
 function parseNumber(number: string): number {
@@ -206,50 +173,26 @@ function parseNumber(number: string): number {
 	return (sign || 1) * +number.substring(i);
 }
 
-function castValue(value: string): undefined | null | boolean | number | string {
-	if (value === "undefined")
-		return undefined;
-	if (value === "null")
-		return null;
-	if (value === "true")
-		return true;
-	if (value === "false")
-		return false;
-	if (isBlank(value))
-		return value;
-	const numValue = parseNumber(value);
-	return isNaN(numValue) ? value : numValue;
-}
-
-function internalStringify(data: any, options: StringifyOptions, path: string[]): string {
-	const result: string[] = [];
-	const needIndex = !path.length || shouldUseIndex(data, false);
+function internalStringify(data: any, options: StringifyOptions, keyPath: string[], result: string[]): void {
+	const needIndex = !keyPath.length || shouldUseIndex(data, false);
 	for (const [key, value] of Object.entries(data)) {
-		const isNull = value == null;
-		if (!options.empty && !isNull && isEmpty(value) || !options.nulls && isNull)
+		if (!options.empty && isEmpty(value))
 			continue;
-		const pathCopy = utilObject.clone(path);
-		pathCopy.push(options.indices || needIndex ? key : "");
-		let strKey = encode(pathCopy[0], options.encodeKeys) + (pathCopy.length > 1 ? `[${pathCopy.slice(1).map(k => encode(k, options.encodeKeys)).join("][")}]` : "");
-		if (!isNull && typeof value === "object") {
-			const strValue = internalStringify(value, options, pathCopy);
-			if (options.empty && !strValue)
-				result.push(`${strKey}=`);
-			else
-				result.push(strValue);
-		} else {
-			if (value === true && options.flags)
-				result.push(strKey);
-			else
-				result.push(`${strKey}=${encode(String(value), options.encodeValues)}`);
+		const keyPathCopy = [...keyPath];
+		keyPathCopy.push(options.indices || needIndex ? key : "");
+		if (value != null && typeof value === "object") {
+			internalStringify(value, options, keyPathCopy, result);
+			// if (nestValue || options.empty)
+			// 	result.push(...nestValue);
+			continue;
 		}
+		let encodedKeyPath = keyPathCopy.map(k => options.encode ? encodeURIComponent(k) : k);
+		const encodedKey = options.key(encodedKeyPath, value, result.length);
+		result.push(encodedKey + options.valueDelimiter + (options.encode ? encodeURIComponent(String(value)) : value));
 	}
-	return result.join(CHAR_AMPERSAND);
 }
 
-function encode(data: string, force: boolean): string {
-	if (force)
-		return encodeURIComponent(data);
+function encodeSpecialChars(data: string): string {
 	let result: string = "";
 	for (const char of data)
 		result += CHARS_RESERVED.includes(char) ? encodeURIComponent(char) : char;
@@ -274,40 +217,31 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 	if (!isObject && !isArray)
 		return false;
 	const keys = Object.keys(data);
-	const sparse = isArray && isSparse(data);
-	const isComplex = deep ? isObject && keys.length > 1 || isArray && data.length > 1 && (!sparse || sparse && keys.length > 1) : isObject || isArray && sparse;
+	const isSparse = isArray && utilArray.sparse(data);
+	const isComplex = deep ? isObject && keys.length > 1 || isArray && data.length > 1 && (!isSparse || isSparse && keys.length > 1) : isObject || isArray && isSparse;
 	if (isComplex)
 		return true;
-	for (const i in data)
-		// @ts-ignore
-		if (shouldUseIndex(data[i], true))
+	for (const k in data)
+		if (shouldUseIndex(data[k], true))
 			return true;
 	return false;
 }
 
-function isSparse(array: any[]): boolean {
-	return array.length !== Object.keys(array).length;
-}
-
-function isBlank(string: string): boolean {
-	return !!string.match(/^\s*$/);
-}
-
-function cleanup(data: any): void {
+function removeEmptyValues(data: any): void {
 	for (const i in data) {
 		const value = data[i];
 		if (typeof value === "object" && value != null)
-			cleanup(value);
+			removeEmptyValues(value);
 		if (isEmpty(value))
 			delete data[i];
 	}
 }
 
 function normalize(data: any): any {
-	const originalKeys = Object.keys(data);
-	const castedKeys = originalKeys.filter(key => key.match(/^\d+$/)).map(key => +key);
-	const isDataArray = castedKeys.length && castedKeys.length === originalKeys.length;
-	const result = isDataArray ? new Array(castedKeys.length ? Math.max(...castedKeys) + 1 : 0) : data;
+	const origKeys = Object.keys(data);
+	const numKeys = origKeys.map(key => +key).filter(key => !isNaN(key));
+	const isArray = numKeys.length && numKeys.length === origKeys.length;
+	const result = isArray ? new Array(numKeys.length ? Math.max(...numKeys) + 1 : 0) : data;
 	for (const i in data)
 		result[i] = typeof data[i] === "object" && data[i] != null ? normalize(data[i]) : data[i];
 	return result;
@@ -340,59 +274,10 @@ type Options = {
 
 type StringifyOptions = Options & {
 
-	/**
-	 * Outputs indices for arrays if `true`, `false` by default.
-	 * @example
-	 * ```ts
-	 * stringify({a: [1]}, {indices: true});  // "a[0]=1"
-	 * stringify({a: [1]}, {indices: false}); // "a[]=1"
-	 * ```
-	 */
+	// TODO
 	indices: boolean;
-
-	/**
-	 * Converts entries with `true` values as a query flag (key without value and assign character) when stringifying.
-	 * Converts query flags to an entries with `true` value when parsing. Otherwise consider these values as strings.
-	 * `true` by default.
-	 * @example
-	 * ```ts
-	 * stringify({a: 1, b: true}, {flags: true});  // "a=1&b"
-	 * stringify({a: 1, b: true}, {flags: false}); // "a=1&b=true"
-	 * ```
-	 */
-	flags: boolean;
-
-	/**
-	 * Stringifies `null` and `undefined` values if `true`. `false` by default.
-	 * @example
-	 * ```ts
-	 * stringify({a: null, b: undefined}, {nulls: true});  // "a=null&b=undefined"
-	 * stringify({a: null, b: undefined}, {nulls: false}); // ""
-	 * ```
-	 */
-	nulls: boolean;
-
-	/**
-	 * Encodes keys in percent notation. `false` by default. Note than if the key contains "special" characters, then
-	 * they will be encoded anyway even of the option is unset.
-	 * @example
-	 * ```ts
-	 * stringify({":a": "1"}, {encodeKeys: false}); // "%3Aa=1"
-	 * ```
-	 */
-	encodeKeys: boolean;
-
-	/**
-	 * Encodes values in percent notation. `false` by default. Note than if the key contains "special" characters, then
-	 * they will be encoded anyway even of the option is unset.
-	 * @example
-	 * ```ts
-	 * stringify({1: ":a"}, {encodeValues: false}); // "1=%3Aa"
-	 * ```
-	 */
-	encodeValues: boolean;
-
-	encode: "none" | "special" | "all";
+	// TODO
+	encode: boolean;
 	// TODO
 	key(key: string[], value: any, index: number): string;
 	// TODO
@@ -401,40 +286,10 @@ type StringifyOptions = Options & {
 
 type ParseOptions = Options & {
 
-	/**
-	 * Convers a value to a corresponding type if possible. Available convertations are:
-	 * - boolean ("true" => true)
-	 * - number ("1" => 1)
-	 * - null ("null" => null)
-	 * - undefined ("undefined" => undefined)
-	 * 
-	 * `true` by default.
-	 * @example
-	 * ```ts
-	 * parse("a=true&b=1", {types: true});  // {a: true, b: 1}
-	 * parse("a=true&b=1", {types: false}); // {a: "true", b: "1"}
-	 * ```
-	 */
-	types: boolean;
-
-	/**
-	 * Function that should return custom value for each entry. When provided, the function gets called for each entry
-	 * and the result will override the default values. Example:
-	 * @example
-	 * ```ts
-	 * parse("a=1&b=2", {decodeValue: (key, value, index) => value * 2}); // {a: 2, b: 4}
-	 * ```
-	 * Function won't be called for entries with empty values. To make the function call for every entry, set
-	 * `preserveEmpty` to true. `undefined` by default (`parse()` returns only parsed values).
-	 * @param key Raw entry key.
-	 * @param value Parsed entry value.
-	 * @param index Index of the entry. The index matches the position of the entry in the raw query string.
-	 * @returns A new value that will override the default one.
-	 */
-	decodeValue?(key: string, value: undefined | null | boolean | number | string, index: number): any;
-
 	// TODO
-	key(key: string, value: string, index: number): string[];
+	decode: boolean;
+	// TODO
+	key(key: string, value: string | null, index: number): string[];
 	// TODO
 	value(key: string, value: string | null, index: number): any;
 }

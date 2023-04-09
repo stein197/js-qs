@@ -485,53 +485,6 @@ describe("parse()", () => {
 				assert.deepStrictEqual(qs.parse("a= ", {types: true}), {a: " "})
 			});
 		});
-		describe("\"decodeValue\"", () => {
-			it("Should accept valid arguments", () => {
-				const keys: string[] = [];
-				const values: any[] = [];
-				const indices: number[] = [];
-				qs.parse("a=undefined&b=null&c=false&d=12&e=string&f", {decodeValue(k, v, i): void {
-					keys.push(k);
-					values.push(v);
-					indices.push(i);
-				}});
-				assert.deepStrictEqual(keys, ["a", "b", "c", "d", "e", "f"]);
-				assert.deepStrictEqual(values, [undefined, null, false, 12, "string", true]);
-				assert.deepStrictEqual(indices, [0, 1, 2, 3, 4, 5]);
-			});
-			it("Should not be called when query string is empty", () => {
-				let called = false;
-				const noop = () => called = true;
-				qs.parse("", {decodeValue: noop});
-				assert.equal(called, false);
-			});
-			it("Should not be called for empty values when \"empty\" is false", () => {
-				const tracker = new assert.CallTracker();
-				const noop = tracker.calls(() => {}, 2);
-				qs.parse("a=1&b=2&c=", {empty: false, decodeValue: noop});
-				tracker.verify();
-			});
-			it("Should be called for empty values when \"empty\" is true", () => {
-				const tracker = new assert.CallTracker();
-				const noop = tracker.calls(() => {}, 3);
-				qs.parse("a=1&b=2&c=", {empty: true, decodeValue: noop});
-				tracker.verify();
-			});
-			it("Should accept valid index argument for every entry when some of them empty and \"empty\" is false", () => {
-				const indices: number[] = [];
-				qs.parse("a=1&b=&c=3", {decodeValue(k, v, i): void {
-					k; v;
-					indices.push(i);
-				}});
-				assert.deepStrictEqual(indices, [0, 2]);
-			});
-			it("Should override default values for plain structures", () => {
-				assert.deepStrictEqual(qs.parse("a=1&b=2&c=3", {decodeValue: k => k}), {a: "a", b: "b", c: "c"});
-			});
-			it("Should override default values for nested structures", () => {
-				assert.deepStrictEqual(qs.parse("a[]=1&a[]=2&a[]=3", {decodeValue: k => k}), {a: ["a[]", "a[]", "a[]"]});
-			});
-		});
 	});
 });
 
