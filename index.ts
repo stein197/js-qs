@@ -293,7 +293,7 @@ type StringifyOptions = Options & {
 	 * 		k.map(k => k.toUpperCase()).join("."),
 	 * 		v * i
 	 * 	]
-	 * }); // "a.b.c=0&a.b.d=4"
+	 * }); // "A.B.C=0&A.B.D=4"
 	 * ```
 	 */
 	encode(key: string[], value: any, index: number): [key: string, value: string | null] | null; // TODO: tests
