@@ -189,7 +189,7 @@ function internalStringify(data: any, options: StringifyOptions, keyPath: string
 		if (!keyvalue)
 			return;
 		const [encodedKey, encodedValue] = keyvalue;
-		result.push(encodedKey + options.valueDelimiter + encodedValue);
+		result.push(encodedValue == null ? encodedKey : encodedKey + options.valueDelimiter + encodedValue);
 	}
 }
 
@@ -276,7 +276,9 @@ type StringifyOptions = Options & {
 	 * query string. The function is called at every key-value item occurence. The default behavior description can be
 	 * found in {@link encode} function docstrings.
 	 * @param key Key path array. The array represents a nesting structure of the query string.
-	 * @param value Value associated with the key.
+	 * @param value Value associated with the key. Null value represents that an item doesn't even have a key-value
+	 *              delimiter to separate the item into a key and value (for example a string like `"a=1&b=&c"`. The
+	 *              first item's value is `"1"`, the second one's is `""` and the third one's is `null`).
 	 * @param index Zero-based position index.
 	 * @returns A key-value pair that will be used as a final key and value for the query string or null to skip.
 	 * @example
@@ -294,7 +296,7 @@ type StringifyOptions = Options & {
 	 * }); // "a.b.c=0&a.b.d=4"
 	 * ```
 	 */
-	encode(key: string[], value: any, index: number): [key: string, value: string] | null; // TODO: tests
+	encode(key: string[], value: any, index: number): [key: string, value: string | null] | null; // TODO: tests
 }
 
 type ParseOptions = Options & {
