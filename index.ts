@@ -91,8 +91,6 @@ export function encode(key: string[], value: any): [key: string, value: string] 
 
 // TODO
 export function decode(key: string, value: string | null): [key: string[], value: any] | null {
-	if (value == null)
-		return null;
 	return [
 		decodeKey(key),
 		decodeValue(value)
