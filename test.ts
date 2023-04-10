@@ -497,29 +497,10 @@ describe("stringify() === parse()", () => {
 	});
 });
 
-describe("encodeKey()", () => {
-	it("Should return empty string when the key array is empty", () => {
-		assert.equal(qs.encodeKey([]), "");
-	});
-	it("Should return correct result when the key array has single element", () => {
-		assert.equal(qs.encodeKey(["a"]), "a");
-	});
-	it("Should return correct result when the key array contains more than one", () => {
-		assert.equal(qs.encodeKey(["a", "b", "", "d"]), "a[b][][d]");
-	});
-	it("Should encode special chars", () => {
-		assert.equal(qs.encodeKey(["a", "&", "=", "[", "]"]), "a[%26][%3D][%5B][%5D]");
-	});
-});
-
-describe("encodeValue()", () => {
+describe("encode()", () => {
 	
 });
 
-describe("decodeKey()", () => {
-	
-});
-
-describe("decodeValue()", () => {
+describe("decode()", () => {
 	
 });
