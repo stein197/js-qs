@@ -79,8 +79,22 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
 	return normalize(result);
 }
 
-// TODO
-export function encode(key: string[], value: any): [key: string, value: string] | null {
+/**
+ * Default implementation for encoding keys and values. The next rules are applied to values when encoding them:
+ * - If the value is null then the whole item is discarded
+ * - If it is `true` then `null` for value is returned. Null means that only the key will be inserted in the final query
+ * without a delimiter.
+ * @param key Key path to encode.
+ * @param value Value to encode.
+ * @returns Encoded pair of key and value.
+ * @example
+ * ```ts
+ * encode(["a"], 1);             // ["a", "1"]
+ * encode(["a", "b"], null);     // null
+ * encode(["a", "b", ""], true); // ["a[b][]", null]
+ * ```
+ */
+export function encode(key: string[], value: any): [key: string, value: string | null] | null {
 	if (value == null)
 		return null;
 	return [
@@ -89,7 +103,20 @@ export function encode(key: string[], value: any): [key: string, value: string] 
 	];
 }
 
-// TODO
+/**
+ * Default implementation for decoding keys and values. The next rules are applied to values when decoding them:
+ * - If value is `null`, then the parsed value is `true`
+ * - If value is number, then it will be casted to `number`
+ * - If value is "null", "undefined", "true", "false" then it will be casted to corresponding types
+ * @param key Raw key to decode.
+ * @param value Raw value to decode.
+ * @returns 
+ * ```ts
+ * decode("a", "string");  // [["a"], "string"]
+ * decode("a[b][]", "12"); // [["a", "b", ""], 12]
+ * decode("a[b]", null);   // [["a", "b"], true]
+ * ```
+ */
 export function decode(key: string, value: string | null): [key: string[], value: any] | null {
 	return [
 		decodeKey(key),
