@@ -18,10 +18,6 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
 	decode
 };
 
-const CHARS_RESERVED: string[] = [
-	"%", "=", "&", "[", "]", "."
-];
-
 /**
  * Stringifies an object or array to a query string.
  * @param data Object to stringify.
@@ -83,6 +79,9 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
  * Default implementation for encoding keys and values. The next rules are applied to values when encoding them:
  * - If the value is null then the whole item is discarded
  * - If it is `true` then `null` for value is returned. Null means that only the key will be inserted in the final query
+ * - Empty arrays and objects are discarded
+ * - Empty strings are preserved
+ * - Only special chars are encoded in keys and values ("&", "=" etc.)
  * without a delimiter.
  * @param key Key path to encode.
  * @param value Value to encode.
@@ -125,12 +124,12 @@ export function decode(key: string, value: string | null): [key: string[], value
 }
 
 function encodeKey(key: string[]): string {
-	const firstItem = encodeSpecialChars(key[0]);
-	return key.length === 1 ? firstItem : firstItem + `[${key.slice(1).map(item => encodeSpecialChars(item)).join("][")}]`;
+	const firstItem = encodeURIComponent(key[0]);
+	return key.length === 1 ? firstItem : firstItem + `[${key.slice(1).map(item => encodeURIComponent(item)).join("][")}]`;
 }
 
 function encodeValue(value: any): string {
-	return value == null ? "" : encodeSpecialChars(value.toString());
+	return value == null ? "" : encodeURIComponent(value.toString());
 }
 
 function decodeKey(key: string): string[] {
@@ -158,6 +157,10 @@ function decodeKey(key: string): string[] {
 		result[result.length - 1] = result[result.length - 1] + "[" + (curKey ?? "");
 	else if (curKey != null)
 		result.push(curKey);
+	for (let i = 0; i < result.length; i++) 
+		try {
+			result[i] = decodeURIComponent(result[i]);
+		} catch {}
 	return result;
 }
 
@@ -177,7 +180,13 @@ function decodeValue(value: string | null): any {
 			return true;
 		default:
 			const numValue = parseNumber(value);
-			return isNaN(numValue) ? value : numValue;
+			if (isNaN(numValue))
+				try {
+					return decodeURIComponent(value);
+				} catch {
+					return value;
+				}
+			return numValue;
 	}
 }
 
@@ -218,13 +227,6 @@ function internalStringify(data: any, options: StringifyOptions, keyPath: string
 		const [encodedKey, encodedValue] = keyvalue;
 		result.push(encodedValue == null ? encodedKey : encodedKey + options.valueDelimiter + encodedValue);
 	}
-}
-
-function encodeSpecialChars(data: string): string {
-	let result: string = "";
-	for (const char of data)
-		result += CHARS_RESERVED.includes(char) ? encodeURIComponent(char) : char;
-	return result;
 }
 
 function shouldUseIndex(data: any, deep: boolean): boolean {
