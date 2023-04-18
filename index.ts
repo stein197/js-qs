@@ -26,6 +26,7 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
  * @throws {@link ReferenceError} When data contains circular references.
  */
 export function stringify(data: any, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
+	options = mergeObject(options, DEFAULT_OPTIONS_STRINGIFY)
 	const result: string[] = [];
 	internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), [], result);
 	return result.join(options.itemDelimiter);
@@ -131,8 +132,8 @@ function encodeKey(key: string[]): string {
 	return key.length === 1 ? firstItem : firstItem + `[${key.slice(1).map(item => encodeURIComponent(item)).join("][")}]`;
 }
 
-function encodeValue(value: any): string {
-	return value == null ? "" : encodeURIComponent(value.toString());
+function encodeValue(value: any): string | null {
+	return value === true ? null : value == null ? "" : encodeURIComponent(value.toString());
 }
 
 function decodeKey(key: string): string[] {

@@ -3,23 +3,23 @@ import * as util from "@stein197/util/util";
 import * as qs from ".";
 
 describe("stringify()", () => {
-	it("Should not emit indices for arrays by default when options aren't present", () => {
+	it("Should omit indices for arrays by default", () => {
 		assert.equal(qs.stringify({a: [1, 2]}), "a[]=1&a[]=2");
 	});
-	it("Should not stringify flags by default when options aren't present", () => {
+	it("Should preserve only key when value is true", () => {
 		assert.equal(qs.stringify({a: true}), "a");
 	});
-	it("Should discard empty values by default when options aren't present", () => {
-		assert.equal(qs.stringify({a: "", b: [], c: {}}), "");
+	it("Should discard empty arrays and objects but preserve empty strings", () => {
+		assert.equal(qs.stringify({a: "", b: [], c: {}}), "a=");
 	});
-	it("Should discard null and undefined by default when options aren't present", () => {
+	it("Should discard null and undefined", () => {
 		assert.equal(qs.stringify({a: null, b: undefined}), "");
 	});
-	it("Should not encode keys by default when options aren't present", () => {
-		assert.equal(qs.stringify({" ": 1}), " =1")
+	it("Should encode keys", () => {
+		assert.equal(qs.stringify({" ": 1}), "%20=1")
 	});
-	it("Should not encode values by default when options aren't present", () => {
-		assert.equal(qs.stringify({a: " "}), "a= ");
+	it("Should encode values", () => {
+		assert.equal(qs.stringify({a: " "}), "a=%20");
 	});
 	it("Should encode special characters in keys", () => {
 		assert.equal(qs.stringify({"&=[]": 1}), "%26%3D%5B%5D=1");
@@ -116,7 +116,7 @@ describe("stringify()", () => {
 			// @ts-ignore
 			assert.equal(qs.stringify(testCase.value), testCase.expected);
 	});
-	it("Should return correct result when passing large complex object with custom options", () => {
+	it("Should return correct result when passing large complex object", () => {
 		assert.equal(qs.stringify({
 			a: {
 				b: [
@@ -142,7 +142,7 @@ describe("stringify()", () => {
 				name: "Jon Doe",
 				company: "J&J"
 			}
-		}), "ios&platform=android&ids[]=123&ids[]=456&ids[]=789&user[name]=Jon Doe&user[company]=J%26J");
+		}), "ios&platform=android&ids[]=123&ids[]=456&ids[]=789&user[name]=Jon%20Doe&user[company]=J%26J");
 	});
 	it("Should preserve keys with delimiter when value is an empty string", () => {
 		assert.equal(qs.stringify({a: "", b: ""}), "a=&b=");
@@ -163,8 +163,8 @@ describe("stringify()", () => {
 				];
 			},
 			itemDelimiter: ";",
-			valueDelimiter: ";"
-		}), "0[B]:STRING;1[B]:10;2[C.D.E]:E;3[C.D.F]:F");
+			valueDelimiter: ":"
+		}), "0[A]:STRING;1[B]:10;2[C.D.E]:E;3[C.D.F]:F");
 	});
 	describe("Plain arrays", () => {
 		it("Should return correct result when passing a common array", () => {
@@ -243,7 +243,7 @@ describe("stringify()", () => {
 	});
 	describe("Options", () => {
 		describe("\"indices\"", () => {
-			it("Should not emit indices for arrays when \"indices\" is false", () => {
+			it("Should omit indices for arrays when \"indices\" is false", () => {
 				assert.equal(qs.stringify({a: [1, 2, 3]}, {indices: false}), "a[]=1&a[]=2&a[]=3");
 			});
 			it("Should emit indices for arrays when \"indices\" is true", () => {
@@ -267,10 +267,10 @@ describe("stringify()", () => {
 					encode: tracker.f as any
 				});
 				assert.equal(tracker.calls, [
-					[[["a"], 1, 0], ["k", 1]],
+					[[["a"], 1, 0], ["a", 1]],
 					[[["b"], 2, 1], ["b", 2]],
-					[[["a", "b", "c", "d", "e"], 5, 2], ["a.b.c.d.e", 5]],
-					[[["a", "b", "c", "d", "f"], 6, 3], ["a.b.c.d.f", 6]]
+					[[["c", "d", "e"], 5, 2], ["c.d.e", 5]],
+					[[["c", "d", "f"], 6, 3], ["c.d.f", 6]]
 				]);
 			});
 			it("Should return only stringified key when null is returned as a value", () => {
@@ -299,8 +299,8 @@ describe("parse()", () => {
 	it("Should return empty object literal when the string consists of delimiters", () => {
 		assert.deepStrictEqual(qs.parse("&&&"), {});
 	});
-	it("Should return empty object literal when the string constists of empty values", () => {
-		assert.deepStrictEqual(qs.parse("a=&b=&c="), {});
+	it("Should return empty object with empty values when the string constists of empty values", () => {
+		assert.deepStrictEqual(qs.parse("a=&b=&c="), {a: "", b: "", c: ""});
 	});
 	it("Should decode keys when keys are encoded", () => {
 		assert.deepStrictEqual(qs.parse("%20=a"), {" ": "a"});
@@ -313,9 +313,6 @@ describe("parse()", () => {
 	});
 	it("Should return true for flags", () => {
 		assert.deepStrictEqual(qs.parse("a=1&b"), {a: 1, b: true});
-	});
-	it("Should discard empty values by default when options aren't present", () => {
-		assert.deepStrictEqual(qs.parse("a=&b=2"), {b: 2});
 	});
 	it("Should cast string types to corresponding types", () => {
 		assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=-1"), {a: null, b: undefined, c: true, d: -1});
