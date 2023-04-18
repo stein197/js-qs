@@ -214,7 +214,7 @@ function internalStringify(data: any, options: StringifyOptions, keyPath: string
 		}
 		const keyvalue = options.encode(keyPathCopy, value, result.length);
 		if (!keyvalue)
-			return;
+			continue;
 		const [encodedKey, encodedValue] = keyvalue;
 		result.push(encodedValue == null ? encodedKey : encodedKey + options.valueDelimiter + encodedValue);
 	}
