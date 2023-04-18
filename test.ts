@@ -489,15 +489,51 @@ describe("parse()", () => {
 	});
 
 	describe("Options", () => {
-
 		describe("itemDelimiter", () => {
-			
+			it("Should use specified item delimiter", () => {
+				assert.equal(qs.parse("a=1;b=2", {itemDelimiter: ";"}), {a: 1, b: 2});
+			});
 		});
 		describe("valueDelimiter", () => {
-			
+			it("Should use specified value delimiter", () => {
+				assert.equal(qs.parse("a:1&b:2", {valueDelimiter: ":"}), {a: 1, b: 2});
+			});
 		});
 		describe("decode", () => {
-			
+			it("Should accept correct arguments and be called expected amount of times", () => {
+				const tracker = util.track((k, v) => [[k], v]);
+				qs.parse("a=1&b=&c[d][e]&c[d][f]=6", {
+					decode: tracker.f as any
+				});
+				assert.equal(tracker.calls, [
+					[["a", "1", 0], [["a"], "1"]],
+					[["b", "", 1], [["b"], ""]],
+					[["c[d][e]", null, 2], [["c[d][e]", null]]],
+					[["c[d][f]", "6", 3], [["c[d][f]", "6"]]],
+				]);
+			});
+			it("Should create expected structure", () => {
+				assert.deepStrictEqual(qs.parse("a=1&b=&c.d.e&c.d.f=6", {
+					decode: (k, v) => {
+						return [
+							k.split("."),
+							v || null
+						];
+					}
+				}), {
+					a: "1",
+					c: {
+						d: {
+							f: "6"
+						}
+					}
+				});
+			});
+			it("Should discard whole item when null is returned", () => {
+				assert.deepStrictEqual(qs.parse("a=1&b=2", {
+					decode: () => null
+				}), {});
+			});
 		});
 	});
 });

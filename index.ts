@@ -325,7 +325,7 @@ type StringifyOptions = Options & {
 	 * }); // "A.B.C=0&A.B.D=4"
 	 * ```
 	 */
-	encode(key: string[], value: any, index: number): [key: string, value: string | null] | null; // TODO: tests
+	encode(key: string[], value: any, index: number): [key: string, value: string | null] | null;
 }
 
 type ParseOptions = Options & {
@@ -355,5 +355,5 @@ type ParseOptions = Options & {
 	 * }); // {A: {B: {C: [1, 2, 3]}}}
 	 * ```
 	 */
-	decode(key: string, value: string | null, index: number): [key: string[], value: any] | null; // TODO: tests
+	decode(key: string, value: string | null, index: number): [key: string[], value: any] | null;
 }
