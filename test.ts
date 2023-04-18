@@ -144,6 +144,28 @@ describe("stringify()", () => {
 			}
 		}), "ios&platform=android&ids[]=123&ids[]=456&ids[]=789&user[name]=Jon Doe&user[company]=J%26J");
 	});
+	it("Should preserve keys with delimiter when value is an empty string", () => {
+		assert.equal(qs.stringify({a: "", b: ""}), "a=&b=");
+	});
+	it("Should preserve only keys without delimiter and value when a value is true", () => {
+		assert.equal(qs.stringify({a: true, b: true}), "a&b");
+	});
+	it("Should discard items when values are nulls or undefined", () => {
+		assert.equal(qs.stringify({a: null, b: undefined}), "");
+	});
+	it("Complex example", () => {
+		assert.equal(qs.stringify({a: null, b: undefined, c: "", d: true, e: false, f: "string", g: 10, h: {a: []}, i: [{}], j: {k: "string"}}), "c=&d&e=false&f=string&g=10&j[k]=string");
+		assert.equal(qs.stringify({a: "string", b: 10, c: {d: {e: "E", f: "F"}}}, {
+			encode: (k, v, i) => {
+				return [
+					`${i}[${k.join(".").toUpperCase()}]`,
+					v.toString().toUpperCase()
+				];
+			},
+			itemDelimiter: ";",
+			valueDelimiter: ";"
+		}), "0[B]:STRING;1[B]:10;2[C.D.E]:E;3[C.D.F]:F");
+	});
 	describe("Plain arrays", () => {
 		it("Should return correct result when passing a common array", () => {
 			assert.equal(qs.stringify(["a", "b", "c"]), "0=a&1=b&2=c");
@@ -240,7 +262,7 @@ describe("stringify()", () => {
 		});
 		describe("encode", () => {
 			it("Should accept correct arguments and be called expected amount of times", () => {
-				const tracker = util.track((k, v, i) => [k.join("."), v]);
+				const tracker = util.track((k, v) => [k.join("."), v]);
 				qs.stringify({a: 1, b: 2, c: {d: {e: 5, f: 6}}}, {
 					encode: tracker.f as any
 				});
@@ -267,18 +289,6 @@ describe("stringify()", () => {
 				}), "");
 			});
 		});
-	});
-	it("Should preserve keys with delimiter when value is an empty string", () => {
-		assert.equal(qs.stringify({a: "", b: ""}), "a=&b=");
-	});
-	it("Should preserve only keys without delimiter and value when a value is true", () => {
-		assert.equal(qs.stringify({a: true, b: true}), "a&b");
-	});
-	it("Should discard items when values are nulls or undefined", () => {
-		assert.equal(qs.stringify({a: null, b: undefined}), "");
-	});
-	it("Complex example", () => {
-		assert.equal(qs.stringify({a: null, b: undefined, c: "", d: true, e: false, f: "string", g: 10, h: {a: []}, i: [{}], j: {k: "string"}}), "c=&d&e=false&f=string&g=10&j[k]=string");
 	});
 });
 
@@ -399,6 +409,21 @@ describe("parse()", () => {
 			}
 		});
 	});
+	it("Should return true for items without values and delimiters", () => {
+		assert.equal(qs.parse("a&b"), {a: true, b: true});
+	});
+	it("Should return number when value can be casted to number", () => {
+		assert.equal(qs.parse("a=1"), {a: 1});
+	});
+	it("Should return corresponding types when value is undefined, null, true or false", () => {
+		assert.equal(qs.parse("a=undefined&b=null&c=true&d=false"), {a: undefined, b: null, c: true, d: false});
+	});
+	it("Should preserve empty values", () => {
+		assert.deepStrictEqual(qs.parse("a=&b="), {a: "", b: ""});
+	});
+	it("Should not cast space to zero when \"types\" is true", () => {
+		assert.deepStrictEqual(qs.parse("a= "), {a: " "})
+	});
 
 	describe("Casting numbers", () => {
 		it("Should properly cast zero", () => {
@@ -452,11 +477,8 @@ describe("parse()", () => {
 		it("Should return value for the latest key occurence", () => {
 			assert.deepStrictEqual(qs.parse("a=a&a=b"), {a: "b"});
 		});
-		it("Should drop value when the first key contains value and the second does not and \"empty\" is true", () => {
-			assert.deepStrictEqual(qs.parse("a=a&a=", {empty: true}), {a: ""});
-		});
-		it("Should drop value when the first key contains value and the second does not and \"empty\" is false", () => {
-			assert.deepStrictEqual(qs.parse("a[b][c]=a&a[b]=", {empty: false}), {});
+		it("Should drop value when the first key contains value and the second one does not ", () => {
+			assert.deepStrictEqual(qs.parse("a=a&a="), {a: ""});
 		});
 		it("Should override nested structure with primitive value", () => {
 			assert.deepStrictEqual(qs.parse("a[]=a&a=b"), {a: "b"});
@@ -467,25 +489,7 @@ describe("parse()", () => {
 	});
 
 	describe("Options", () => {
-		describe("\"empty\"", () => {
-			it("Should discard empty values when \"empty\" is false", () => {
-				assert.deepStrictEqual(qs.parse("a=&b=", {empty: false}), {});
-			});
-			it("Should preserve empty values when \"empty\" is true", () => {
-				assert.deepStrictEqual(qs.parse("a=&b=", {empty: true}), {a: "", b: ""});
-			});
-		});
-		describe("\"types\"", () => {
-			it("Should preserve values as strings when \"types\" is false", () => {
-				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {types: false}), {a: "null", b: "undefined", c: "true", d: "false", f: "-1"});
-			});
-			it("Should cast values to corresponding types when \"types\" is true", () => {
-				assert.deepStrictEqual(qs.parse("a=null&b=undefined&c=true&d=false&f=-1", {types: true}), {a: null, b: undefined, c: true, d: false, f: -1});
-			});
-			it("Should not cast space to zero when \"types\" is true", () => {
-				assert.deepStrictEqual(qs.parse("a= ", {types: true}), {a: " "})
-			});
-		});
+
 		describe("itemDelimiter", () => {
 			
 		});
@@ -514,9 +518,3 @@ describe("encode()", () => {
 describe("decode()", () => {
 	
 });
-
-function track<T extends (...args: any[]) => any>(f: T) {
-	return {
-
-	};
-}
