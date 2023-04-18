@@ -1,4 +1,5 @@
 import * as assert from "assert";
+import * as util from "@stein197/util/util";
 import * as qs from ".";
 
 describe("stringify()", () => {
@@ -143,82 +144,6 @@ describe("stringify()", () => {
 			}
 		}), "ios&platform=android&ids[]=123&ids[]=456&ids[]=789&user[name]=Jon Doe&user[company]=J%26J");
 	});
-
-	describe("Options", () => {
-		describe("\"empty\"", () => {
-			it("Should discard empty values when \"empty\" is false", () => {
-				assert.equal(qs.stringify({a: "", b: [], c: {}}, {empty: false}), "");
-			});
-			it("Should discard empty values inside an array when \"empty\" is false", () => {
-				assert.equal(qs.stringify({a: ["", "", ""]}, {empty: false}), "");
-			});
-			it("Should discard empty values inside an object when \"empty\" is false", () => {
-				assert.equal(qs.stringify({a: {b: ""}}, {empty: false}), "");
-			});
-			it("Should preserve empty values when \"empty\" is true", () => {
-				assert.equal(qs.stringify({abc: "", def: [], ghi: {}, jkl: {mno: ""}}, {empty: true}), "abc=&def=&ghi=&jkl[mno]=");
-			});
-			it("Should preserve empty values inside an array when \"empty\" is true", () => {
-				assert.equal(qs.stringify({a: ["", "", ""]}, {empty: true}), "a[]=&a[]=&a[]=");
-			});
-			it("Should preserve empty values inside an object when \"empty\" is true", () => {
-				assert.equal(qs.stringify({a: {b: ""}}, {empty: true}), "a[b]=");
-			});
-			it("Should not discard empty arrays when \"empty\" is true", () => {
-				assert.equal(qs.stringify({a: [[[]]]}, {empty: true}), "a[][]=");
-			});
-			it("Should not discard empty objects when \"empty\" is true", () => {
-				assert.equal(qs.stringify({a: {b: {c: {}}}}, {empty: true}), "a[b][c]=");
-			});
-		});
-		describe("\"indices\"", () => {
-			it("Should not emit indices for arrays when \"indices\" is false", () => {
-				assert.equal(qs.stringify({a: [1, 2, 3]}, {indices: false}), "a[]=1&a[]=2&a[]=3");
-			});
-			it("Should emit indices for arrays when \"indices\" is true", () => {
-				assert.equal(qs.stringify({a: [1, 2, 3]}, {indices: true}), "a[0]=1&a[1]=2&a[2]=3");
-			});
-		});
-		describe("\"flags\"", () => {
-			it("Should stringify flags when \"flags\" is false", () => {
-				assert.equal(qs.stringify({a: true}, {flags: false}), "a=true");
-			});
-			it("Should not stringify flags when \"flags\" is true", () => {
-				assert.equal(qs.stringify({a: true}, {flags: true}), "a");
-			});
-		});
-		describe("\"nulls\"", () => {
-			it("Should discard null and undefined when \"nulls\" is false", () => {
-				assert.equal(qs.stringify({a: null, b: undefined}, {nulls: false}), "");
-			});
-			it("Should stringify null and undefined when \"nulls\" is true", () => {
-				assert.equal(qs.stringify({a: null, b: undefined}, {nulls: true}), "a=null&b=undefined");
-			});
-		});
-		describe("\"encodeKeys\"", () => {
-			it("Should not encode keys when \"encodeKeys\" is false", () => {
-				assert.equal(qs.stringify({" ": 1}, {encodeKeys: false}), " =1");
-			});
-			it("Should encode keys when \"encodeKeys\" is true", () => {
-				assert.equal(qs.stringify({" ": 1}, {encodeKeys: true}), "%20=1");
-			});
-			it("Should encode special characters in keys anyway", () => {
-				assert.equal(qs.stringify({"&[]=%": 1}, {encodeKeys: false}), "%26%5B%5D%3D%25=1");
-			});
-		});
-		describe("\"encodeValues\"", () => {
-			it("Should not encode values when \"encodeValues\" is false", () => {
-				assert.equal(qs.stringify({a: " "}, {encodeValues: false}), "a= ");
-			});
-			it("Should encode values when \"encodeValues\" is true", () => {
-				assert.equal(qs.stringify({a: " "}, {encodeValues: true}), "a=%20");
-			});
-			it("Should encode special characters in values anyway", () => {
-				assert.equal(qs.stringify({a: "&[]=%"}, {encodeValues: false}), "a=%26%5B%5D%3D%25");
-			});
-		});
-	});
-
 	describe("Plain arrays", () => {
 		it("Should return correct result when passing a common array", () => {
 			assert.equal(qs.stringify(["a", "b", "c"]), "0=a&1=b&2=c");
@@ -278,6 +203,82 @@ describe("stringify()", () => {
 		it("Should return empty string when arrays and objects are empty", () => {
 			assert.equal(qs.stringify({a: []}), "");
 		});
+	});
+	describe("Empty values", () => {
+		it("Should accept empty strings", () => {
+			assert.equal(qs.stringify({a: ""}), "a=");
+		});
+		it("Should discard empty objects and arrays", () => {
+			assert.equal(qs.stringify({a: [], b: {}}), "");
+			assert.equal(qs.stringify({a: {b: {}}, b: [[[]]]}), "");
+		});
+		it("Should accept empty strings inside arrays", () => {
+			assert.equal(qs.stringify({a: ["", "", ""]}), "a[]=&a[]=&a[]=");
+		});
+		it("Should accept empty strings inside objects", () => {
+			assert.equal(qs.stringify({a: {a: "", b: ""}}), "a[a]=&a[b]=");
+		});
+	});
+	describe("Options", () => {
+		describe("\"indices\"", () => {
+			it("Should not emit indices for arrays when \"indices\" is false", () => {
+				assert.equal(qs.stringify({a: [1, 2, 3]}, {indices: false}), "a[]=1&a[]=2&a[]=3");
+			});
+			it("Should emit indices for arrays when \"indices\" is true", () => {
+				assert.equal(qs.stringify({a: [1, 2, 3]}, {indices: true}), "a[0]=1&a[1]=2&a[2]=3");
+			});
+		});
+		describe("itemDelimiter", () => {
+			it("Should use specified item", () => {
+				assert.equal(qs.stringify({a: 1, b: 2}, {itemDelimiter: ";"}), "a=1;b=2");
+			});
+		});
+		describe("valueDelimiter", () => {
+			it("Should use specified delimiter", () => {
+				assert.equal(qs.stringify({a: 1}, {valueDelimiter: ":"}), "a:1");
+			});
+		});
+		describe("encode", () => {
+			it("Should accept correct arguments and be called expected amount of times", () => {
+				const tracker = util.track((k, v, i) => [k.join("."), v]);
+				qs.stringify({a: 1, b: 2, c: {d: {e: 5, f: 6}}}, {
+					encode: tracker.f as any
+				});
+				assert.equal(tracker.calls, [
+					[[["a"], 1, 0], ["k", 1]],
+					[[["b"], 2, 1], ["b", 2]],
+					[[["a", "b", "c", "d", "e"], 5, 2], ["a.b.c.d.e", 5]],
+					[[["a", "b", "c", "d", "f"], 6, 3], ["a.b.c.d.f", 6]]
+				]);
+			});
+			it("Should return only stringified key when null is returned as a value", () => {
+				assert.equal(qs.stringify({a: 1, b: 2}, {
+					encode: k => [k.join(""), null]
+				}), "a&b");
+			});
+			it("Should return key with delimiter when empty string is returned as a value", () => {
+				assert.equal(qs.stringify({a: 1, b: 2}, {
+					encode: k => [k.join(""), ""]
+				}), "a=&b=");
+			});
+			it("Should discard whole item when null is returned", () => {
+				assert.equal(qs.stringify({a: 1, b: 2}, {
+					encode: () => null
+				}), "");
+			});
+		});
+	});
+	it("Should preserve keys with delimiter when value is an empty string", () => {
+		assert.equal(qs.stringify({a: "", b: ""}), "a=&b=");
+	});
+	it("Should preserve only keys without delimiter and value when a value is true", () => {
+		assert.equal(qs.stringify({a: true, b: true}), "a&b");
+	});
+	it("Should discard items when values are nulls or undefined", () => {
+		assert.equal(qs.stringify({a: null, b: undefined}), "");
+	});
+	it("Complex example", () => {
+		assert.equal(qs.stringify({a: null, b: undefined, c: "", d: true, e: false, f: "string", g: 10, h: {a: []}, i: [{}], j: {k: "string"}}), "c=&d&e=false&f=string&g=10&j[k]=string");
 	});
 });
 
@@ -485,6 +486,15 @@ describe("parse()", () => {
 				assert.deepStrictEqual(qs.parse("a= ", {types: true}), {a: " "})
 			});
 		});
+		describe("itemDelimiter", () => {
+			
+		});
+		describe("valueDelimiter", () => {
+			
+		});
+		describe("decode", () => {
+			
+		});
 	});
 });
 
@@ -498,9 +508,15 @@ describe("stringify() === parse()", () => {
 });
 
 describe("encode()", () => {
-	
+
 });
 
 describe("decode()", () => {
 	
 });
+
+function track<T extends (...args: any[]) => any>(f: T) {
+	return {
+
+	};
+}
