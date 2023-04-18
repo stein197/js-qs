@@ -548,9 +548,37 @@ describe("stringify() === parse()", () => {
 });
 
 describe("encode()", () => {
-
+	it("Should return null when value is null", () => {
+		assert.equal(qs.encode(["a"], null), null);
+	});
+	it("Should return null for value when value is true", () => {
+		assert.deepStrictEqual(qs.encode(["a"], true), ["a", null]);
+	});
+	it("Should encode special characters", () => {
+		assert.deepStrictEqual(qs.encode(["a"], "&"), ["a", "%26"]);
+	});
+	it("Should correctly merge deep key", () => {
+		assert.deepStrictEqual(qs.encode(["a", "b", ""], 1), ["a[b][]", "1"]);
+	});
 });
 
 describe("decode()", () => {
-	
+	it("Should return true for value when the value is null", () => {
+		assert.deepStrictEqual(qs.decode("a", null), [["a"], true]);
+	});
+	it("Should return number when the value can be casted to a number", () => {
+		assert.deepStrictEqual(qs.decode("a", "1"), [["a"], 1]);
+	});
+	it("Should cast value to undefined, null, true or false when possible", () => {
+		assert.deepStrictEqual(qs.decode("a", "undefined"), [["a"], undefined]);
+		assert.deepStrictEqual(qs.decode("a", "null"), [["a"], null]);
+		assert.deepStrictEqual(qs.decode("a", "true"), [["a"], true]);
+		assert.deepStrictEqual(qs.decode("a", "false"), [["a"], false]);
+	});
+	it("Should return null when the key is an empty string", () => {
+		assert.equal(qs.decode("", "1"), null);
+	});
+	it("Should correctly split deep key", () => {
+		assert.deepStrictEqual(qs.decode("a[b][]", "1"), [["a", "b", ""], 1]);
+	});
 });

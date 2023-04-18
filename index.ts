@@ -107,6 +107,7 @@ export function encode(key: string[], value: any): [key: string, value: string |
  * - If value is `null`, then the parsed value is `true`
  * - If value is number, then it will be casted to `number`
  * - If value is "null", "undefined", "true", "false" then it will be casted to corresponding types
+ * - If key is an empty string, then `null` is returned
  * @param key Raw key to decode.
  * @param value Raw value to decode.
  * @returns 
@@ -117,6 +118,8 @@ export function encode(key: string[], value: any): [key: string, value: string |
  * ```
  */
 export function decode(key: string, value: string | null): [key: string[], value: any] | null {
+	if (!key)
+		return null;
 	return [
 		decodeKey(key),
 		decodeValue(value)
@@ -273,7 +276,7 @@ type Options = {
 	 * parse("a=1&b=2");                              // {a: 1, b: 2}
 	 * ```
 	 */
-	itemDelimiter: string; // TODO: tests
+	itemDelimiter: string;
 
 	/**
 	 * Which char to use as a delimiter between keys and values.
@@ -284,7 +287,7 @@ type Options = {
 	 * parse("a=1&b=2");                               // {a: 1, b: 2}
 	 * ```
 	 */
-	valueDelimiter: string; // TODO: tests
+	valueDelimiter: string;
 }
 
 type StringifyOptions = Options & {
@@ -298,7 +301,7 @@ type StringifyOptions = Options & {
 	 * stringify({a: [1]}, {indices: false}); // "a[]=1"
 	 * ```
 	 */
-	indices: boolean; // TODO: tests
+	indices: boolean;
 
 	/**
 	 * Key-value encoding function that should return both stringified key and value that will be used in the resulting
