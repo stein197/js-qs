@@ -165,6 +165,8 @@ function decodeKey(key: string): string[] {
 			}
 		}
 	}
+	if (inBrace)
+		result[result.length - 2] = result.at(-2) + "[" + result.pop();
 	for (let i = 0; i < result.length; i++) 
 		try {
 			result[i] = decodeURIComponent(result[i]);
@@ -217,7 +219,7 @@ function parseNumber(number: string): number {
 			break;
 		i++;
 	}
-	return (sign || 1) * +number.substring(i);
+	return i ? (sign || 1) * +number.substring(i) : NaN;
 }
 
 function internalStringify(data: any, options: StringifyOptions, keyPath: string[], result: string[]): void {
