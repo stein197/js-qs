@@ -138,29 +138,33 @@ function encodeValue(value: any): string | null {
 
 function decodeKey(key: string): string[] {
 	const result: string[] = [];
-	let curKey: string | null = "";
 	let inBrace = false;
 	for (const char of key) {
-		if (char === "[" && !inBrace)
-			inBrace = true;
-		if (char === "]" && inBrace)
-			inBrace = false;
-		if (char !== "[" && char !== "]") {
-			curKey += char;
-			continue;
+		if (!result.length)
+			result.push("");
+		switch (char) {
+			case "[": {
+				if (inBrace) {
+					result[result.length - 1] += char;
+				} else {
+					result.push("");
+					inBrace = true;
+				}
+				break;
+			}
+			case "]": {
+				if (inBrace) {
+					inBrace = false;
+				} else {
+					result[result.length - 1] += char;
+				}
+				break;
+			}
+			default: {
+				result[result.length - 1] += char;
+			}
 		}
-		if (!inBrace && char === "]" || inBrace && char === "[") {
-			curKey += char;
-			continue;
-		}
-		if (curKey != null)
-			result.push(curKey);
-		curKey = char === "[" ? "" : null;
 	}
-	if (inBrace)
-		result[result.length - 1] = result[result.length - 1] + "[" + (curKey ?? "");
-	else if (curKey != null)
-		result.push(curKey);
 	for (let i = 0; i < result.length; i++) 
 		try {
 			result[i] = decodeURIComponent(result[i]);

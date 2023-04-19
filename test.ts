@@ -576,6 +576,9 @@ describe("decode()", () => {
 		assert.equal(qs.decode("", "1"), null);
 	});
 	it("Should correctly split deep key", () => {
-		assert.deepStrictEqual(qs.decode("a[b][]", "1"), [["a", "b", ""], 1]);
+		assert.deepStrictEqual(qs.decode("a[b]", "1")![0], ["a", "b"]);
+		assert.deepStrictEqual(qs.decode("a[b][]", "1")![0], ["a", "b", ""]);
+		assert.deepStrictEqual(qs.decode("a[]", "1")![0], ["a", ""]);
+		assert.deepStrictEqual(qs.decode("a[][b]", "1")![0], ["a", "", "b"]);
 	});
 });
