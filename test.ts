@@ -266,7 +266,7 @@ describe("stringify()", () => {
 				qs.stringify({a: 1, b: 2, c: {d: {e: 5, f: 6}}}, {
 					encode: tracker.f as any
 				});
-				assert.equal(tracker.calls, [
+				assert.deepStrictEqual(tracker.calls, [
 					[[["a"], 1, 0], ["a", 1]],
 					[[["b"], 2, 1], ["b", 2]],
 					[[["c", "d", "e"], 5, 2], ["c.d.e", 5]],
@@ -407,13 +407,13 @@ describe("parse()", () => {
 		});
 	});
 	it("Should return true for items without values and delimiters", () => {
-		assert.equal(qs.parse("a&b"), {a: true, b: true});
+		assert.deepStrictEqual(qs.parse("a&b"), {a: true, b: true});
 	});
 	it("Should return number when value can be casted to number", () => {
-		assert.equal(qs.parse("a=1"), {a: 1});
+		assert.deepStrictEqual(qs.parse("a=1"), {a: 1});
 	});
 	it("Should return corresponding types when value is undefined, null, true or false", () => {
-		assert.equal(qs.parse("a=undefined&b=null&c=true&d=false"), {a: undefined, b: null, c: true, d: false});
+		assert.deepStrictEqual(qs.parse("a=undefined&b=null&c=true&d=false"), {a: undefined, b: null, c: true, d: false});
 	});
 	it("Should preserve empty values", () => {
 		assert.deepStrictEqual(qs.parse("a=&b="), {a: "", b: ""});
@@ -488,12 +488,12 @@ describe("parse()", () => {
 	describe("Options", () => {
 		describe("itemDelimiter", () => {
 			it("Should use specified item delimiter", () => {
-				assert.equal(qs.parse("a=1;b=2", {itemDelimiter: ";"}), {a: 1, b: 2});
+				assert.deepStrictEqual(qs.parse("a=1;b=2", {itemDelimiter: ";"}), {a: 1, b: 2});
 			});
 		});
 		describe("valueDelimiter", () => {
 			it("Should use specified value delimiter", () => {
-				assert.equal(qs.parse("a:1&b:2", {valueDelimiter: ":"}), {a: 1, b: 2});
+				assert.deepStrictEqual(qs.parse("a:1&b:2", {valueDelimiter: ":"}), {a: 1, b: 2});
 			});
 		});
 		describe("decode", () => {
@@ -502,7 +502,7 @@ describe("parse()", () => {
 				qs.parse("a=1&b=&c[d][e]&c[d][f]=6", {
 					decode: tracker.f as any
 				});
-				assert.equal(tracker.calls, [
+				assert.deepStrictEqual(tracker.calls, [
 					[["a", "1", 0], [["a"], "1"]],
 					[["b", "", 1], [["b"], ""]],
 					[["c[d][e]", null, 2], [["c[d][e]", null]]],
