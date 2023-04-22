@@ -480,15 +480,15 @@ describe("parse()", () => {
 		});
 		describe("decode", () => {
 			it("Should accept correct arguments and be called expected amount of times", () => {
-				const tracker = util.track((k, v) => [[k], v]);
+				const tracker = util.track((k, v,i ) => [[k], v]);
 				qs.parse("a=1&b=&c[d][e]&c[d][f]=6", {
 					decode: tracker.f as any
 				});
 				assert.deepStrictEqual(tracker.calls, [
 					[["a", "1", 0], [["a"], "1"]],
 					[["b", "", 1], [["b"], ""]],
-					[["c[d][e]", null, 2], [["c[d][e]", null]]],
-					[["c[d][f]", "6", 3], [["c[d][f]", "6"]]],
+					[["c[d][e]", null, 2], [["c[d][e]"], null]],
+					[["c[d][f]", "6", 3], [["c[d][f]"], "6"]],
 				]);
 			});
 			it("Should create expected structure", () => {

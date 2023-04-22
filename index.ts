@@ -61,7 +61,7 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
 		const keyvalue = options.decode!(rawKey, rawValue, i);
 		if (!keyvalue)
 			continue;
-		const [keyArray, value] = keyvalue;
+		const [keyArray, value] = [[...keyvalue[0]], keyvalue[1]];
 		let curObj = result;
 		let lastKey = keyArray.pop()!;
 		for (let k of keyArray) {
@@ -240,7 +240,7 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 
 function normalize(data: any): any {
 	const origKeys = Object.keys(data);
-	const numKeys = origKeys.map(key => +key).filter(key => !isNaN(key));
+	const numKeys = origKeys.map(key => Number.parseInt(key)).filter(key => !isNaN(key));
 	const isArray = numKeys.length && numKeys.length === origKeys.length;
 	const result = isArray ? new Array(numKeys.length ? Math.max(...numKeys) + 1 : 0) : data;
 	for (const i in data)
