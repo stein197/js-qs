@@ -189,7 +189,7 @@ function decodeValue(value: string | null): any {
 		case null:
 			return true;
 		default:
-			const numValue = +value;
+			const numValue = Number.parseFloat(value);
 			if (isNaN(numValue))
 				try {
 					return decodeURIComponent(value);

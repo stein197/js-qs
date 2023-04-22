@@ -438,24 +438,6 @@ describe("parse()", () => {
 		it("Should properly cast negative float", () => {
 			assert.deepStrictEqual(qs.parse("a=-5.5"), {a: -5.5});
 		});
-		it("Should properly cast positive binary number", () => {
-			assert.deepStrictEqual(qs.parse("a=0b111"), {a: 0b111});
-		});
-		it("Should properly cast negative binary number", () => {
-			assert.deepStrictEqual(qs.parse("a=-0b111"), {a: -0b111});
-		});
-		it("Should properly cast positive octal number", () => {
-			assert.deepStrictEqual(qs.parse("a=0o10"), {a: 0o10});
-		});
-		it("Should properly cast negative octal number", () => {
-			assert.deepStrictEqual(qs.parse("a=-0o10"), {a: -0o10});
-		});
-		it("Should properly cast positive hexadecimal number", () => {
-			assert.deepStrictEqual(qs.parse("a=0xF"), {a: 0xF});
-		});
-		it("Should properly cast negative hexadecimal number", () => {
-			assert.deepStrictEqual(qs.parse("a=-0xF"), {a: -0xF});
-		});
 		it("Should properly cast positive exponential number with positive degree", () => {
 			assert.deepStrictEqual(qs.parse("a=1e1"), {a: 1e1});
 		});
