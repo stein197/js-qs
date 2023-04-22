@@ -26,9 +26,9 @@ const DEFAULT_OPTIONS_PARSE: ParseOptions = {
  * @throws {@link ReferenceError} When data contains circular references.
  */
 export function stringify(data: any, options: Partial<StringifyOptions> = DEFAULT_OPTIONS_STRINGIFY): string {
-	options = mergeObject(options, DEFAULT_OPTIONS_STRINGIFY)
+	options = mergeObject(options, DEFAULT_OPTIONS_STRINGIFY);
 	const result: string[] = [];
-	internalStringify(data, mergeObject(options, DEFAULT_OPTIONS_STRINGIFY), [], result);
+	internalStringify(data, options as StringifyOptions, [], result);
 	return result.join(options.itemDelimiter);
 }
 
@@ -189,7 +189,7 @@ function decodeValue(value: string | null): any {
 		case null:
 			return true;
 		default:
-			const numValue = parseNumber(value);
+			const numValue = +value;
 			if (isNaN(numValue))
 				try {
 					return decodeURIComponent(value);
@@ -203,23 +203,6 @@ function decodeValue(value: string | null): any {
 function getNextIndex(object: any): number {
 	const indices = Object.keys(object).map(k => +k).filter(k => !isNaN(k));
 	return indices.length ? Math.max(...indices) + 1 : 0;
-}
-
-function parseNumber(number: string): number {
-	let sign = 0;
-	let i = 0;
-	for (const char of number) {
-		if (char === "+" && sign > 0 || char === "-" && sign < 0)
-			return NaN;
-		if (char === "+")
-			sign = 1;
-		else if (char === "-")
-			sign = -1;
-		else
-			break;
-		i++;
-	}
-	return i ? (sign || 1) * +number.substring(i) : NaN;
 }
 
 function internalStringify(data: any, options: StringifyOptions, keyPath: string[], result: string[]): void {

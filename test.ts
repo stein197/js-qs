@@ -418,7 +418,7 @@ describe("parse()", () => {
 	it("Should preserve empty values", () => {
 		assert.deepStrictEqual(qs.parse("a=&b="), {a: "", b: ""});
 	});
-	it("Should not cast space to zero when \"types\" is true", () => {
+	it("Should not cast space to zero", () => {
 		assert.deepStrictEqual(qs.parse("a= "), {a: " "})
 	});
 
