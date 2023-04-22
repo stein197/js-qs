@@ -480,7 +480,7 @@ describe("parse()", () => {
 		});
 		describe("decode", () => {
 			it("Should accept correct arguments and be called expected amount of times", () => {
-				const tracker = util.track((k, v,i ) => [[k], v]);
+				const tracker = util.track((k, v) => [[k], v]);
 				qs.parse("a=1&b=&c[d][e]&c[d][f]=6", {
 					decode: tracker.f as any
 				});
@@ -496,13 +496,15 @@ describe("parse()", () => {
 					decode: (k, v) => {
 						return [
 							k.split("."),
-							v || null
+							v || NaN
 						];
 					}
 				}), {
 					a: "1",
+					b: NaN,
 					c: {
 						d: {
+							e: NaN,
 							f: "6"
 						}
 					}
