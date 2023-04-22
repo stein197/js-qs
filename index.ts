@@ -1,5 +1,6 @@
 import * as utilArray from "@stein197/util/array";
 import * as utilJson from "@stein197/util/json";
+import * as utilString from "@stein197/util/string";
 import type * as type from "@stein197/type";
 
 const DEFAULT_OPTIONS: Options = {
@@ -109,6 +110,7 @@ export function encode(key: string[], value: any): [key: string, value: string |
  * - If value is number, then it will be casted to `number`
  * - If value is "null", "undefined", "true", "false" then it will be casted to corresponding types
  * - If key is an empty string, then `null` is returned
+ * - If key is "y", "yes", "on" or any contrary, then boolean is returned
  * @param key Raw key to decode.
  * @param value Raw value to decode.
  * @returns 
@@ -192,6 +194,9 @@ function decodeValue(value: string | null): any {
 			const numValue = Number.parseFloat(value);
 			if (isNaN(numValue))
 				try {
+					const boolValue = utilString.toBoolean(value);
+					if (boolValue != null)
+						return boolValue;
 					return decodeURIComponent(value);
 				} catch {
 					return value;

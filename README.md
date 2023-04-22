@@ -2,21 +2,20 @@
 [![](https://img.shields.io/npm/v/@stein197/qs)](https://www.npmjs.com/package/@stein197/qs)
 [![](https://img.shields.io/github/license/stein197/js-qs)](LICENSE)
 
-This module is useful for parsing URL query string into JS objects and stringifying them back to a query string. The package is much simpler than [qs](https://github.com/ljharb/qs) one, does not support different encodings, but has the most needed features and a few that that package does not. The package primarily aims to be as most close to PHP's query string representation as possible.
+URL Query string parser and stringifyer. The package allows to customize parsing and stringifying process.
 
 ## Installation
 ```
 npm install @stein197/qs
 ```
-```ts
-import * as qs from "@stein197/qs";
-```
 
 ## Usage
-The module exports only two functions - `stringify()` and `parse()` and both of them accept two arguments - object to parse/stringify and options. Example:
+Here is the example of simple usage:
 ```ts
-qs.stringify({key: "value", object: {a: 1, b: null}}, {nulls: false}); // "key=value&object[a]=1"
-qs.parse("key=value&object[a]=1", {types: true}); // {key: "value", object: {a: 1}}
+import * as qs from "@stein197/qs";
+
+qs.stringify({a: 1, b: 2}); // "a=1&b=2"
+qs.parse("a=1&b=2");        // {a: 1, b: 2}
 ```
 
 ## Key features
@@ -24,18 +23,16 @@ qs.parse("key=value&object[a]=1", {types: true}); // {key: "value", object: {a: 
 - [Omitting redundant indices](#omitting-redundant-indices)
 - [Inferring arrays where possible](#inferring-arrays-where-possible)
 - [Inferring primitive types where possible](#inferring-primitive-types-where-possible)
-- [Discarding empty values](#discarding-empty-values)
 - [Inferring flags](#inferring-flags)
-- [Encoding special chars in keys and values](#encoding-special-chars-in-keys-and-values)
-- [Decoding of percent-encoded characters](#decoding-of-percent-encoded-characters)
+- [Encoding and decoding](#encoding-and-decoding)
 - [Sparse arrays support](#sparse-arrays-support)
-- [Custom value decoder](#custom-value-decoder)
+- [Custom encoders and decoders](#custom-encoders-and-decoders)
 
 ### Nesting structures support
 You can pass to both functions complex structures, which includes objects and arrays:
 ```ts
-qs.stringify({a: {b: 2}}); // "a[b]=2"
 qs.parse("a[b]=2");        // {a: {b: 2}}
+qs.stringify({a: {b: 2}}); // "a[b]=2"
 ```
 The complexity of structures is unlimited - you can parse/stringify structures of any depth and type (object or array)
 
@@ -55,38 +52,23 @@ qs.parse("a[0]=1"); // {a: [1]}
 Arrays could be inferred from more deep structures.
 
 ### Inferring primitive types where possible
-Values could be casted to a corresponding type (undefined, null, boolean or number) where possible. You can disable this option by providing `types` option with `false` value. You can do this with [qs](https://github.com/ljharb/qs) but here it's embedded.
+By default, `parse()` function will try to cast string values to corresponding types where possible (undefined, null, boolean or number).
 ```ts
 qs.parse("a=undefined&b=null&c=false&d=-1"); // {a: undefined, b: null, c: false, d: -1}
 ```
 
-### Discarding empty values
-By default, both functions discard empty values:
-```ts
-qs.parse("a=");        // {}
-qs.stringify({a: ""}); // ""
-```
-To disable the option, pass `empty` option with `true` value.
-
 ### Inferring flags
-It's rather specific option. If the key does not have both value and equal sign, then the entry will have `true` value. Otherwise is correct too:
+When an item doesn't have both value and separator, then `true` is returned for this specific key:
 ```ts
 qs.parse("a=1&b"); // {a: 1, b: true}
 qs.stringify({a: 1, b: true}); "a=1&b"
 ```
-To disable the option, pass `flags` option with `false` value
 
-### Encoding special chars in keys and values
-When stringifying, special characters in keys and values will be percent-encoded:
-```ts
-qs.stringify({a: "&"}); // "a=%26"
-```
-One of the difference is that this package does not encode square braces while [qs](https://github.com/ljharb/qs) does.
-
-### Decoding of percent-encoded characters
-When parsing, percent-encoded characters will be automatically decoded when possible:
+### Encoding and decoding
+When parsing and stringifying, special characters will be percent-encoded/decoded:
 ```ts
 qs.parse("a=%20"); // {a: " "}
+qs.stringify({a: "&"}); // "a=%26"
 ```
 
 ### Sparse arrays support
@@ -95,36 +77,33 @@ Since the package supports arrays, it supports sparse ones:
 qs.parse("a[1]=1");       // {a: [, 1]}
 qs.stringify({a: [, 1]}); // "a[1]=1"
 ```
-The [qs](https://github.com/ljharb/qs) package supports this only for stringifying function.
 
-### Custom value decoder
-If you want to provice custom value decoder, pass `decodeValue` function to `parse()` function:
+### Custom encoders and decoders
+If it's not enough, then you can provide an encoder and a decoder down to both functions like as follows:
 ```ts
-parse("a=1&b=2", {decodeValue: (key, value, index) => value * 2}); // {a: 2, b: 4}
+qs.parse("a.b=1&a.c=2", {
+	decode: (rawKey: string, rawValue: string, index: number) => {
+		return [
+			rawKey.toUpperCase().split("."),
+			rawValue * index
+		]
+	}
+}); // {A: {B: 0, C: 2}}
+qs.stringify({a: {b: 1, c: 2}}, {
+	encode: (keyPath: string[], value: any, index: number) => {
+		return [
+			keyPath.join(".").toUpperCase(),
+			String(value * index)
+		]
+	}
+}); // "A.B=0&A.C=2"
 ```
-The function accepts three arguments: raw key of a query entry, parsed value of a query entry and the index of a query entry.
+To get more information on how this works, please refer to the documentation in the source code.
 
 ## API
-| Function | Description |
-|----------|-------------|
-| `stringify(data: any, options: Partial<StringifyOptions>): string` | Stringifies an object or array to a query string |
-| `parse<T>(data: string, options: Partial<ParseOptions>): T` | Parses the given string into an object |
-
-> For more information, please refer the documentation in source code.
-
-## Options
-| Option | Type | Description |
-|--------|------|-------------|
-| `empty` | boolean | Preserves entries with empty values if `true` |
-| `indices` | boolean | Outputs indices for arrays if `true` |
-| `flags` | boolean | Converts entries with `true` values as a query flag |
-| `nulls` | boolean | Stringifies `null` and `undefined` values if `true` |
-| `encodeKeys` | boolean | Encodes keys in percent notation |
-| `encodeValues` | boolean | Encodes values in percent notation |
-| `decodeValue` | (key: string, value: undefined | null | boolean | number | string, index: number): any | Function that should return custom value for each entry |
-
-> For more information, please refer the documentation in source code.
+> For more information, please refer to the documentation in source code.
 
 ## NPM scripts
+- `clean` - removes compiled files
 - `build` - builds the project
 - `test` - runs unit tests

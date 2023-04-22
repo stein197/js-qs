@@ -421,6 +421,16 @@ describe("parse()", () => {
 	it("Should not cast space to zero", () => {
 		assert.deepStrictEqual(qs.parse("a= "), {a: " "})
 	});
+	it("Should cast y, yes, on and true and their contraries to boolean", () => {
+		assert.deepStrictEqual(qs.parse("a=y"), {a: true});
+		assert.deepStrictEqual(qs.parse("a=yes"), {a: true});
+		assert.deepStrictEqual(qs.parse("a=on"), {a: true});
+		assert.deepStrictEqual(qs.parse("a=true"), {a: true});
+		assert.deepStrictEqual(qs.parse("a=n"), {a: false});
+		assert.deepStrictEqual(qs.parse("a=no"), {a: false});
+		assert.deepStrictEqual(qs.parse("a=off"), {a: false});
+		assert.deepStrictEqual(qs.parse("a=false"), {a: false});
+	});
 
 	describe("Casting numbers", () => {
 		it("Should properly cast zero", () => {
