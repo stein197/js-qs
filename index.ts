@@ -155,11 +155,10 @@ function decodeKey(key: string): string[] {
 				break;
 			}
 			case "]": {
-				if (inBrace) {
+				if (inBrace) 
 					inBrace = false;
-				} else {
+				else
 					result[result.length - 1] += char;
-				}
 				break;
 			}
 			default: {
@@ -178,30 +177,26 @@ function decodeKey(key: string): string[] {
 
 function decodeValue(value: string | null): any {
 	switch (value) {
+		case null:
+			return true;
 		case "":
 			return "";
 		case "undefined":
 			return undefined;
 		case "null":
 			return null;
-		case "true":
-			return true;
-		case "false":
-			return false;
-		case null:
-			return true;
 		default:
 			const numValue = Number.parseFloat(value);
-			if (isNaN(numValue))
-				try {
-					const boolValue = utilString.toBoolean(value);
-					if (boolValue != null)
-						return boolValue;
-					return decodeURIComponent(value);
-				} catch {
-					return value;
-				}
-			return numValue;
+			if (!isNaN(numValue))
+				return numValue;
+			const boolValue = utilString.toBoolean(value);
+			if (boolValue != null)
+				return boolValue;
+			try {
+				return decodeURIComponent(value);
+			} catch {
+				return value;
+			}
 	}
 }
 
