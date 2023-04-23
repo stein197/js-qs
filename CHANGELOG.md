@@ -1,5 +1,5 @@
 # CHANGELOG
-## [2.0.0](../../compare/1.1.0..2.0.0) - XXXX-XX-XX
+## [2.0.0](../../compare/1.1.0..2.0.0) - 2023-04-23
 ### Added
 - Generic return type for `parse()`
 - `encode()` and `decode()` functions
