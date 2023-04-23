@@ -2,7 +2,7 @@
 [![](https://img.shields.io/npm/v/@stein197/qs)](https://www.npmjs.com/package/@stein197/qs)
 [![](https://img.shields.io/github/license/stein197/js-qs)](LICENSE)
 
-URL Query string parser and stringifyer. The package allows to customize parsing and stringifying process.
+URL Query string parser and stringifier. The package allows to customize parsing and stringifying process.
 
 ## Installation
 ```
