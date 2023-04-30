@@ -228,7 +228,7 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 	if (!isObject && !isArray)
 		return false;
 	const keys = Object.keys(data);
-	const isSparse = isArray && utilArray.sparse(data);
+	const isSparse = isArray && utilArray.isSparse(data);
 	const isComplex = deep ? isObject && keys.length > 1 || isArray && data.length > 1 && (!isSparse || isSparse && keys.length > 1) : isObject || isArray && isSparse;
 	if (isComplex)
 		return true;

@@ -1,11 +1,12 @@
 {
   "name": "@stein197/qs",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Query string parser",
   "main": "index.js",
   "scripts": {
     "clean": "del .\\*.js .\\*.d.ts .\\*.map 2>nul",
     "build": "tsc",
+    "pretest": "npm run clean",
     "test": "ts-mocha test.ts"
   },
   "repository": {
@@ -31,6 +32,6 @@
   },
   "dependencies": {
     "@stein197/type": "^2.0.0",
-    "@stein197/util": "^1.25.0"
+    "@stein197/util": "^1.26.0"
   }
 }

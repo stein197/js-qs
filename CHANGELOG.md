@@ -1,4 +1,9 @@
 # CHANGELOG
+
+## [2.0.1](../../compare/2.0.0..2.0.1) - 2023-04-30
+### Fixed
+- Fixed `sparse() is not a function` error. Updated the `@stein197/util` dependency
+
 ## [2.0.0](../../compare/1.1.0..2.0.0) - 2023-04-23
 ### Added
 - Generic return type for `parse()`
