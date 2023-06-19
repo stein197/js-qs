@@ -304,18 +304,23 @@ type StringifyOptions = Options & {
 	 * @param index Zero-based position index.
 	 * @returns A key-value pair that will be used as a final key and value for the query string or null to skip.
 	 * @example
+	 * The following function is called 5 times and the whole code returns `A.B.C=0&A.B.D=4&A.B.E=&A.B.F` as a result:
+	 * 
+	 * | k                 | v      | i   | Return result     |
+	 * |-------------------|--------|-----|-------------------|
+	 * | `["a", "b", "c"]` | `3`    | `0` | `["A.B.C", "0"]`  |
+	 * | `["a", "b", "d"]` | `4`    | `1` | `["A.B.D", "4"]`  |
+	 * | `["a", "b", "e"]` | `""`   | `2` | `["A.B.E", ""]`   |
+	 * | `["a", "b", "f"]` | `null` | `3` | `["A.B.F", null]` |
+	 * | `["a", "b", "g"]` | `NaN`  | `4` | `null`            |
+	 * 
 	 * ```ts
-	 * // The following code has two calls of the functions and accepted the next arguments:
-	 * // | k               | v | i |
-	 * // |-----------------|---|---|
-	 * // | ["a", "b", "c"] | 3 | 0 |
-	 * // | ["a", "b", "d"] | 4 | 1 |
-	 * stringify({a: {b: {c: 3, d: 4}}}, {
-	 * 	encode: (k, v, i) => [
+	 * stringify({a: {b: {c: 3, d: 4, e: "", f: null, g: NaN}}}, {
+	 * 	encode: (k, v, i) => isNaN(v) ? null : [
 	 * 		k.map(k => k.toUpperCase()).join("."),
-	 * 		v * i
+	 * 		v ? v * i : v
 	 * 	]
-	 * }); // "A.B.C=0&A.B.D=4"
+	 * }); // "A.B.C=0&A.B.D=4&A.B.E=&A.B.F"
 	 * ```
 	 */
 	encode(key: string[], value: any, index: number): [key: string, value: string | null] | null;
@@ -335,17 +340,21 @@ type ParseOptions = Options & {
 	 * @param index Zero-based position index.
 	 * @return A key-value pair that will be used as a final key path for the query object or null to skip.
 	 * @example
+	 * The following function is called 3 times and the whole code returns `{A: {B: {C: [1, 2, 3], D: ""}}}` as a result:
+	 * 
+	 * | k         | v         | i   | Return result                  |
+	 * |-----------|-----------|-----|--------------------------------|
+	 * | `"a.b.c"` | `"1,2,3"` | `0` | `[["A", "B", "C"], [1, 2, 3]]` |
+	 * | `"a.b.d"` | `""`      | `1` | `[["A", "B", "D"], ""]`        |
+	 * | `"a.b.e"` | `null`    | `2` | `null`                         |
+	 * 
 	 * ```ts
-	 * // The following code has only one call of the function and accepted the next arguments:
-	 * // | k       | v       | i |
-	 * // |---------|---------|---|
-	 * // | "a.b.c" | "1,2,3" | 0 |
-	 * parse("a.b.c=1,2,3", {
-	 * 	decode: (k, v, i) => [
+	 * parse("a.b.c=1,2,3&a.b.d=&a.b.e", {
+	 * 	decode: (k, v, i) => v == null ? null : [
 	 * 		k.toUpperCase().split("."),
-	 * 		v.split(",").map(n => +n)
+	 * 		v.indexOf(",") >= 0 ? v.split(",").map(n => +n) : v
 	 * 	]
-	 * }); // {A: {B: {C: [1, 2, 3]}}}
+	 * }); // {A: {B: {C: [1, 2, 3], D: ""}}}
 	 * ```
 	 */
 	decode(key: string, value: string | null, index: number): [key: string[], value: any] | null;
