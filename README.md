@@ -104,6 +104,7 @@ To get more information on how this works, please refer to the documentation in 
 > For more information, please refer to the documentation in source code.
 
 ## NPM scripts
-- `clean` - removes compiled files
-- `build` - builds the project
-- `test` - runs unit tests
+- `clean`. Remove compiled files
+- `build`. Build the project
+- `browserify`. Create `qs.min.js` file to include directly via `<script />` tags
+- `test`. Runs unit tests
