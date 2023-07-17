@@ -109,4 +109,5 @@ To get more information on how this works, please refer to the documentation in 
 - `clean`. Remove compiled files
 - `test`. Run unit tests
 - `ts`. Compile the project
+- `ts:check`. Validate source code for compilation
 
