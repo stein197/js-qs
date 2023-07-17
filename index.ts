@@ -54,6 +54,7 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
 	options = mergeObject(options, DEFAULT_OPTIONS_PARSE);
 	const result: any = {};
 	const entries = data.split(options.itemDelimiter!).filter(item => item);
+	const values: any[] = [];
 	for (let i = 0, item = entries[i]; i < entries.length; i++, item = entries[i]) {
 		const [rawKey, ...valueArray] = item.split(options.valueDelimiter!);
 		if (!rawKey)
@@ -73,8 +74,9 @@ export function parse<T>(data: string, options: Partial<ParseOptions> = DEFAULT_
 		}
 		lastKey = lastKey || getNextIndex(curObj).toString();
 		curObj[lastKey] = value;
+		values.push(value);
 	}
-	return normalize(result);
+	return normalize(result, values);
 }
 
 /**
@@ -238,13 +240,15 @@ function shouldUseIndex(data: any, deep: boolean): boolean {
 	return false;
 }
 
-function normalize(data: any): any {
+function normalize(data: any, values: any[]): any {
+	if (values.includes(data))
+		return data;
 	const origKeys = Object.keys(data);
 	const numKeys = origKeys.map(key => Number.parseInt(key)).filter(key => !isNaN(key));
 	const isArray = numKeys.length && numKeys.length === origKeys.length;
 	const result = isArray ? new Array(numKeys.length ? Math.max(...numKeys) + 1 : 0) : data;
 	for (const i in data)
-		result[i] = typeof data[i] === "object" && data[i] != null ? normalize(data[i]) : data[i];
+		result[i] = typeof data[i] === "object" && data[i] != null ? normalize(data[i], values) : data[i];
 	return result;
 }
 
