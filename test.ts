@@ -525,6 +525,14 @@ describe("parse()", () => {
 					decode: () => null
 				}), {});
 			});
+			it("Shouldn't cast values returned by the callback", () => {
+				assert.deepStrictEqual(qs.parse("a=1", {
+					decode: (k, v) => [[k], {0: v}]
+				}), {a: {0: "1"}});
+				assert.deepStrictEqual(qs.parse("a=https://domain.com", {
+					decode: (k, v) => [[k], new URL(v)]
+				}), {a: new URL("https://domain.com")});
+			});
 		});
 	});
 });
