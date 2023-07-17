@@ -1,6 +1,6 @@
-import * as utilArray from "@stein197/util/array";
-import * as utilJson from "@stein197/util/json";
-import * as utilString from "@stein197/util/string";
+import * as array from "@stein197/util/array";
+import * as json from "@stein197/util/json";
+import * as string from "@stein197/util/string";
 import type * as type from "@stein197/type";
 
 const DEFAULT_OPTIONS: Options = {
@@ -232,7 +232,7 @@ export function decodeValue(value: string | null): any {
 			const numValue = Number.parseFloat(value);
 			if (!isNaN(numValue))
 				return numValue;
-			const boolValue = utilString.toBoolean(value);
+			const boolValue = string.toBoolean(value);
 			if (boolValue != null)
 				return boolValue;
 			try {
@@ -266,12 +266,12 @@ function internalStringify(data: any, options: StringifyOptions, keyPath: string
 }
 
 function shouldUseIndex(data: any, deep: boolean): boolean {
-	const isObject = utilJson.isObject(data);
-	const isArray = utilJson.isArray(data);
+	const isObject = json.isObject(data);
+	const isArray = json.isArray(data);
 	if (!isObject && !isArray)
 		return false;
 	const keys = Object.keys(data);
-	const isSparse = isArray && utilArray.isSparse(data);
+	const isSparse = isArray && array.isSparse(data);
 	const isComplex = deep ? isObject && keys.length > 1 || isArray && data.length > 1 && (!isSparse || isSparse && keys.length > 1) : isObject || isArray && isSparse;
 	if (isComplex)
 		return true;
