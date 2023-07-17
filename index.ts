@@ -129,16 +129,48 @@ export function decode(key: string, value: string | null): [key: string[], value
 	];
 }
 
-function encodeKey(key: string[]): string {
+/**
+ * Encodes an array of strings into a key.
+ * @param key Key to encode.
+ * @returns Encoded key.
+ * @example
+ * ```ts
+ * encodeKey(["a"]);          // "a"
+ * encodeKey(["a", "b"]);     // "a[b]"
+ * encodeKey(["a", "b", ""]); // "a[b][]"
+ * ```
+ */
+export function encodeKey(key: string[]): string {
 	const firstItem = encodeURIComponent(key[0]);
 	return key.length === 1 ? firstItem : firstItem + `[${key.slice(1).map(item => encodeURIComponent(item)).join("][")}]`;
 }
 
-function encodeValue(value: any): string | null {
+/**
+ * Encodes a value into a string or null.
+ * @param value Value to encode.
+ * @returns Encoded value or null.
+ * ```ts
+ * encodeValue(true);     // null
+ * encodeValue(10);       // "10"
+ * encodeValue("string"); // "string"
+ * ```
+ */
+export function encodeValue(value: any): string | null {
 	return value === true ? null : value == null ? "" : encodeURIComponent(value.toString());
 }
 
-function decodeKey(key: string): string[] {
+/**
+ * Decodes a key into a path array.
+ * @param key Key to decode.
+ * @returns Path array.
+ * @example
+ * ```ts
+ * decodeKey("a");      // ["a"]
+ * decodeKey("a[b]");   // ["a", "b"]
+ * decodeKey("a[b][]"); // ["a", "b", ""]
+ * ```
+ */
+export function decodeKey(key: string): string[] {
 	const result: string[] = [];
 	let inBrace = false;
 	for (const char of key) {
@@ -175,7 +207,18 @@ function decodeKey(key: string): string[] {
 	return result;
 }
 
-function decodeValue(value: string | null): any {
+/**
+ * Decodes a string value into a custom data.
+ * @param value Value to decode.
+ * @returns Decoded value.
+ * @example
+ * ```ts
+ * decodeValue("string"); // "string"
+ * decodeValue("yes");    // true
+ * decodeValue("10");     // 10
+ * ```
+ */
+export function decodeValue(value: string | null): any {
 	switch (value) {
 		case null:
 			return true;

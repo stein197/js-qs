@@ -576,3 +576,11 @@ describe("decode()", () => {
 		assert.deepStrictEqual(qs.decode("a[][b]", "1")![0], ["a", "", "b"]);
 	});
 });
+
+describe.skip("encodeKey()", () => {});
+
+describe.skip("encodeValue()", () => {});
+
+describe.skip("decodeKey()", () => {});
+
+describe.skip("decodeValue()", () => {});
