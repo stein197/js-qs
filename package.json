@@ -9,7 +9,8 @@
     "clean": "rimraf --glob ./*.js ./*.d.ts ./*.map",
     "test": "ts-mocha test.ts",
     "ts": "tsc",
-	"prepublishOnly": "npm run build"
+    "ts:check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
