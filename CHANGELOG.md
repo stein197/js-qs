@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [2.0.2](../../compare/2.0.1..2.0.2) - 2023-07-17
+### Fixed
+- `parse()` handling objects returned by `decode()` callback
+
 ## [2.0.1](../../compare/2.0.0..2.0.1) - 2023-04-30
 ### Fixed
 - Fixed `sparse() is not a function` error. Updated the `@stein197/util` dependency
