@@ -577,10 +577,45 @@ describe("decode()", () => {
 	});
 });
 
-describe.skip("encodeKey()", () => {});
+describe("encodeKey()", () => {
+	it("Should return an empty string when the array is empty", () => {
+		assert.equal(qs.encodeKey([]), "");
+	});
+	it("Should return an empty string when the array has only empty string", () => {
+		assert.equal(qs.encodeKey([""]), "");
+	});
+	it("Should return correct result", () => {
+		assert.equal(qs.encodeKey(["a"]), "a");
+		assert.equal(qs.encodeKey(["a", "b"]), "a[b]");
+		assert.equal(qs.encodeKey(["a", "b", ""]), "a[b][]");
+	});
+});
 
-describe.skip("encodeValue()", () => {});
+describe("encodeValue()", () => {
+	it("Should return null when the value is true", () => {
+		assert.equal(qs.encodeValue(true), null);
+	});
+	it("Should return correct result", () => {
+		assert.equal(qs.encodeValue(1), "1");
+		assert.equal(qs.encodeValue("string"), "string");
+	});
+});
 
-describe.skip("decodeKey()", () => {});
+describe("decodeKey()", () => {
+	it("Should return an empty array when the string is empty", () => {
+		assert.deepStrictEqual(qs.decodeKey(""), []);
+	});
+	it("Should return correct result", () => {
+		assert.deepStrictEqual(qs.decodeKey("a"), ["a"]);
+		assert.deepStrictEqual(qs.decodeKey("a[b]"), ["a", "b"]);
+		assert.deepStrictEqual(qs.decodeKey("a[b][]"), ["a", "b", ""]);
+	});
+});
 
-describe.skip("decodeValue()", () => {});
+describe("decodeValue()", () => {
+	it("Should return correct value", () => {
+		assert.equal(qs.decodeValue("string"), "string");
+		assert.equal(qs.decodeValue("yes"), true);
+		assert.equal(qs.decodeValue("10"), 10);
+	});
+});
