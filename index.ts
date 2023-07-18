@@ -141,6 +141,8 @@ export function decode(key: string, value: string | null): [key: string[], value
  * ```
  */
 export function encodeKey(key: string[]): string {
+	if (!key.length)
+		return "";
 	const firstItem = encodeURIComponent(key[0]);
 	return key.length === 1 ? firstItem : firstItem + `[${key.slice(1).map(item => encodeURIComponent(item)).join("][")}]`;
 }
