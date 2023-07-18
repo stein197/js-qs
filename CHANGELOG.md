@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [2.1.0](../../compare/2.0.2..2.1.0) - 2023-07-18
+### Added
+- Exposed `encodeKey()`, `encodeValue()`, `decodeKey()`, `decodeValue()` functions
+- `ts:check` npm script
+
 ## [2.0.2](../../compare/2.0.1..2.0.2) - 2023-07-17
 ### Fixed
 - `parse()` handling objects returned by `decode()` callback
